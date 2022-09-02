@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 
 const Home: NextPage = () => {
   return (
@@ -13,8 +12,6 @@ const Home: NextPage = () => {
 
       <main>
         <h1>dailyfj</h1>
-
-
       </main>
 
       <footer>
