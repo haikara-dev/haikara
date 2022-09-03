@@ -1,0 +1,4 @@
+*.iml
+.env
+google-application-credentials.json
+*.log
