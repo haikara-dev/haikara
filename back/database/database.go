@@ -10,11 +10,11 @@ import (
 	"time"
 )
 
-var client *ent.Client
+var Client *ent.Client
 
 func dbConnect(dsn string, retryCount uint) (err error) {
 	for retryCount > 1 {
-		if client, err = ent.Open("mysql", dsn); err != nil {
+		if Client, err = ent.Open("mysql", dsn); err != nil {
 			time.Sleep(time.Second * 2)
 			retryCount--
 			log.Printf("retry... count:%v\n", retryCount)
@@ -27,7 +27,7 @@ func dbConnect(dsn string, retryCount uint) (err error) {
 
 func dbMigration(retryCount uint) (err error) {
 	for retryCount > 1 {
-		if err = client.Schema.Create(context.Background()); err != nil {
+		if err = Client.Schema.Create(context.Background()); err != nil {
 			time.Sleep(time.Second * 2)
 			retryCount--
 			log.Printf("retry... count:%v\n", retryCount)
@@ -57,5 +57,5 @@ func Init() {
 }
 
 func Close() {
-	_ = client.Close()
+	_ = Client.Close()
 }

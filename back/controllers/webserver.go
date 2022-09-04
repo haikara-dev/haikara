@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"github.com/cubdesign/dailyfj/api"
 	todoConfig "github.com/cubdesign/dailyfj/config"
+	"github.com/cubdesign/dailyfj/database"
 	"github.com/cubdesign/dailyfj/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -32,11 +34,22 @@ func StartWebserver() {
 
 	r.GET("/health-check", healthCheck)
 
+	apiUserHandler := api.UserHandler{
+		Client: database.Client,
+	}
+
 	authorized := r.Group("/api")
 	authorized.Use(middleware.AuthMiddleware())
 	{
+		authorized.POST("/user/create", apiUserHandler.CreateUserByUUID)
 		authorized.GET("/authorized", authorizedApi)
 	}
+
+	//r.GET("/user", apiUserHandler.GetAllUsers)
+	//r.POST("/user", apiUserHandler.CreateUser)
+	//r.GET("/user/:id", apiUserHandler.GetUser)
+	//r.PUT("/user/:id", apiUserHandler.UpdateUser)
+	//r.DELETE("/user/:id", apiUserHandler.DeleteUser)
 
 	r.Run(":" + todoConfig.Config.Port)
 
