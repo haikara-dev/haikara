@@ -1,7 +1,17 @@
-import type { AppProps } from 'next/app'
+import type { AppProps } from "next/app";
+import { CssBaseline } from "@mui/material";
+import AuthUserProvider from "@/lib/AuthUser";
+import "../firebaseConfig";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return (
+    <>
+      <CssBaseline />
+      <AuthUserProvider>
+        <Component {...pageProps} />
+      </AuthUserProvider>
+    </>
+  );
 }
 
-export default MyApp
+export default MyApp;

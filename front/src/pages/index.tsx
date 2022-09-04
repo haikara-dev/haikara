@@ -1,7 +1,7 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-
-
+import type { NextPage } from "next";
+import Head from "next/head";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const Home: NextPage = () => {
   return (
@@ -11,22 +11,13 @@ const Home: NextPage = () => {
         <meta name="description" content="dailyfj" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
+      <Header />
       <main>
         <h1>dailyfj</h1>
       </main>
-
-      <footer>
-        <a
-          href="https://cubdesign.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          ©︎cubdesign
-        </a>
-      </footer>
+      <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
