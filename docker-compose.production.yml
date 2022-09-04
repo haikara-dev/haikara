@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:latest
+    #    restart: on-failure
+    container_name: dailyfj_mysql_container
+    environment:
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      TZ: "Asia/Tokyo"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - back_bridge
+
+networks:
+  back_bridge:
+    external: true
+
+volumes:
+  mysql-data:
