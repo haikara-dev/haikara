@@ -8,6 +8,7 @@ import (
 )
 
 type ConfigList struct {
+	Port    string
 	LogFile string
 	CORS    []string
 }
@@ -26,6 +27,7 @@ func init() {
 	}
 
 	Config = ConfigList{
+		Port:    os.Getenv("PORT"),
 		LogFile: os.Getenv("LOG_FILE"),
 		CORS:    cors,
 	}
