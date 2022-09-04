@@ -8,9 +8,15 @@ import (
 )
 
 type ConfigList struct {
-	Port    string
 	LogFile string
-	CORS    []string
+
+	DbHost     string
+	DbUser     string
+	DbPassword string
+	DbName     string
+
+	Port string
+	CORS []string
 }
 
 var Config ConfigList
@@ -27,8 +33,12 @@ func init() {
 	}
 
 	Config = ConfigList{
-		Port:    os.Getenv("PORT"),
-		LogFile: os.Getenv("LOG_FILE"),
-		CORS:    cors,
+		LogFile:    os.Getenv("LOG_FILE"),
+		DbHost:     os.Getenv("DB_HOST"),
+		DbName:     os.Getenv("DB_NAME"),
+		DbUser:     os.Getenv("DB_USER"),
+		DbPassword: os.Getenv("DB_PASSWORD"),
+		Port:       os.Getenv("PORT"),
+		CORS:       cors,
 	}
 }
