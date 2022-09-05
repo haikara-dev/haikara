@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cubdesign/dailyfj/ent/schema"
+	"github.com/cubdesign/dailyfj/ent/site"
 	"github.com/cubdesign/dailyfj/ent/user"
 )
 
@@ -13,6 +14,33 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	siteMixin := schema.Site{}.Mixin()
+	siteMixinFields0 := siteMixin[0].Fields()
+	_ = siteMixinFields0
+	siteFields := schema.Site{}.Fields()
+	_ = siteFields
+	// siteDescCreatedAt is the schema descriptor for created_at field.
+	siteDescCreatedAt := siteMixinFields0[0].Descriptor()
+	// site.DefaultCreatedAt holds the default value on creation for the created_at field.
+	site.DefaultCreatedAt = siteDescCreatedAt.Default.(func() time.Time)
+	// siteDescUpdatedAt is the schema descriptor for updated_at field.
+	siteDescUpdatedAt := siteMixinFields0[1].Descriptor()
+	// site.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	site.DefaultUpdatedAt = siteDescUpdatedAt.Default.(func() time.Time)
+	// site.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	site.UpdateDefaultUpdatedAt = siteDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// siteDescName is the schema descriptor for name field.
+	siteDescName := siteFields[0].Descriptor()
+	// site.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	site.NameValidator = siteDescName.Validators[0].(func(string) error)
+	// siteDescURL is the schema descriptor for url field.
+	siteDescURL := siteFields[1].Descriptor()
+	// site.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	site.URLValidator = siteDescURL.Validators[0].(func(string) error)
+	// siteDescActive is the schema descriptor for active field.
+	siteDescActive := siteFields[2].Descriptor()
+	// site.DefaultActive holds the default value on creation for the active field.
+	site.DefaultActive = siteDescActive.Default.(bool)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0

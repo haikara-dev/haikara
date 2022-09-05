@@ -17,12 +17,6 @@ func healthCheck(c *gin.Context) {
 	})
 }
 
-func authorizedApi(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "OK",
-	})
-}
-
 func StartWebserver() {
 	r := gin.Default()
 
@@ -38,11 +32,23 @@ func StartWebserver() {
 		Client: database.Client,
 	}
 
+	apiSiteHandler := api.SiteHandler{
+		Client: database.Client,
+	}
+
 	authorized := r.Group("/api")
 	authorized.Use(middleware.AuthMiddleware())
 	{
 		authorized.POST("/user/create", apiUserHandler.CreateUserByUUID)
-		authorized.GET("/authorized", authorizedApi)
+
+		authorized.GET("/site", apiSiteHandler.GetAllSites)
+		authorized.POST("/site", apiSiteHandler.CreateSite)
+		authorized.GET("/site/:id", apiSiteHandler.GetSite)
+		authorized.PUT("/site/:id", apiSiteHandler.UpdateSite)
+		authorized.DELETE("/site/:id", apiSiteHandler.DeleteSite)
+		authorized.PATCH("/site/active/:id", apiSiteHandler.ActiveSite)
+		authorized.PATCH("/site/deActive/:id", apiSiteHandler.DeActiveSite)
+
 	}
 
 	//r.GET("/user", apiUserHandler.GetAllUsers)
