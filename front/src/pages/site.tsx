@@ -42,6 +42,7 @@ const Sites: NextPage = () => {
 
   const handleEditClose = () => {
     setEditOpen(false);
+    setEditTarget(null);
   };
 
   const getRequestHeaders = async () => {
