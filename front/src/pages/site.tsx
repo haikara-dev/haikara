@@ -54,7 +54,7 @@ const Sites: NextPage = () => {
   const loadData = async () => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_API_URL + "/site", {
+      const res = await fetch(BACKEND_API_URL + "/sites", {
         method: "GET",
         headers: headers,
       });
@@ -70,7 +70,7 @@ const Sites: NextPage = () => {
   const addSite = async (name: string, url: string) => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_API_URL + "/site", {
+      const res = await fetch(BACKEND_API_URL + "/sites", {
         method: "POST",
         headers: {
           ...headers,
@@ -95,7 +95,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/site/active/"),
+        new URL(id.toString(), BACKEND_API_URL + "/sites/active/"),
         {
           method: "PATCH",
           headers: {
@@ -120,7 +120,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/site/deActive/"),
+        new URL(id.toString(), BACKEND_API_URL + "/sites/deActive/"),
         {
           method: "PATCH",
           headers: {
@@ -145,7 +145,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/site/"),
+        new URL(id.toString(), BACKEND_API_URL + "/sites/"),
         {
           method: "DELETE",
           headers: {
@@ -172,7 +172,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/site/"),
+        new URL(id.toString(), BACKEND_API_URL + "/sites/"),
         {
           method: "PUT",
           headers: {

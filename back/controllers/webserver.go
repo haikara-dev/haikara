@@ -18,6 +18,19 @@ func healthCheck(c *gin.Context) {
 }
 
 func StartWebserver() {
+
+	apiUserHandler := api.UserHandler{
+		Client: database.Client,
+	}
+
+	apiSiteHandler := api.SiteHandler{
+		Client: database.Client,
+	}
+
+	apiArticleHandler := api.ArticleHandler{
+		Client: database.Client,
+	}
+
 	r := gin.Default()
 
 	config := cors.DefaultConfig()
@@ -28,34 +41,31 @@ func StartWebserver() {
 
 	r.GET("/health-check", healthCheck)
 
-	apiUserHandler := api.UserHandler{
-		Client: database.Client,
-	}
-
-	apiSiteHandler := api.SiteHandler{
-		Client: database.Client,
-	}
-
 	authorized := r.Group("/api")
 	authorized.Use(middleware.AuthMiddleware())
 	{
-		authorized.POST("/user/create", apiUserHandler.CreateUserByUUID)
+		authorized.POST("/users/create", apiUserHandler.CreateUserByUUID)
 
-		authorized.GET("/site", apiSiteHandler.GetAllSites)
-		authorized.POST("/site", apiSiteHandler.CreateSite)
-		authorized.GET("/site/:id", apiSiteHandler.GetSite)
-		authorized.PUT("/site/:id", apiSiteHandler.UpdateSite)
-		authorized.DELETE("/site/:id", apiSiteHandler.DeleteSite)
-		authorized.PATCH("/site/active/:id", apiSiteHandler.ActiveSite)
-		authorized.PATCH("/site/deActive/:id", apiSiteHandler.DeActiveSite)
+		authorized.GET("/users", apiUserHandler.GetAllUsers)
+		authorized.POST("/users", apiUserHandler.CreateUser)
+		authorized.GET("/users/:id", apiUserHandler.GetUser)
+		authorized.PUT("/users/:id", apiUserHandler.UpdateUser)
+		authorized.DELETE("/users/:id", apiUserHandler.DeleteUser)
 
+		authorized.GET("/sites", apiSiteHandler.GetAllSites)
+		authorized.POST("/sites", apiSiteHandler.CreateSite)
+		authorized.GET("/sites/:id", apiSiteHandler.GetSite)
+		authorized.PUT("/sites/:id", apiSiteHandler.UpdateSite)
+		authorized.DELETE("/sites/:id", apiSiteHandler.DeleteSite)
+		authorized.PATCH("/sites/active/:id", apiSiteHandler.ActiveSite)
+		authorized.PATCH("/sites/deActive/:id", apiSiteHandler.DeActiveSite)
+
+		authorized.GET("/articles", apiArticleHandler.GetAllArticles)
+		authorized.POST("/articles", apiArticleHandler.CreateArticle)
+		authorized.GET("/articles/:id", apiArticleHandler.GetArticle)
+		authorized.PUT("/articles/:id", apiArticleHandler.UpdateArticle)
+		authorized.DELETE("/articles/:id", apiArticleHandler.DeleteArticle)
 	}
-
-	//r.GET("/user", apiUserHandler.GetAllUsers)
-	//r.POST("/user", apiUserHandler.CreateUser)
-	//r.GET("/user/:id", apiUserHandler.GetUser)
-	//r.PUT("/user/:id", apiUserHandler.UpdateUser)
-	//r.DELETE("/user/:id", apiUserHandler.DeleteUser)
 
 	r.Run(":" + todoConfig.Config.Port)
 

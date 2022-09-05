@@ -69,7 +69,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
     try {
       const headers = await getRequestHeaders(authUser);
       const uuid = authUser.uid;
-      const res = await fetch(BACKEND_API_URL + "/user/create", {
+      const res = await fetch(BACKEND_API_URL + "/users/create", {
         method: "POST",
         headers: {
           ...headers,
