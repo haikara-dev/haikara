@@ -103,7 +103,7 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "deleted"})
 }
 
-func (h *UserHandler) CreateUserByUUID(c *gin.Context) {
+func (h *UserHandler) CreateUserByUUIDAndEmail(c *gin.Context) {
 	var reqUser ent.User
 	err := c.ShouldBindJSON(&reqUser)
 	if err != nil {
@@ -112,6 +112,11 @@ func (h *UserHandler) CreateUserByUUID(c *gin.Context) {
 	}
 
 	if reqUser.UUID == "" || reqUser.UUID != c.MustGet("UUID").(string) {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	if reqUser.Email == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -134,6 +139,7 @@ func (h *UserHandler) CreateUserByUUID(c *gin.Context) {
 	newUser, err := h.Client.User.
 		Create().
 		SetUUID(reqUser.UUID).
+		SetEmail(reqUser.Email).
 		Save(context.Background())
 
 	if err != nil {

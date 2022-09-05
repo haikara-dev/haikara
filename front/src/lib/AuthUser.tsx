@@ -69,6 +69,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
     try {
       const headers = await getRequestHeaders(authUser);
       const uuid = authUser.uid;
+      const email = authUser.email;
       const res = await fetch(BACKEND_API_URL + "/users/create", {
         method: "POST",
         headers: {
@@ -79,6 +80,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
         },
         body: JSON.stringify({
           UUID: uuid,
+          email: email,
         }),
       });
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);

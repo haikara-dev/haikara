@@ -3,6 +3,7 @@
 package user
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -17,6 +18,10 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldUUID holds the string denoting the uuid field in the database.
 	FieldUUID = "uuid"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldRole holds the string denoting the role field in the database.
+	FieldRole = "role"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 )
@@ -27,6 +32,8 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldUUID,
+	FieldEmail,
+	FieldRole,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -48,4 +55,32 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// UUIDValidator is a validator for the "UUID" field. It is called by the builders before save.
 	UUIDValidator func(string) error
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
 )
+
+// Role defines the type for the "role" enum field.
+type Role string
+
+// RoleUser is the default value of the Role enum.
+const DefaultRole = RoleUser
+
+// Role values.
+const (
+	RoleAdmin Role = "admin"
+	RoleUser  Role = "user"
+)
+
+func (r Role) String() string {
+	return string(r)
+}
+
+// RoleValidator is a validator for the "role" field enum values. It is called by the builders before save.
+func RoleValidator(r Role) error {
+	switch r {
+	case RoleAdmin, RoleUser:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for role field: %q", r)
+	}
+}

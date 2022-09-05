@@ -20,6 +20,8 @@ func (User) Mixin() []ent.Mixin {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("UUID").Unique().NotEmpty(),
+		field.String("email").Unique().NotEmpty(),
+		field.Enum("role").Values("admin", "user").Default("user"),
 	}
 }
 
