@@ -22,7 +22,11 @@ const Header = () => {
             DailyFJ
           </Typography>
         </Link>
-
+        <>
+          <Link href="/site" passHref>
+            <Button color="inherit">Site</Button>
+          </Link>
+        </>
         {authUser ? (
           <Button
             color="inherit"

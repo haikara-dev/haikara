@@ -1,28 +1,48 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Container, Typography, Box, Stack, Card } from "@mui/material";
+import { Container, Typography, Box, Stack, Card, Button } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import AddTodoForm from "@/components/AddTodoForm";
-import TodoRow from "@/components/TodoRow";
+import AddSiteFormDialog from "@/components/site/AddSiteFormDialog";
+import SiteRow from "@/components/site/SiteRow";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuthUserContext } from "@/lib/AuthUser";
+import EditSiteFormDialog from "@/components/site/EditSiteFormDialog";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 
-export const TodoStatusIncomplete: number = 0;
-export const TodoStatusCompleted: number = 1;
-
-export type Todo = {
+export type Site = {
   id: number;
-  text: string;
-  status: number;
+  name: string;
+  url: string;
+  active: boolean;
 };
 
-const Todos: NextPage = () => {
-  const [data, setData] = useState<Todo[]>([]);
+const Sites: NextPage = () => {
+  const [data, setData] = useState<Site[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { authUser } = useAuthUserContext();
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Site | null>(null);
+
+  const handleAddOpen = () => {
+    setAddOpen(true);
+  };
+
+  const handleAddClose = () => {
+    setAddOpen(false);
+  };
+
+  const handleEditOpen = (site: Site) => {
+    setEditOpen(true);
+    setEditTarget(site);
+  };
+
+  const handleEditClose = () => {
+    setEditOpen(false);
+  };
 
   const getRequestHeaders = async () => {
     const idToken = await authUser?.getIdToken();
@@ -34,7 +54,7 @@ const Todos: NextPage = () => {
   const loadData = async () => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_API_URL + "/todo", {
+      const res = await fetch(BACKEND_API_URL + "/site", {
         method: "GET",
         headers: headers,
       });
@@ -47,10 +67,10 @@ const Todos: NextPage = () => {
     setLoading(false);
   };
 
-  const addTodo = async (text: string) => {
+  const addSite = async (name: string, url: string) => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_API_URL + "/todo", {
+      const res = await fetch(BACKEND_API_URL + "/site", {
         method: "POST",
         headers: {
           ...headers,
@@ -59,7 +79,9 @@ const Todos: NextPage = () => {
           },
         },
         body: JSON.stringify({
-          text: text,
+          name: name,
+          url: url,
+          active: true,
         }),
       });
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
@@ -69,13 +91,13 @@ const Todos: NextPage = () => {
     }
   };
 
-  const doneTodo = async (id: number) => {
+  const activeSite = async (id: number) => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/todo/"),
+        new URL(id.toString(), BACKEND_API_URL + "/site/active/"),
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             ...headers,
             ...{
@@ -83,7 +105,7 @@ const Todos: NextPage = () => {
             },
           },
           body: JSON.stringify({
-            status: TodoStatusCompleted,
+            active: true,
           }),
         }
       );
@@ -94,13 +116,13 @@ const Todos: NextPage = () => {
     }
   };
 
-  const undoTodo = async (id: number) => {
+  const deActiveSite = async (id: number) => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/todo/"),
+        new URL(id.toString(), BACKEND_API_URL + "/site/deActive/"),
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             ...headers,
             ...{
@@ -108,7 +130,7 @@ const Todos: NextPage = () => {
             },
           },
           body: JSON.stringify({
-            status: TodoStatusIncomplete,
+            active: false,
           }),
         }
       );
@@ -119,11 +141,11 @@ const Todos: NextPage = () => {
     }
   };
 
-  const removeTodo = async (id: number) => {
+  const removeSite = async (id: number) => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/todo/"),
+        new URL(id.toString(), BACKEND_API_URL + "/site/"),
         {
           method: "DELETE",
           headers: {
@@ -140,11 +162,17 @@ const Todos: NextPage = () => {
       console.log(err);
     }
   };
-  const updateTodo = async (id: number, text: string) => {
+
+  const updateSite = async (
+    id: number,
+    name: string,
+    url: string,
+    active: boolean
+  ) => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/todo/"),
+        new URL(id.toString(), BACKEND_API_URL + "/site/"),
         {
           method: "PUT",
           headers: {
@@ -154,7 +182,9 @@ const Todos: NextPage = () => {
             },
           },
           body: JSON.stringify({
-            text: text,
+            name: name,
+            url: url,
+            active: active,
           }),
         }
       );
@@ -173,8 +203,8 @@ const Todos: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>TODO</title>
-        <meta name="description" content="TODO" />
+        <title>DailyFJ</title>
+        <meta name="description" content="DailyFJ" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -191,25 +221,28 @@ const Todos: NextPage = () => {
           }}
         >
           <Typography variant="h3" component="h1">
-            TODO
+            Sites
           </Typography>
-          <Box>
-            <AddTodoForm addTodo={addTodo} />
-          </Box>
+
+          <Button variant="outlined" onClick={handleAddOpen}>
+            Add Site
+          </Button>
+
           {isLoading ? (
             <div>Loading...</div>
           ) : (
             <Stack gap={2} mt={2} pr={8}>
-              {data.map((todo) => {
+              {data.map((site) => {
                 return (
-                  <Card key={todo.id}>
-                    <TodoRow
-                      key={todo.id}
-                      todo={todo}
-                      doneTodo={doneTodo}
-                      undoTodo={undoTodo}
-                      removeTodo={removeTodo}
-                      updateTodo={updateTodo}
+                  <Card key={site.id}>
+                    <SiteRow
+                      key={site.id}
+                      site={site}
+                      activeSite={activeSite}
+                      deActiveSite={deActiveSite}
+                      removeSite={removeSite}
+                      updateSite={updateSite}
+                      openDialog={handleEditOpen}
                     />
                   </Card>
                 );
@@ -218,9 +251,25 @@ const Todos: NextPage = () => {
           )}
         </Container>
       </Box>
+
+      <AddSiteFormDialog
+        open={addOpen}
+        handleClose={handleAddClose}
+        addSite={addSite}
+      />
+
+      {editTarget && (
+        <EditSiteFormDialog
+          open={editOpen}
+          handleClose={handleEditClose}
+          site={editTarget}
+          updateSite={updateSite}
+          onEndEdit={handleEditClose}
+        />
+      )}
       <Footer />
     </div>
   );
 };
 
-export default Todos;
+export default Sites;

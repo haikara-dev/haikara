@@ -25,7 +25,7 @@ type Site struct {
 	// URL holds the value of the "url" field.
 	URL string `json:"url,omitempty"`
 	// Active holds the value of the "active" field.
-	Active bool `json:"active,omitempty"`
+	Active bool `json:"active"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.

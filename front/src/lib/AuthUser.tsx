@@ -69,7 +69,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
     try {
       const headers = await getRequestHeaders(authUser);
       const uuid = authUser.uid;
-      const res = await fetch(BACKEND_API_URL + "/api/user/create", {
+      const res = await fetch(BACKEND_API_URL + "/user/create", {
         method: "POST",
         headers: {
           ...headers,
@@ -88,7 +88,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
   };
 
   if (initialize) {
-    if ("/todo" === router.pathname) {
+    if ("/site" === router.pathname) {
       if (!authUser) {
         router.push("/login");
         return <></>;

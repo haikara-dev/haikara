@@ -97,8 +97,8 @@ func (h *SiteHandler) UpdateSite(c *gin.Context) {
 		return
 	}
 
-	if existSite != nil {
-		c.JSON(http.StatusOK, &existSite)
+	if existSite == nil {
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
@@ -152,8 +152,8 @@ func (h *SiteHandler) ActiveSite(c *gin.Context) {
 		return
 	}
 
-	if existSite != nil {
-		c.JSON(http.StatusOK, &existSite)
+	if existSite == nil {
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
@@ -186,8 +186,8 @@ func (h *SiteHandler) DeActiveSite(c *gin.Context) {
 		return
 	}
 
-	if existSite != nil {
-		c.JSON(http.StatusOK, &existSite)
+	if existSite == nil {
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
