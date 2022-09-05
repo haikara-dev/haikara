@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/cubdesign/dailyfj/ent/predicate"
 	"github.com/cubdesign/dailyfj/ent/site"
 )
@@ -60,9 +61,45 @@ func (su *SiteUpdate) SetNillableActive(b *bool) *SiteUpdate {
 	return su
 }
 
+// AddArticleIDs adds the "articles" edge to the Article entity by IDs.
+func (su *SiteUpdate) AddArticleIDs(ids ...int) *SiteUpdate {
+	su.mutation.AddArticleIDs(ids...)
+	return su
+}
+
+// AddArticles adds the "articles" edges to the Article entity.
+func (su *SiteUpdate) AddArticles(a ...*Article) *SiteUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return su.AddArticleIDs(ids...)
+}
+
 // Mutation returns the SiteMutation object of the builder.
 func (su *SiteUpdate) Mutation() *SiteMutation {
 	return su.mutation
+}
+
+// ClearArticles clears all "articles" edges to the Article entity.
+func (su *SiteUpdate) ClearArticles() *SiteUpdate {
+	su.mutation.ClearArticles()
+	return su
+}
+
+// RemoveArticleIDs removes the "articles" edge to Article entities by IDs.
+func (su *SiteUpdate) RemoveArticleIDs(ids ...int) *SiteUpdate {
+	su.mutation.RemoveArticleIDs(ids...)
+	return su
+}
+
+// RemoveArticles removes "articles" edges to Article entities.
+func (su *SiteUpdate) RemoveArticles(a ...*Article) *SiteUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return su.RemoveArticleIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -195,6 +232,60 @@ func (su *SiteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: site.FieldActive,
 		})
 	}
+	if su.mutation.ArticlesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   site.ArticlesTable,
+			Columns: []string{site.ArticlesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: article.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedArticlesIDs(); len(nodes) > 0 && !su.mutation.ArticlesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   site.ArticlesTable,
+			Columns: []string{site.ArticlesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: article.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.ArticlesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   site.ArticlesTable,
+			Columns: []string{site.ArticlesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: article.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{site.Label}
@@ -246,9 +337,45 @@ func (suo *SiteUpdateOne) SetNillableActive(b *bool) *SiteUpdateOne {
 	return suo
 }
 
+// AddArticleIDs adds the "articles" edge to the Article entity by IDs.
+func (suo *SiteUpdateOne) AddArticleIDs(ids ...int) *SiteUpdateOne {
+	suo.mutation.AddArticleIDs(ids...)
+	return suo
+}
+
+// AddArticles adds the "articles" edges to the Article entity.
+func (suo *SiteUpdateOne) AddArticles(a ...*Article) *SiteUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return suo.AddArticleIDs(ids...)
+}
+
 // Mutation returns the SiteMutation object of the builder.
 func (suo *SiteUpdateOne) Mutation() *SiteMutation {
 	return suo.mutation
+}
+
+// ClearArticles clears all "articles" edges to the Article entity.
+func (suo *SiteUpdateOne) ClearArticles() *SiteUpdateOne {
+	suo.mutation.ClearArticles()
+	return suo
+}
+
+// RemoveArticleIDs removes the "articles" edge to Article entities by IDs.
+func (suo *SiteUpdateOne) RemoveArticleIDs(ids ...int) *SiteUpdateOne {
+	suo.mutation.RemoveArticleIDs(ids...)
+	return suo
+}
+
+// RemoveArticles removes "articles" edges to Article entities.
+func (suo *SiteUpdateOne) RemoveArticles(a ...*Article) *SiteUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return suo.RemoveArticleIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -410,6 +537,60 @@ func (suo *SiteUpdateOne) sqlSave(ctx context.Context) (_node *Site, err error) 
 			Value:  value,
 			Column: site.FieldActive,
 		})
+	}
+	if suo.mutation.ArticlesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   site.ArticlesTable,
+			Columns: []string{site.ArticlesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: article.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedArticlesIDs(); len(nodes) > 0 && !suo.mutation.ArticlesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   site.ArticlesTable,
+			Columns: []string{site.ArticlesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: article.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.ArticlesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   site.ArticlesTable,
+			Columns: []string{site.ArticlesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: article.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Site{config: suo.config}
 	_spec.Assign = _node.assignValues

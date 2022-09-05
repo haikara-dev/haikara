@@ -26,6 +26,27 @@ type Site struct {
 	URL string `json:"url,omitempty"`
 	// Active holds the value of the "active" field.
 	Active bool `json:"active"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the SiteQuery when eager-loading is set.
+	Edges SiteEdges `json:"edges"`
+}
+
+// SiteEdges holds the relations/edges for other nodes in the graph.
+type SiteEdges struct {
+	// Articles holds the value of the articles edge.
+	Articles []*Article `json:"articles,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ArticlesOrErr returns the Articles value or an error if the edge
+// was not loaded in eager-loading.
+func (e SiteEdges) ArticlesOrErr() ([]*Article, error) {
+	if e.loadedTypes[0] {
+		return e.Articles, nil
+	}
+	return nil, &NotLoadedError{edge: "articles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -95,6 +116,11 @@ func (s *Site) assignValues(columns []string, values []interface{}) error {
 		}
 	}
 	return nil
+}
+
+// QueryArticles queries the "articles" edge of the Site entity.
+func (s *Site) QueryArticles() *ArticleQuery {
+	return (&SiteClient{config: s.config}).QueryArticles(s)
 }
 
 // Update returns a builder for updating this Site.

@@ -4,12 +4,14 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/cubdesign/dailyfj/ent/predicate"
 	"github.com/cubdesign/dailyfj/ent/site"
 )
@@ -17,12 +19,13 @@ import (
 // SiteQuery is the builder for querying Site entities.
 type SiteQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
-	predicates []predicate.Site
+	limit        *int
+	offset       *int
+	unique       *bool
+	order        []OrderFunc
+	fields       []string
+	predicates   []predicate.Site
+	withArticles *ArticleQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +60,28 @@ func (sq *SiteQuery) Unique(unique bool) *SiteQuery {
 func (sq *SiteQuery) Order(o ...OrderFunc) *SiteQuery {
 	sq.order = append(sq.order, o...)
 	return sq
+}
+
+// QueryArticles chains the current query on the "articles" edge.
+func (sq *SiteQuery) QueryArticles() *ArticleQuery {
+	query := &ArticleQuery{config: sq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, selector),
+			sqlgraph.To(article.Table, article.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, site.ArticlesTable, site.ArticlesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Site entity from the query.
@@ -235,16 +260,28 @@ func (sq *SiteQuery) Clone() *SiteQuery {
 		return nil
 	}
 	return &SiteQuery{
-		config:     sq.config,
-		limit:      sq.limit,
-		offset:     sq.offset,
-		order:      append([]OrderFunc{}, sq.order...),
-		predicates: append([]predicate.Site{}, sq.predicates...),
+		config:       sq.config,
+		limit:        sq.limit,
+		offset:       sq.offset,
+		order:        append([]OrderFunc{}, sq.order...),
+		predicates:   append([]predicate.Site{}, sq.predicates...),
+		withArticles: sq.withArticles.Clone(),
 		// clone intermediate query.
 		sql:    sq.sql.Clone(),
 		path:   sq.path,
 		unique: sq.unique,
 	}
+}
+
+// WithArticles tells the query-builder to eager-load the nodes that are connected to
+// the "articles" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SiteQuery) WithArticles(opts ...func(*ArticleQuery)) *SiteQuery {
+	query := &ArticleQuery{config: sq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withArticles = query
+	return sq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -313,8 +350,11 @@ func (sq *SiteQuery) prepareQuery(ctx context.Context) error {
 
 func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, error) {
 	var (
-		nodes = []*Site{}
-		_spec = sq.querySpec()
+		nodes       = []*Site{}
+		_spec       = sq.querySpec()
+		loadedTypes = [1]bool{
+			sq.withArticles != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		return (*Site).scanValues(nil, columns)
@@ -322,6 +362,7 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 	_spec.Assign = func(columns []string, values []interface{}) error {
 		node := &Site{config: sq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -333,7 +374,46 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := sq.withArticles; query != nil {
+		if err := sq.loadArticles(ctx, query, nodes,
+			func(n *Site) { n.Edges.Articles = []*Article{} },
+			func(n *Site, e *Article) { n.Edges.Articles = append(n.Edges.Articles, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (sq *SiteQuery) loadArticles(ctx context.Context, query *ArticleQuery, nodes []*Site, init func(*Site), assign func(*Site, *Article)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Site)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.InValues(site.ArticlesColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.site_articles
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "site_articles" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "site_articles" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (sq *SiteQuery) sqlCount(ctx context.Context) (int, error) {

@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/cubdesign/dailyfj/ent/site"
 )
 
@@ -72,6 +73,21 @@ func (sc *SiteCreate) SetNillableActive(b *bool) *SiteCreate {
 		sc.SetActive(*b)
 	}
 	return sc
+}
+
+// AddArticleIDs adds the "articles" edge to the Article entity by IDs.
+func (sc *SiteCreate) AddArticleIDs(ids ...int) *SiteCreate {
+	sc.mutation.AddArticleIDs(ids...)
+	return sc
+}
+
+// AddArticles adds the "articles" edges to the Article entity.
+func (sc *SiteCreate) AddArticles(a ...*Article) *SiteCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return sc.AddArticleIDs(ids...)
 }
 
 // Mutation returns the SiteMutation object of the builder.
@@ -258,6 +274,25 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 			Column: site.FieldActive,
 		})
 		_node.Active = value
+	}
+	if nodes := sc.mutation.ArticlesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   site.ArticlesTable,
+			Columns: []string{site.ArticlesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: article.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
