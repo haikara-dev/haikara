@@ -45,6 +45,7 @@ func StartWebserver() {
 	authorized.Use(middleware.AuthMiddleware())
 	{
 		authorized.POST("/users/create", apiUserHandler.CreateUserByUUIDAndEmail)
+		authorized.GET("/users/current", apiUserHandler.GetCurrentUser)
 
 		authorized.GET("/users", apiUserHandler.GetAllUsers)
 		authorized.POST("/users", apiUserHandler.CreateUser)

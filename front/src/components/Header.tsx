@@ -5,7 +5,7 @@ import { useAuthUserContext } from "@/lib/AuthUser";
 
 const Header = () => {
   const auth = getAuth();
-  const { authUser, logout } = useAuthUserContext();
+  const { currentUser, authUser, logout } = useAuthUserContext();
   return (
     <AppBar component="header" position="sticky">
       <Toolbar>
@@ -28,19 +28,24 @@ const Header = () => {
           </Link>
         </>
         {authUser ? (
-          <Button
-            color="inherit"
-            onClick={async () => {
-              try {
-                await auth.signOut();
-                logout(() => {});
-              } catch (error) {
-                console.error(error);
-              }
-            }}
-          >
-            ログアウト
-          </Button>
+          <>
+            <Typography variant="h6" component="div">
+              {currentUser?.email}
+            </Typography>
+            <Button
+              color="inherit"
+              onClick={async () => {
+                try {
+                  await auth.signOut();
+                  logout(() => {});
+                } catch (error) {
+                  console.error(error);
+                }
+              }}
+            >
+              ログアウト
+            </Button>
+          </>
         ) : (
           <>
             <Link href="/login" passHref>

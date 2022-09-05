@@ -2,7 +2,13 @@ import { Auth, getAuth, User as AuthUser } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
+export type User = {
+  email: string;
+  role: "admin" | "user";
+};
+
 export type AuthUserContextType = {
+  currentUser: User | null;
   authUser: AuthUser | null;
   login: (user: AuthUser, callback: () => void) => void;
   logout: (callback: () => void) => void;
@@ -23,16 +29,19 @@ type AuthUserProviderProps = {
 const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
   const auth: Auth = getAuth();
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [initialize, setInitialize] = useState<boolean>(false);
 
   const router = useRouter();
-  console.log(router.pathname);
 
   useEffect(() => {
     const unSubscribe = auth.onAuthStateChanged((authUser) => {
       console.log("onAuthStateChanged", authUser);
       setInitialize(true);
       setAuthUser(authUser);
+      if (authUser) {
+        getUser(authUser);
+      }
     });
     return () => {
       // cleanup
@@ -52,6 +61,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
   };
 
   const value: AuthUserContextType = {
+    currentUser,
     authUser,
     login,
     logout,
@@ -84,6 +94,30 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
         }),
       });
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getUser = async (authUser: AuthUser) => {
+    const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
+    try {
+      const headers = await getRequestHeaders(authUser);
+      const res = await fetch(BACKEND_API_URL + "/users/current", {
+        method: "GET",
+        headers: {
+          ...headers,
+          ...{
+            "Content-Type": "application/json",
+          },
+        },
+      });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      const json = await res.json();
+      setCurrentUser({
+        email: json.email,
+        role: json.role,
+      });
     } catch (err) {
       console.log(err);
     }

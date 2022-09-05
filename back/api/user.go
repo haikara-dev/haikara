@@ -149,3 +149,24 @@ func (h *UserHandler) CreateUserByUUIDAndEmail(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &newUser)
 }
+
+func (h *UserHandler) GetCurrentUser(c *gin.Context) {
+
+	UUID := c.MustGet("UUID").(string)
+
+	resUser, err := h.Client.User.
+		Query().
+		Where(user.UUID(UUID)).
+		Only(context.Background())
+
+	if err != nil && !ent.IsNotFound(err) {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if resUser == nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	c.JSON(http.StatusOK, resUser)
+}
