@@ -196,6 +196,30 @@ const Sites: NextPage = () => {
     }
   };
 
+  const run = async (id: number) => {
+    try {
+      const headers = await getRequestHeaders();
+      const res = await fetch(
+        new URL(id.toString(), BACKEND_API_URL + "/sites/run/"),
+        {
+          method: "GET",
+          headers: {
+            ...headers,
+            ...{
+              "Content-Type": "application/json",
+            },
+          },
+        }
+      );
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+
+      const json = await res.json();
+      console.log(json);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
     loadData();
@@ -244,6 +268,7 @@ const Sites: NextPage = () => {
                       removeSite={removeSite}
                       updateSite={updateSite}
                       openDialog={handleEditOpen}
+                      run={run}
                     />
                   </Card>
                 );

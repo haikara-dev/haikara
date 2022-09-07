@@ -60,6 +60,7 @@ func StartWebserver() {
 		authorized.DELETE("/sites/:id", apiSiteHandler.DeleteSite)
 		authorized.PATCH("/sites/active/:id", apiSiteHandler.ActiveSite)
 		authorized.PATCH("/sites/deActive/:id", apiSiteHandler.DeActiveSite)
+		authorized.GET("/sites/run/:id", apiSiteHandler.RunHTMLParser)
 
 		authorized.GET("/articles", apiArticleHandler.GetAllArticles)
 		authorized.POST("/articles", apiArticleHandler.CreateArticle)

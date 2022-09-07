@@ -17,3 +17,12 @@ or
 ```
 docker-compose down
 ```
+
+
+
+## back
+
+開発環境スタート hot reload
+```
+air 
+```

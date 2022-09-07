@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Site } from "@/pages/site";
-import { Box, Checkbox, IconButton, Typography } from "@mui/material";
+import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 export type SiteRowProps = {
@@ -10,6 +10,7 @@ export type SiteRowProps = {
   removeSite: (id: number) => void;
   updateSite: (id: number, name: string, url: string, active: boolean) => void;
   openDialog: (site: Site) => void;
+  run: (id: number) => void;
 };
 
 const SiteRow: React.FC<SiteRowProps> = ({
@@ -18,7 +19,13 @@ const SiteRow: React.FC<SiteRowProps> = ({
   deActiveSite,
   removeSite,
   openDialog,
+  run,
 }) => {
+  const onClickRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    run(site.id);
+  };
+
   const onChangeCheckboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (site.active) {
@@ -40,7 +47,7 @@ const SiteRow: React.FC<SiteRowProps> = ({
 
   return (
     <Box display="flex" alignItems="center">
-      <Checkbox checked={site.active} onChange={onChangeCheckboxHandler} />
+      <Button onClick={onClickRunHandler}>Run</Button>
       <Box
         onClick={onClickTextHandler}
         sx={{
@@ -57,6 +64,8 @@ const SiteRow: React.FC<SiteRowProps> = ({
           </Typography>
         )}
       </Box>
+
+      <Checkbox checked={site.active} onChange={onChangeCheckboxHandler} />
 
       <IconButton onClick={onClickRemoveHandler} aria-label="remove">
         <DeleteIcon />

@@ -2,9 +2,13 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/cubdesign/dailyfj/ent"
 	"github.com/gin-gonic/gin"
+	"github.com/gocolly/colly/v2"
+	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -202,4 +206,66 @@ func (h *SiteHandler) DeActiveSite(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, &resSite)
+}
+
+func (h *SiteHandler) RunHTMLParser(c *gin.Context) {
+	strId := c.Param("id")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	existSite, err := h.Client.Site.
+		Get(context.Background(), id)
+
+	if err != nil && !ent.IsNotFound(err) {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if existSite == nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	go func(url string) {
+		fmt.Println("start crawling")
+		rssUrl := getRSSUrl(url)
+		if rssUrl != "" {
+			fmt.Println("link found:", rssUrl)
+		}
+		fmt.Println("end crawling")
+	}(existSite.URL)
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("run: %s", existSite.URL)})
+}
+
+func getRSSUrl(baseUrl string) string {
+	var rssUrl = ""
+	s := colly.NewCollector()
+	s.OnError(func(_ *colly.Response, err error) {
+		log.Println("Something went wrong:", err)
+	})
+	s.OnRequest(func(r *colly.Request) {
+		fmt.Println("visiting", r.URL)
+	})
+	s.OnHTML("link[type=\"application/rss+xml\"], link[type=\"application/atom+xml\"]", func(e *colly.HTMLElement) {
+		if rssUrl == "" {
+			rssUrl = e.Attr("href")
+		}
+	})
+	s.Visit(baseUrl)
+
+	if rssUrl != "" {
+		base, err := url.Parse(baseUrl)
+		if err != nil {
+			log.Fatal(err)
+		}
+		ref, err := url.Parse(rssUrl)
+		if err != nil {
+			log.Fatal(err)
+		}
+		rssUrl = base.ResolveReference(ref).String()
+	}
+
+	return rssUrl
 }
