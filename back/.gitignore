@@ -2,3 +2,4 @@
 .env
 google-application-credentials.json
 *.log
+/tmp
