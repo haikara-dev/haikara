@@ -8,7 +8,13 @@ export type SiteRowProps = {
   activeSite: (id: number) => void;
   deActiveSite: (id: number) => void;
   removeSite: (id: number) => void;
-  updateSite: (id: number, name: string, url: string, active: boolean) => void;
+  updateSite: (
+    id: number,
+    name: string,
+    url: string,
+    feed_url: string,
+    active: boolean
+  ) => void;
   openDialog: (site: Site) => void;
   run: (id: number) => void;
 };

@@ -24,6 +24,8 @@ type Site struct {
 	Name string `json:"name,omitempty"`
 	// URL holds the value of the "url" field.
 	URL string `json:"url,omitempty"`
+	// FeedURL holds the value of the "feed_url" field.
+	FeedURL string `json:"feed_url,omitempty"`
 	// Active holds the value of the "active" field.
 	Active bool `json:"active"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -58,7 +60,7 @@ func (*Site) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullBool)
 		case site.FieldID:
 			values[i] = new(sql.NullInt64)
-		case site.FieldName, site.FieldURL:
+		case site.FieldName, site.FieldURL, site.FieldFeedURL:
 			values[i] = new(sql.NullString)
 		case site.FieldCreatedAt, site.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -106,6 +108,12 @@ func (s *Site) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
 				s.URL = value.String
+			}
+		case site.FieldFeedURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field feed_url", values[i])
+			} else if value.Valid {
+				s.FeedURL = value.String
 			}
 		case site.FieldActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -157,6 +165,9 @@ func (s *Site) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("url=")
 	builder.WriteString(s.URL)
+	builder.WriteString(", ")
+	builder.WriteString("feed_url=")
+	builder.WriteString(s.FeedURL)
 	builder.WriteString(", ")
 	builder.WriteString("active=")
 	builder.WriteString(fmt.Sprintf("%v", s.Active))

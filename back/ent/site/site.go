@@ -19,6 +19,8 @@ const (
 	FieldName = "name"
 	// FieldURL holds the string denoting the url field in the database.
 	FieldURL = "url"
+	// FieldFeedURL holds the string denoting the feed_url field in the database.
+	FieldFeedURL = "feed_url"
 	// FieldActive holds the string denoting the active field in the database.
 	FieldActive = "active"
 	// EdgeArticles holds the string denoting the articles edge name in mutations.
@@ -41,6 +43,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldName,
 	FieldURL,
+	FieldFeedURL,
 	FieldActive,
 }
 

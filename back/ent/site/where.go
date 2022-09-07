@@ -109,6 +109,13 @@ func URL(v string) predicate.Site {
 	})
 }
 
+// FeedURL applies equality check predicate on the "feed_url" field. It's identical to FeedURLEQ.
+func FeedURL(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFeedURL), v))
+	})
+}
+
 // Active applies equality check predicate on the "active" field. It's identical to ActiveEQ.
 func Active(v bool) predicate.Site {
 	return predicate.Site(func(s *sql.Selector) {
@@ -439,6 +446,105 @@ func URLEqualFold(v string) predicate.Site {
 func URLContainsFold(v string) predicate.Site {
 	return predicate.Site(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldURL), v))
+	})
+}
+
+// FeedURLEQ applies the EQ predicate on the "feed_url" field.
+func FeedURLEQ(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLNEQ applies the NEQ predicate on the "feed_url" field.
+func FeedURLNEQ(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLIn applies the In predicate on the "feed_url" field.
+func FeedURLIn(vs ...string) predicate.Site {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldFeedURL), v...))
+	})
+}
+
+// FeedURLNotIn applies the NotIn predicate on the "feed_url" field.
+func FeedURLNotIn(vs ...string) predicate.Site {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldFeedURL), v...))
+	})
+}
+
+// FeedURLGT applies the GT predicate on the "feed_url" field.
+func FeedURLGT(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLGTE applies the GTE predicate on the "feed_url" field.
+func FeedURLGTE(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLLT applies the LT predicate on the "feed_url" field.
+func FeedURLLT(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLLTE applies the LTE predicate on the "feed_url" field.
+func FeedURLLTE(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLContains applies the Contains predicate on the "feed_url" field.
+func FeedURLContains(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLHasPrefix applies the HasPrefix predicate on the "feed_url" field.
+func FeedURLHasPrefix(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLHasSuffix applies the HasSuffix predicate on the "feed_url" field.
+func FeedURLHasSuffix(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLEqualFold applies the EqualFold predicate on the "feed_url" field.
+func FeedURLEqualFold(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldFeedURL), v))
+	})
+}
+
+// FeedURLContainsFold applies the ContainsFold predicate on the "feed_url" field.
+func FeedURLContainsFold(v string) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldFeedURL), v))
 	})
 }
 

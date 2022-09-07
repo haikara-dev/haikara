@@ -15,6 +15,7 @@ export type Site = {
   id: number;
   name: string;
   url: string;
+  feed_url: string;
   active: boolean;
 };
 
@@ -68,7 +69,7 @@ const Sites: NextPage = () => {
     setLoading(false);
   };
 
-  const addSite = async (name: string, url: string) => {
+  const addSite = async (name: string, url: string, feed_url: string) => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(BACKEND_API_URL + "/sites", {
@@ -82,6 +83,7 @@ const Sites: NextPage = () => {
         body: JSON.stringify({
           name: name,
           url: url,
+          feed_url: feed_url,
           active: true,
         }),
       });
@@ -168,6 +170,7 @@ const Sites: NextPage = () => {
     id: number,
     name: string,
     url: string,
+    feed_url: string,
     active: boolean
   ) => {
     try {
@@ -185,6 +188,7 @@ const Sites: NextPage = () => {
           body: JSON.stringify({
             name: name,
             url: url,
+            feed_url: feed_url,
             active: active,
           }),
         }

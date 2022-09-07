@@ -47,6 +47,12 @@ func (su *SiteUpdate) SetURL(s string) *SiteUpdate {
 	return su
 }
 
+// SetFeedURL sets the "feed_url" field.
+func (su *SiteUpdate) SetFeedURL(s string) *SiteUpdate {
+	su.mutation.SetFeedURL(s)
+	return su
+}
+
 // SetActive sets the "active" field.
 func (su *SiteUpdate) SetActive(b bool) *SiteUpdate {
 	su.mutation.SetActive(b)
@@ -225,6 +231,13 @@ func (su *SiteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: site.FieldURL,
 		})
 	}
+	if value, ok := su.mutation.FeedURL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: site.FieldFeedURL,
+		})
+	}
 	if value, ok := su.mutation.Active(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeBool,
@@ -320,6 +333,12 @@ func (suo *SiteUpdateOne) SetName(s string) *SiteUpdateOne {
 // SetURL sets the "url" field.
 func (suo *SiteUpdateOne) SetURL(s string) *SiteUpdateOne {
 	suo.mutation.SetURL(s)
+	return suo
+}
+
+// SetFeedURL sets the "feed_url" field.
+func (suo *SiteUpdateOne) SetFeedURL(s string) *SiteUpdateOne {
+	suo.mutation.SetFeedURL(s)
 	return suo
 }
 
@@ -529,6 +548,13 @@ func (suo *SiteUpdateOne) sqlSave(ctx context.Context) (_node *Site, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: site.FieldURL,
+		})
+	}
+	if value, ok := suo.mutation.FeedURL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: site.FieldFeedURL,
 		})
 	}
 	if value, ok := suo.mutation.Active(); ok {

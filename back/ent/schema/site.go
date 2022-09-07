@@ -22,6 +22,7 @@ func (Site) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").NotEmpty(),
 		field.String("url").NotEmpty(),
+		field.String("feed_url"),
 		field.Bool("active").Default(false).
 			StructTag(`json:"active"`),
 	}

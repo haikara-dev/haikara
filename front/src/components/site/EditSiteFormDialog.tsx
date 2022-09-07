@@ -18,18 +18,29 @@ import { Site } from "@/pages/site";
 type FormInput = {
   name: string;
   url: string;
+  feed_url: string;
 };
 
 const schema = yup.object({
   name: yup.string().required("必須です"),
   url: yup.string().required("必須です").url("正しいURLを入力してください"),
+  feed_url: yup
+    .string()
+    .required("必須です")
+    .url("正しいURLを入力してください"),
 });
 
 export type AddSiteFormProps = {
   open: boolean;
   handleClose: () => void;
   site: Site;
-  updateSite: (id: number, name: string, url: string, active: boolean) => void;
+  updateSite: (
+    id: number,
+    name: string,
+    url: string,
+    feed_url: string,
+    active: boolean
+  ) => void;
   onEndEdit: () => void;
 };
 
@@ -56,7 +67,10 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
       const trimmedUrl = data.url.trim();
       if (trimmedUrl.length === 0) return;
 
-      await updateSite(site.id, trimmedName, trimmedUrl, true);
+      const trimmedfeed_url = data.feed_url.trim();
+      if (trimmedfeed_url.length === 0) return;
+
+      await updateSite(site.id, trimmedName, trimmedUrl, trimmedfeed_url, true);
 
       onEndEdit();
     } catch (err) {
@@ -90,6 +104,17 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
               placeholder="url"
               defaultValue={site.url}
               {...register("url")}
+              sx={{ flexGrow: 1 }}
+            />
+
+            <TextField
+              label="Feed URL"
+              error={errors.feed_url ? true : false}
+              helperText={errors.feed_url && errors.feed_url.message}
+              variant="outlined"
+              placeholder="Feed URL"
+              defaultValue={site.feed_url}
+              {...register("feed_url")}
               sx={{ flexGrow: 1 }}
             />
           </Box>

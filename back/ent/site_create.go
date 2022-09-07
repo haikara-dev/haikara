@@ -61,6 +61,12 @@ func (sc *SiteCreate) SetURL(s string) *SiteCreate {
 	return sc
 }
 
+// SetFeedURL sets the "feed_url" field.
+func (sc *SiteCreate) SetFeedURL(s string) *SiteCreate {
+	sc.mutation.SetFeedURL(s)
+	return sc
+}
+
 // SetActive sets the "active" field.
 func (sc *SiteCreate) SetActive(b bool) *SiteCreate {
 	sc.mutation.SetActive(b)
@@ -205,6 +211,9 @@ func (sc *SiteCreate) check() error {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Site.url": %w`, err)}
 		}
 	}
+	if _, ok := sc.mutation.FeedURL(); !ok {
+		return &ValidationError{Name: "feed_url", err: errors.New(`ent: missing required field "Site.feed_url"`)}
+	}
 	if _, ok := sc.mutation.Active(); !ok {
 		return &ValidationError{Name: "active", err: errors.New(`ent: missing required field "Site.active"`)}
 	}
@@ -266,6 +275,14 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 			Column: site.FieldURL,
 		})
 		_node.URL = value
+	}
+	if value, ok := sc.mutation.FeedURL(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: site.FieldFeedURL,
+		})
+		_node.FeedURL = value
 	}
 	if value, ok := sc.mutation.Active(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

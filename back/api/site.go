@@ -66,6 +66,7 @@ func (h *SiteHandler) CreateSite(c *gin.Context) {
 		Create().
 		SetName(reqSite.Name).
 		SetURL(reqSite.URL).
+		SetFeedURL(reqSite.FeedURL).
 		SetActive(reqSite.Active).
 		Save(context.Background())
 
@@ -109,6 +110,7 @@ func (h *SiteHandler) UpdateSite(c *gin.Context) {
 	resSite, err := existSite.Update().
 		SetName(reqSite.Name).
 		SetURL(reqSite.URL).
+		SetFeedURL(reqSite.FeedURL).
 		SetActive(reqSite.Active).
 		Save(context.Background())
 

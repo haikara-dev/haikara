@@ -38,6 +38,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString},
 		{Name: "url", Type: field.TypeString},
+		{Name: "feed_url", Type: field.TypeString},
 		{Name: "active", Type: field.TypeBool, Default: false},
 	}
 	// SitesTable holds the schema information for the "sites" table.

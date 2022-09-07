@@ -62,7 +62,7 @@ func init() {
 	// site.URLValidator is a validator for the "url" field. It is called by the builders before save.
 	site.URLValidator = siteDescURL.Validators[0].(func(string) error)
 	// siteDescActive is the schema descriptor for active field.
-	siteDescActive := siteFields[2].Descriptor()
+	siteDescActive := siteFields[3].Descriptor()
 	// site.DefaultActive holds the default value on creation for the active field.
 	site.DefaultActive = siteDescActive.Default.(bool)
 	userMixin := schema.User{}.Mixin()

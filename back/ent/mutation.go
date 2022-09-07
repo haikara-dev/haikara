@@ -583,6 +583,7 @@ type SiteMutation struct {
 	updated_at      *time.Time
 	name            *string
 	url             *string
+	feed_url        *string
 	active          *bool
 	clearedFields   map[string]struct{}
 	articles        map[int]struct{}
@@ -835,6 +836,42 @@ func (m *SiteMutation) ResetURL() {
 	m.url = nil
 }
 
+// SetFeedURL sets the "feed_url" field.
+func (m *SiteMutation) SetFeedURL(s string) {
+	m.feed_url = &s
+}
+
+// FeedURL returns the value of the "feed_url" field in the mutation.
+func (m *SiteMutation) FeedURL() (r string, exists bool) {
+	v := m.feed_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFeedURL returns the old "feed_url" field's value of the Site entity.
+// If the Site object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteMutation) OldFeedURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFeedURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFeedURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFeedURL: %w", err)
+	}
+	return oldValue.FeedURL, nil
+}
+
+// ResetFeedURL resets all changes to the "feed_url" field.
+func (m *SiteMutation) ResetFeedURL() {
+	m.feed_url = nil
+}
+
 // SetActive sets the "active" field.
 func (m *SiteMutation) SetActive(b bool) {
 	m.active = &b
@@ -944,7 +981,7 @@ func (m *SiteMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SiteMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.created_at != nil {
 		fields = append(fields, site.FieldCreatedAt)
 	}
@@ -956,6 +993,9 @@ func (m *SiteMutation) Fields() []string {
 	}
 	if m.url != nil {
 		fields = append(fields, site.FieldURL)
+	}
+	if m.feed_url != nil {
+		fields = append(fields, site.FieldFeedURL)
 	}
 	if m.active != nil {
 		fields = append(fields, site.FieldActive)
@@ -976,6 +1016,8 @@ func (m *SiteMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case site.FieldURL:
 		return m.URL()
+	case site.FieldFeedURL:
+		return m.FeedURL()
 	case site.FieldActive:
 		return m.Active()
 	}
@@ -995,6 +1037,8 @@ func (m *SiteMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldName(ctx)
 	case site.FieldURL:
 		return m.OldURL(ctx)
+	case site.FieldFeedURL:
+		return m.OldFeedURL(ctx)
 	case site.FieldActive:
 		return m.OldActive(ctx)
 	}
@@ -1033,6 +1077,13 @@ func (m *SiteMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetURL(v)
+		return nil
+	case site.FieldFeedURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFeedURL(v)
 		return nil
 	case site.FieldActive:
 		v, ok := value.(bool)
@@ -1101,6 +1152,9 @@ func (m *SiteMutation) ResetField(name string) error {
 		return nil
 	case site.FieldURL:
 		m.ResetURL()
+		return nil
+	case site.FieldFeedURL:
+		m.ResetFeedURL()
 		return nil
 	case site.FieldActive:
 		m.ResetActive()
