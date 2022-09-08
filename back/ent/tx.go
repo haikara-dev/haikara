@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Article is the client for interacting with the Article builders.
 	Article *ArticleClient
+	// Feed is the client for interacting with the Feed builders.
+	Feed *FeedClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
 	// User is the client for interacting with the User builders.
@@ -154,6 +156,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Article = NewArticleClient(tx.config)
+	tx.Feed = NewFeedClient(tx.config)
 	tx.Site = NewSiteClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }

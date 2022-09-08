@@ -22,6 +22,19 @@ func (f ArticleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return f(ctx, mv)
 }
 
+// The FeedFunc type is an adapter to allow the use of ordinary
+// function as Feed mutator.
+type FeedFunc func(context.Context, *ent.FeedMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f FeedFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.FeedMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FeedMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The SiteFunc type is an adapter to allow the use of ordinary
 // function as Site mutator.
 type SiteFunc func(context.Context, *ent.SiteMutation) (ent.Value, error)

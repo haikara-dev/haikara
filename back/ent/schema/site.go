@@ -32,5 +32,6 @@ func (Site) Fields() []ent.Field {
 func (Site) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("articles", Article.Type),
+		edge.To("feeds", Feed.Type),
 	}
 }

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/cubdesign/dailyfj/ent/article"
+	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/site"
 )
 
@@ -94,6 +95,21 @@ func (sc *SiteCreate) AddArticles(a ...*Article) *SiteCreate {
 		ids[i] = a[i].ID
 	}
 	return sc.AddArticleIDs(ids...)
+}
+
+// AddFeedIDs adds the "feeds" edge to the Feed entity by IDs.
+func (sc *SiteCreate) AddFeedIDs(ids ...int) *SiteCreate {
+	sc.mutation.AddFeedIDs(ids...)
+	return sc
+}
+
+// AddFeeds adds the "feeds" edges to the Feed entity.
+func (sc *SiteCreate) AddFeeds(f ...*Feed) *SiteCreate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return sc.AddFeedIDs(ids...)
 }
 
 // Mutation returns the SiteMutation object of the builder.
@@ -303,6 +319,25 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: article.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.FeedsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   site.FeedsTable,
+			Columns: []string{site.FeedsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: feed.FieldID,
 				},
 			},
 		}

@@ -37,9 +37,11 @@ type Site struct {
 type SiteEdges struct {
 	// Articles holds the value of the articles edge.
 	Articles []*Article `json:"articles,omitempty"`
+	// Feeds holds the value of the feeds edge.
+	Feeds []*Feed `json:"feeds,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // ArticlesOrErr returns the Articles value or an error if the edge
@@ -49,6 +51,15 @@ func (e SiteEdges) ArticlesOrErr() ([]*Article, error) {
 		return e.Articles, nil
 	}
 	return nil, &NotLoadedError{edge: "articles"}
+}
+
+// FeedsOrErr returns the Feeds value or an error if the edge
+// was not loaded in eager-loading.
+func (e SiteEdges) FeedsOrErr() ([]*Feed, error) {
+	if e.loadedTypes[1] {
+		return e.Feeds, nil
+	}
+	return nil, &NotLoadedError{edge: "feeds"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -129,6 +140,11 @@ func (s *Site) assignValues(columns []string, values []interface{}) error {
 // QueryArticles queries the "articles" edge of the Site entity.
 func (s *Site) QueryArticles() *ArticleQuery {
 	return (&SiteClient{config: s.config}).QueryArticles(s)
+}
+
+// QueryFeeds queries the "feeds" edge of the Site entity.
+func (s *Site) QueryFeeds() *FeedQuery {
+	return (&SiteClient{config: s.config}).QueryFeeds(s)
 }
 
 // Update returns a builder for updating this Site.

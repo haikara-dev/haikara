@@ -25,6 +25,8 @@ const (
 	FieldActive = "active"
 	// EdgeArticles holds the string denoting the articles edge name in mutations.
 	EdgeArticles = "articles"
+	// EdgeFeeds holds the string denoting the feeds edge name in mutations.
+	EdgeFeeds = "feeds"
 	// Table holds the table name of the site in the database.
 	Table = "sites"
 	// ArticlesTable is the table that holds the articles relation/edge.
@@ -34,6 +36,13 @@ const (
 	ArticlesInverseTable = "articles"
 	// ArticlesColumn is the table column denoting the articles relation/edge.
 	ArticlesColumn = "site_articles"
+	// FeedsTable is the table that holds the feeds relation/edge.
+	FeedsTable = "feeds"
+	// FeedsInverseTable is the table name for the Feed entity.
+	// It exists in this package in order to avoid circular dependency with the "feed" package.
+	FeedsInverseTable = "feeds"
+	// FeedsColumn is the table column denoting the feeds relation/edge.
+	FeedsColumn = "site_feeds"
 )
 
 // Columns holds all SQL columns for site fields.

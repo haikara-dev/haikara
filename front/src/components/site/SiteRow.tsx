@@ -71,6 +71,8 @@ const SiteRow: React.FC<SiteRowProps> = ({
         )}
       </Box>
 
+      <div>{site.feed_url ? "RSS" : "-"}</div>
+
       <Checkbox checked={site.active} onChange={onChangeCheckboxHandler} />
 
       <IconButton onClick={onClickRemoveHandler} aria-label="remove">

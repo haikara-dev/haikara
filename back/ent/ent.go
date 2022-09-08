@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/cubdesign/dailyfj/ent/article"
+	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/site"
 	"github.com/cubdesign/dailyfj/ent/user"
 )
@@ -34,6 +35,7 @@ type OrderFunc func(*sql.Selector)
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
 		article.Table: article.ValidColumn,
+		feed.Table:    feed.ValidColumn,
 		site.Table:    site.ValidColumn,
 		user.Table:    user.ValidColumn,
 	}

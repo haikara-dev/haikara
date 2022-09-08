@@ -590,6 +590,34 @@ func HasArticlesWith(preds ...predicate.Article) predicate.Site {
 	})
 }
 
+// HasFeeds applies the HasEdge predicate on the "feeds" edge.
+func HasFeeds() predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FeedsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FeedsTable, FeedsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFeedsWith applies the HasEdge predicate on the "feeds" edge with a given conditions (other predicates).
+func HasFeedsWith(preds ...predicate.Feed) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FeedsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FeedsTable, FeedsColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Site) predicate.Site {
 	return predicate.Site(func(s *sql.Selector) {

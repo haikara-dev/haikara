@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cubdesign/dailyfj/ent/article"
+	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/schema"
 	"github.com/cubdesign/dailyfj/ent/site"
 	"github.com/cubdesign/dailyfj/ent/user"
@@ -38,6 +39,25 @@ func init() {
 	articleDescURL := articleFields[1].Descriptor()
 	// article.URLValidator is a validator for the "url" field. It is called by the builders before save.
 	article.URLValidator = articleDescURL.Validators[0].(func(string) error)
+	feedMixin := schema.Feed{}.Mixin()
+	feedMixinFields0 := feedMixin[0].Fields()
+	_ = feedMixinFields0
+	feedFields := schema.Feed{}.Fields()
+	_ = feedFields
+	// feedDescCreatedAt is the schema descriptor for created_at field.
+	feedDescCreatedAt := feedMixinFields0[0].Descriptor()
+	// feed.DefaultCreatedAt holds the default value on creation for the created_at field.
+	feed.DefaultCreatedAt = feedDescCreatedAt.Default.(func() time.Time)
+	// feedDescUpdatedAt is the schema descriptor for updated_at field.
+	feedDescUpdatedAt := feedMixinFields0[1].Descriptor()
+	// feed.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	feed.DefaultUpdatedAt = feedDescUpdatedAt.Default.(func() time.Time)
+	// feed.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	feed.UpdateDefaultUpdatedAt = feedDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// feedDescContents is the schema descriptor for contents field.
+	feedDescContents := feedFields[0].Descriptor()
+	// feed.ContentsValidator is a validator for the "contents" field. It is called by the builders before save.
+	feed.ContentsValidator = feedDescContents.Validators[0].(func(string) error)
 	siteMixin := schema.Site{}.Mixin()
 	siteMixinFields0 := siteMixin[0].Fields()
 	_ = siteMixinFields0

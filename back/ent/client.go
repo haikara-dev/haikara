@@ -11,6 +11,7 @@ import (
 	"github.com/cubdesign/dailyfj/ent/migrate"
 
 	"github.com/cubdesign/dailyfj/ent/article"
+	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/site"
 	"github.com/cubdesign/dailyfj/ent/user"
 
@@ -26,6 +27,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Article is the client for interacting with the Article builders.
 	Article *ArticleClient
+	// Feed is the client for interacting with the Feed builders.
+	Feed *FeedClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
 	// User is the client for interacting with the User builders.
@@ -44,6 +47,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Article = NewArticleClient(c.config)
+	c.Feed = NewFeedClient(c.config)
 	c.Site = NewSiteClient(c.config)
 	c.User = NewUserClient(c.config)
 }
@@ -80,6 +84,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:     ctx,
 		config:  cfg,
 		Article: NewArticleClient(cfg),
+		Feed:    NewFeedClient(cfg),
 		Site:    NewSiteClient(cfg),
 		User:    NewUserClient(cfg),
 	}, nil
@@ -102,6 +107,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:     ctx,
 		config:  cfg,
 		Article: NewArticleClient(cfg),
+		Feed:    NewFeedClient(cfg),
 		Site:    NewSiteClient(cfg),
 		User:    NewUserClient(cfg),
 	}, nil
@@ -133,6 +139,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Article.Use(hooks...)
+	c.Feed.Use(hooks...)
 	c.Site.Use(hooks...)
 	c.User.Use(hooks...)
 }
@@ -243,6 +250,112 @@ func (c *ArticleClient) Hooks() []Hook {
 	return c.hooks.Article
 }
 
+// FeedClient is a client for the Feed schema.
+type FeedClient struct {
+	config
+}
+
+// NewFeedClient returns a client for the Feed from the given config.
+func NewFeedClient(c config) *FeedClient {
+	return &FeedClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `feed.Hooks(f(g(h())))`.
+func (c *FeedClient) Use(hooks ...Hook) {
+	c.hooks.Feed = append(c.hooks.Feed, hooks...)
+}
+
+// Create returns a builder for creating a Feed entity.
+func (c *FeedClient) Create() *FeedCreate {
+	mutation := newFeedMutation(c.config, OpCreate)
+	return &FeedCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Feed entities.
+func (c *FeedClient) CreateBulk(builders ...*FeedCreate) *FeedCreateBulk {
+	return &FeedCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Feed.
+func (c *FeedClient) Update() *FeedUpdate {
+	mutation := newFeedMutation(c.config, OpUpdate)
+	return &FeedUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *FeedClient) UpdateOne(f *Feed) *FeedUpdateOne {
+	mutation := newFeedMutation(c.config, OpUpdateOne, withFeed(f))
+	return &FeedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *FeedClient) UpdateOneID(id int) *FeedUpdateOne {
+	mutation := newFeedMutation(c.config, OpUpdateOne, withFeedID(id))
+	return &FeedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Feed.
+func (c *FeedClient) Delete() *FeedDelete {
+	mutation := newFeedMutation(c.config, OpDelete)
+	return &FeedDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *FeedClient) DeleteOne(f *Feed) *FeedDeleteOne {
+	return c.DeleteOneID(f.ID)
+}
+
+// DeleteOne returns a builder for deleting the given entity by its id.
+func (c *FeedClient) DeleteOneID(id int) *FeedDeleteOne {
+	builder := c.Delete().Where(feed.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &FeedDeleteOne{builder}
+}
+
+// Query returns a query builder for Feed.
+func (c *FeedClient) Query() *FeedQuery {
+	return &FeedQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Feed entity by its id.
+func (c *FeedClient) Get(ctx context.Context, id int) (*Feed, error) {
+	return c.Query().Where(feed.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *FeedClient) GetX(ctx context.Context, id int) *Feed {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySite queries the site edge of a Feed.
+func (c *FeedClient) QuerySite(f *Feed) *SiteQuery {
+	query := &SiteQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := f.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(feed.Table, feed.FieldID, id),
+			sqlgraph.To(site.Table, site.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, feed.SiteTable, feed.SiteColumn),
+		)
+		fromV = sqlgraph.Neighbors(f.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *FeedClient) Hooks() []Hook {
+	return c.hooks.Feed
+}
+
 // SiteClient is a client for the Site schema.
 type SiteClient struct {
 	config
@@ -337,6 +450,22 @@ func (c *SiteClient) QueryArticles(s *Site) *ArticleQuery {
 			sqlgraph.From(site.Table, site.FieldID, id),
 			sqlgraph.To(article.Table, article.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, site.ArticlesTable, site.ArticlesColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFeeds queries the feeds edge of a Site.
+func (c *SiteClient) QueryFeeds(s *Site) *FeedQuery {
+	query := &FeedQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, id),
+			sqlgraph.To(feed.Table, feed.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, site.FeedsTable, site.FeedsColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil

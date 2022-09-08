@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/cubdesign/dailyfj/ent/article"
+	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/predicate"
 	"github.com/cubdesign/dailyfj/ent/site"
 )
@@ -26,6 +27,7 @@ type SiteQuery struct {
 	fields       []string
 	predicates   []predicate.Site
 	withArticles *ArticleQuery
+	withFeeds    *FeedQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -77,6 +79,28 @@ func (sq *SiteQuery) QueryArticles() *ArticleQuery {
 			sqlgraph.From(site.Table, site.FieldID, selector),
 			sqlgraph.To(article.Table, article.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, site.ArticlesTable, site.ArticlesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFeeds chains the current query on the "feeds" edge.
+func (sq *SiteQuery) QueryFeeds() *FeedQuery {
+	query := &FeedQuery{config: sq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, selector),
+			sqlgraph.To(feed.Table, feed.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, site.FeedsTable, site.FeedsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -266,6 +290,7 @@ func (sq *SiteQuery) Clone() *SiteQuery {
 		order:        append([]OrderFunc{}, sq.order...),
 		predicates:   append([]predicate.Site{}, sq.predicates...),
 		withArticles: sq.withArticles.Clone(),
+		withFeeds:    sq.withFeeds.Clone(),
 		// clone intermediate query.
 		sql:    sq.sql.Clone(),
 		path:   sq.path,
@@ -281,6 +306,17 @@ func (sq *SiteQuery) WithArticles(opts ...func(*ArticleQuery)) *SiteQuery {
 		opt(query)
 	}
 	sq.withArticles = query
+	return sq
+}
+
+// WithFeeds tells the query-builder to eager-load the nodes that are connected to
+// the "feeds" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SiteQuery) WithFeeds(opts ...func(*FeedQuery)) *SiteQuery {
+	query := &FeedQuery{config: sq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withFeeds = query
 	return sq
 }
 
@@ -352,8 +388,9 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 	var (
 		nodes       = []*Site{}
 		_spec       = sq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			sq.withArticles != nil,
+			sq.withFeeds != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -378,6 +415,13 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 		if err := sq.loadArticles(ctx, query, nodes,
 			func(n *Site) { n.Edges.Articles = []*Article{} },
 			func(n *Site, e *Article) { n.Edges.Articles = append(n.Edges.Articles, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withFeeds; query != nil {
+		if err := sq.loadFeeds(ctx, query, nodes,
+			func(n *Site) { n.Edges.Feeds = []*Feed{} },
+			func(n *Site, e *Feed) { n.Edges.Feeds = append(n.Edges.Feeds, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -410,6 +454,37 @@ func (sq *SiteQuery) loadArticles(ctx context.Context, query *ArticleQuery, node
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "site_articles" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (sq *SiteQuery) loadFeeds(ctx context.Context, query *FeedQuery, nodes []*Site, init func(*Site), assign func(*Site, *Feed)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Site)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.InValues(site.FeedsColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.site_feeds
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "site_feeds" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "site_feeds" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
