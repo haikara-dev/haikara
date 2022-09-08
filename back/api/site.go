@@ -210,7 +210,7 @@ func (h *SiteHandler) DeActiveSite(c *gin.Context) {
 	c.JSON(http.StatusOK, &resSite)
 }
 
-func (h *SiteHandler) RunHTMLParser(c *gin.Context) {
+func (h *SiteHandler) RunCrawling(c *gin.Context) {
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
 	if err != nil {
@@ -230,15 +230,39 @@ func (h *SiteHandler) RunHTMLParser(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	go func(url string) {
-		fmt.Println("start crawling")
-		rssUrl := getRSSUrl(url)
-		if rssUrl != "" {
-			fmt.Println("link found:", rssUrl)
-		}
-		fmt.Println("end crawling")
-	}(existSite.URL)
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("run: %s", existSite.URL)})
+
+	c.JSON(http.StatusOK, gin.H{"url": fmt.Sprintf("run: %s", existSite.URL)})
+}
+
+func (h *SiteHandler) GetRssUrl(c *gin.Context) {
+	strId := c.Param("id")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	existSite, err := h.Client.Site.
+		Get(context.Background(), id)
+
+	if err != nil && !ent.IsNotFound(err) {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if existSite == nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	fmt.Println("start crawling")
+	rssUrl := getRSSUrl(existSite.URL)
+	if rssUrl != "" {
+		fmt.Println("link found:", rssUrl)
+	}
+	fmt.Println("end crawling")
+
+	c.JSON(http.StatusOK, gin.H{"url": fmt.Sprintf("%s", existSite.URL)})
 }
 
 func getRSSUrl(baseUrl string) string {

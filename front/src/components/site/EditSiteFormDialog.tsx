@@ -41,6 +41,7 @@ export type AddSiteFormProps = {
     feed_url: string,
     active: boolean
   ) => void;
+  getRssUrl: (id: number) => Promise<string>;
   onEndEdit: () => void;
 };
 
@@ -49,12 +50,14 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
   handleClose,
   site,
   updateSite,
+  getRssUrl,
   onEndEdit,
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<FormInput>({
     resolver: yupResolver(schema),
   });
@@ -78,8 +81,18 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
     }
   };
 
+  const onClickGetFeedUrlHandler = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    const url = await getRssUrl(site.id);
+    if (url !== "") {
+      setValue("feed_url", url, { shouldValidate: true });
+    }
+  };
+
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth={true}>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
         <DialogTitle>Edit Site</DialogTitle>
         <DialogContent>
@@ -96,6 +109,7 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
               {...register("name")}
               sx={{ flexGrow: 1 }}
             />
+
             <TextField
               label="Site URL"
               error={errors.url ? true : false}
@@ -107,6 +121,8 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
               sx={{ flexGrow: 1 }}
             />
 
+            <Button onClick={onClickGetFeedUrlHandler}>Get Feed URL</Button>
+
             <TextField
               label="Feed URL"
               error={errors.feed_url ? true : false}
@@ -116,6 +132,7 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
               defaultValue={site.feed_url}
               {...register("feed_url")}
               sx={{ flexGrow: 1 }}
+              InputLabelProps={{ shrink: true }}
             />
           </Box>
         </DialogContent>

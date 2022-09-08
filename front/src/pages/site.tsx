@@ -200,11 +200,11 @@ const Sites: NextPage = () => {
     }
   };
 
-  const run = async (id: number) => {
+  const runCrawling = async (id: number) => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/sites/run/"),
+        new URL(id.toString(), BACKEND_API_URL + "/sites/run-crawling/"),
         {
           method: "GET",
           headers: {
@@ -222,6 +222,32 @@ const Sites: NextPage = () => {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const getRssUrl = async (id: number): Promise<string> => {
+    try {
+      const headers = await getRequestHeaders();
+      const res = await fetch(
+        new URL(id.toString(), BACKEND_API_URL + "/sites/get-rss-url/"),
+        {
+          method: "GET",
+          headers: {
+            ...headers,
+            ...{
+              "Content-Type": "application/json",
+            },
+          },
+        }
+      );
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+
+      const json = await res.json();
+      console.log(json);
+      return json.url;
+    } catch (err) {
+      console.log(err);
+    }
+    return "";
   };
 
   useEffect(() => {
@@ -272,7 +298,7 @@ const Sites: NextPage = () => {
                       removeSite={removeSite}
                       updateSite={updateSite}
                       openDialog={handleEditOpen}
-                      run={run}
+                      runCrawling={runCrawling}
                     />
                   </Card>
                 );
@@ -286,6 +312,7 @@ const Sites: NextPage = () => {
         open={addOpen}
         handleClose={handleAddClose}
         addSite={addSite}
+        getRssUrl={getRssUrl}
       />
 
       {editTarget && (
@@ -295,6 +322,7 @@ const Sites: NextPage = () => {
           site={editTarget}
           updateSite={updateSite}
           onEndEdit={handleEditClose}
+          getRssUrl={getRssUrl}
         />
       )}
       <Footer />

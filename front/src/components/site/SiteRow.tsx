@@ -16,7 +16,7 @@ export type SiteRowProps = {
     active: boolean
   ) => void;
   openDialog: (site: Site) => void;
-  run: (id: number) => void;
+  runCrawling: (id: number) => void;
 };
 
 const SiteRow: React.FC<SiteRowProps> = ({
@@ -25,11 +25,11 @@ const SiteRow: React.FC<SiteRowProps> = ({
   deActiveSite,
   removeSite,
   openDialog,
-  run,
+  runCrawling,
 }) => {
   const onClickRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    run(site.id);
+    runCrawling(site.id);
   };
 
   const onChangeCheckboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
