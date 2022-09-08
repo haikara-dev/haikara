@@ -108,12 +108,12 @@ func (h *FeedHandler) ParseFeed(c *gin.Context) {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-
 		if existArticle == nil {
 			_, err := h.Client.Article.
 				Create().
 				SetTitle(item.Title).
 				SetURL(item.Link).
+				SetPublishedAt(*item.PublishedParsed).
 				SetSiteID(existFeed.Edges.Site.ID).
 				Save(context.Background())
 			if err != nil {
@@ -125,6 +125,7 @@ func (h *FeedHandler) ParseFeed(c *gin.Context) {
 				UpdateOne(existArticle).
 				SetTitle(item.Title).
 				SetURL(item.Link).
+				SetPublishedAt(*item.PublishedParsed).
 				SetSiteID(existFeed.Edges.Site.ID).
 				Save(context.Background())
 			if err != nil {

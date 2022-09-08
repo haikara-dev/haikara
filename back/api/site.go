@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/cubdesign/dailyfj/ent"
+	"github.com/cubdesign/dailyfj/ent/site"
 	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly/v2"
 	"log"
@@ -19,6 +20,7 @@ type SiteHandler struct {
 func (h *SiteHandler) GetAllSites(c *gin.Context) {
 	sites, err := h.Client.Site.
 		Query().
+		Order(ent.Desc(site.FieldUpdatedAt)).
 		All(context.Background())
 
 	if err != nil {

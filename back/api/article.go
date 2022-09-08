@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"github.com/cubdesign/dailyfj/ent"
+	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -15,6 +16,7 @@ type ArticleHandler struct {
 func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 	articles, err := h.Client.Article.
 		Query().
+		Order(ent.Desc(article.FieldPublishedAt)).
 		All(context.Background())
 
 	if err != nil {

@@ -47,6 +47,12 @@ func (au *ArticleUpdate) SetURL(s string) *ArticleUpdate {
 	return au
 }
 
+// SetPublishedAt sets the "published_at" field.
+func (au *ArticleUpdate) SetPublishedAt(t time.Time) *ArticleUpdate {
+	au.mutation.SetPublishedAt(t)
+	return au
+}
+
 // SetSiteID sets the "site" edge to the Site entity by ID.
 func (au *ArticleUpdate) SetSiteID(id int) *ArticleUpdate {
 	au.mutation.SetSiteID(id)
@@ -195,6 +201,13 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: article.FieldURL,
 		})
 	}
+	if value, ok := au.mutation.PublishedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: article.FieldPublishedAt,
+		})
+	}
 	if au.mutation.SiteCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -264,6 +277,12 @@ func (auo *ArticleUpdateOne) SetTitle(s string) *ArticleUpdateOne {
 // SetURL sets the "url" field.
 func (auo *ArticleUpdateOne) SetURL(s string) *ArticleUpdateOne {
 	auo.mutation.SetURL(s)
+	return auo
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (auo *ArticleUpdateOne) SetPublishedAt(t time.Time) *ArticleUpdateOne {
+	auo.mutation.SetPublishedAt(t)
 	return auo
 }
 
@@ -443,6 +462,13 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 			Type:   field.TypeString,
 			Value:  value,
 			Column: article.FieldURL,
+		})
+	}
+	if value, ok := auo.mutation.PublishedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: article.FieldPublishedAt,
 		})
 	}
 	if auo.mutation.SiteCleared() {

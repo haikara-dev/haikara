@@ -15,6 +15,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "title", Type: field.TypeString},
 		{Name: "url", Type: field.TypeString},
+		{Name: "published_at", Type: field.TypeTime},
 		{Name: "site_articles", Type: field.TypeInt},
 	}
 	// ArticlesTable holds the schema information for the "articles" table.
@@ -25,7 +26,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "articles_sites_articles",
-				Columns:    []*schema.Column{ArticlesColumns[5]},
+				Columns:    []*schema.Column{ArticlesColumns[6]},
 				RefColumns: []*schema.Column{SitesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

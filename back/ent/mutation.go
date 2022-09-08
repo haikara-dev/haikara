@@ -43,6 +43,7 @@ type ArticleMutation struct {
 	updated_at    *time.Time
 	title         *string
 	url           *string
+	published_at  *time.Time
 	clearedFields map[string]struct{}
 	site          *int
 	clearedsite   bool
@@ -293,6 +294,42 @@ func (m *ArticleMutation) ResetURL() {
 	m.url = nil
 }
 
+// SetPublishedAt sets the "published_at" field.
+func (m *ArticleMutation) SetPublishedAt(t time.Time) {
+	m.published_at = &t
+}
+
+// PublishedAt returns the value of the "published_at" field in the mutation.
+func (m *ArticleMutation) PublishedAt() (r time.Time, exists bool) {
+	v := m.published_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublishedAt returns the old "published_at" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldPublishedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPublishedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPublishedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublishedAt: %w", err)
+	}
+	return oldValue.PublishedAt, nil
+}
+
+// ResetPublishedAt resets all changes to the "published_at" field.
+func (m *ArticleMutation) ResetPublishedAt() {
+	m.published_at = nil
+}
+
 // SetSiteID sets the "site" edge to the Site entity by id.
 func (m *ArticleMutation) SetSiteID(id int) {
 	m.site = &id
@@ -351,7 +388,7 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.created_at != nil {
 		fields = append(fields, article.FieldCreatedAt)
 	}
@@ -363,6 +400,9 @@ func (m *ArticleMutation) Fields() []string {
 	}
 	if m.url != nil {
 		fields = append(fields, article.FieldURL)
+	}
+	if m.published_at != nil {
+		fields = append(fields, article.FieldPublishedAt)
 	}
 	return fields
 }
@@ -380,6 +420,8 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case article.FieldURL:
 		return m.URL()
+	case article.FieldPublishedAt:
+		return m.PublishedAt()
 	}
 	return nil, false
 }
@@ -397,6 +439,8 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldTitle(ctx)
 	case article.FieldURL:
 		return m.OldURL(ctx)
+	case article.FieldPublishedAt:
+		return m.OldPublishedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Article field %s", name)
 }
@@ -433,6 +477,13 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetURL(v)
+		return nil
+	case article.FieldPublishedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublishedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)
@@ -494,6 +545,9 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldURL:
 		m.ResetURL()
+		return nil
+	case article.FieldPublishedAt:
+		m.ResetPublishedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)

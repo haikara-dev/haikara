@@ -11,6 +11,7 @@ const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 export type Article = {
   id: number;
   title: string;
+  published_at: string;
 };
 
 const Articles: NextPage = () => {
@@ -78,7 +79,9 @@ const Articles: NextPage = () => {
                 return (
                   <Card key={article.id}>
                     <Stack direction="row" gap={3} alignItems="center">
-                      <div>{article.id}</div>
+                      <div>
+                        {new Date(article.published_at).toLocaleDateString()}
+                      </div>
                       <div>{article.title}</div>
                     </Stack>
                   </Card>

@@ -19,6 +19,8 @@ const (
 	FieldTitle = "title"
 	// FieldURL holds the string denoting the url field in the database.
 	FieldURL = "url"
+	// FieldPublishedAt holds the string denoting the published_at field in the database.
+	FieldPublishedAt = "published_at"
 	// EdgeSite holds the string denoting the site edge name in mutations.
 	EdgeSite = "site"
 	// Table holds the table name of the article in the database.
@@ -39,6 +41,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldTitle,
 	FieldURL,
+	FieldPublishedAt,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "articles"

@@ -109,6 +109,13 @@ func URL(v string) predicate.Article {
 	})
 }
 
+// PublishedAt applies equality check predicate on the "published_at" field. It's identical to PublishedAtEQ.
+func PublishedAt(v time.Time) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPublishedAt), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Article {
 	return predicate.Article(func(s *sql.Selector) {
@@ -432,6 +439,70 @@ func URLEqualFold(v string) predicate.Article {
 func URLContainsFold(v string) predicate.Article {
 	return predicate.Article(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldURL), v))
+	})
+}
+
+// PublishedAtEQ applies the EQ predicate on the "published_at" field.
+func PublishedAtEQ(v time.Time) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtNEQ applies the NEQ predicate on the "published_at" field.
+func PublishedAtNEQ(v time.Time) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtIn applies the In predicate on the "published_at" field.
+func PublishedAtIn(vs ...time.Time) predicate.Article {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldPublishedAt), v...))
+	})
+}
+
+// PublishedAtNotIn applies the NotIn predicate on the "published_at" field.
+func PublishedAtNotIn(vs ...time.Time) predicate.Article {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldPublishedAt), v...))
+	})
+}
+
+// PublishedAtGT applies the GT predicate on the "published_at" field.
+func PublishedAtGT(v time.Time) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtGTE applies the GTE predicate on the "published_at" field.
+func PublishedAtGTE(v time.Time) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtLT applies the LT predicate on the "published_at" field.
+func PublishedAtLT(v time.Time) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtLTE applies the LTE predicate on the "published_at" field.
+func PublishedAtLTE(v time.Time) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldPublishedAt), v))
 	})
 }
 

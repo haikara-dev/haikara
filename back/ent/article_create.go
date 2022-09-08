@@ -61,6 +61,12 @@ func (ac *ArticleCreate) SetURL(s string) *ArticleCreate {
 	return ac
 }
 
+// SetPublishedAt sets the "published_at" field.
+func (ac *ArticleCreate) SetPublishedAt(t time.Time) *ArticleCreate {
+	ac.mutation.SetPublishedAt(t)
+	return ac
+}
+
 // SetSiteID sets the "site" edge to the Site entity by ID.
 func (ac *ArticleCreate) SetSiteID(id int) *ArticleCreate {
 	ac.mutation.SetSiteID(id)
@@ -183,6 +189,9 @@ func (ac *ArticleCreate) check() error {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Article.url": %w`, err)}
 		}
 	}
+	if _, ok := ac.mutation.PublishedAt(); !ok {
+		return &ValidationError{Name: "published_at", err: errors.New(`ent: missing required field "Article.published_at"`)}
+	}
 	if _, ok := ac.mutation.SiteID(); !ok {
 		return &ValidationError{Name: "site", err: errors.New(`ent: missing required edge "Article.site"`)}
 	}
@@ -244,6 +253,14 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 			Column: article.FieldURL,
 		})
 		_node.URL = value
+	}
+	if value, ok := ac.mutation.PublishedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: article.FieldPublishedAt,
+		})
+		_node.PublishedAt = value
 	}
 	if nodes := ac.mutation.SiteIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

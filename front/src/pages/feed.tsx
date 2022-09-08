@@ -109,7 +109,7 @@ const Feeds: NextPage = () => {
                         Run
                       </Button>
                       <div>{feed.id}</div>
-                      <div>{feed.created_at}</div>
+                      <div>{new Date(feed.created_at).toLocaleString()}</div>
                       <div>{feed.site_id}</div>
                       <div>{feed.site_name}</div>
                     </Stack>

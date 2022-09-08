@@ -25,6 +25,8 @@ type Article struct {
 	Title string `json:"title,omitempty"`
 	// URL holds the value of the "url" field.
 	URL string `json:"url,omitempty"`
+	// PublishedAt holds the value of the "published_at" field.
+	PublishedAt time.Time `json:"published_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ArticleQuery when eager-loading is set.
 	Edges         ArticleEdges `json:"edges"`
@@ -62,7 +64,7 @@ func (*Article) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case article.FieldTitle, article.FieldURL:
 			values[i] = new(sql.NullString)
-		case article.FieldCreatedAt, article.FieldUpdatedAt:
+		case article.FieldCreatedAt, article.FieldUpdatedAt, article.FieldPublishedAt:
 			values[i] = new(sql.NullTime)
 		case article.ForeignKeys[0]: // site_articles
 			values[i] = new(sql.NullInt64)
@@ -110,6 +112,12 @@ func (a *Article) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
 				a.URL = value.String
+			}
+		case article.FieldPublishedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field published_at", values[i])
+			} else if value.Valid {
+				a.PublishedAt = value.Time
 			}
 		case article.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -162,6 +170,9 @@ func (a *Article) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("url=")
 	builder.WriteString(a.URL)
+	builder.WriteString(", ")
+	builder.WriteString("published_at=")
+	builder.WriteString(a.PublishedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }
