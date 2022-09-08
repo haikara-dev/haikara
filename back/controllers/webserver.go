@@ -27,6 +27,10 @@ func StartWebserver() {
 		Client: database.Client,
 	}
 
+	apiFeedHandler := api.FeedHandler{
+		Client: database.Client,
+	}
+
 	apiArticleHandler := api.ArticleHandler{
 		Client: database.Client,
 	}
@@ -63,6 +67,10 @@ func StartWebserver() {
 		authorized.GET("/sites/run-crawling/:id", apiSiteHandler.RunCrawling)
 		authorized.GET("/sites/get-rss-url/:id", apiSiteHandler.GetRssUrlBySiteId)
 		authorized.GET("/sites/get-rss-url-by-url", apiSiteHandler.GetRssUrlByUrl)
+
+		authorized.GET("/feeds", apiFeedHandler.GetAllFeeds)
+		authorized.GET("/feeds/lite", apiFeedHandler.GetAllFeedsNoneContentsField)
+		authorized.GET("/feeds/parse/:id", apiFeedHandler.ParseFeed)
 
 		authorized.GET("/articles", apiArticleHandler.GetAllArticles)
 		authorized.POST("/articles", apiArticleHandler.CreateArticle)

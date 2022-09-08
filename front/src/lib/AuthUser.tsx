@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 export type User = {
+  id: number;
   email: string;
   role: "admin" | "user";
 };
@@ -115,6 +116,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
       const json = await res.json();
       setCurrentUser({
+        id: json.id,
         email: json.email,
         role: json.role,
       });

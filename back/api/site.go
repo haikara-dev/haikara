@@ -231,7 +231,31 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"url": existSite.URL})
+	var contents = ""
+
+	s := colly.NewCollector()
+	s.OnError(func(_ *colly.Response, err error) {
+		log.Println("Something went wrong:", err)
+	})
+	s.OnRequest(func(r *colly.Request) {
+		fmt.Println("visiting", r.URL)
+	})
+	s.OnResponse(func(r *colly.Response) {
+		contents = string(r.Body)
+	})
+	s.Visit(existSite.FeedURL)
+
+	if contents == "" {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	resFeed, err := h.Client.Feed.
+		Create().
+		SetContents(contents).
+		SetSite(existSite).
+		Save(context.Background())
+
+	c.JSON(http.StatusOK, gin.H{"id": resFeed.ID, "url": existSite.URL, "rss": existSite.FeedURL})
 }
 
 func (h *SiteHandler) GetRssUrlBySiteId(c *gin.Context) {
