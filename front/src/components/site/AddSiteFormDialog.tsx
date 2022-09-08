@@ -1,7 +1,7 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   TextField,
@@ -45,6 +45,11 @@ const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
     formState: { errors },
     reset,
   } = useForm<FormInput>({
+    defaultValues: {
+      name: "",
+      url: "",
+      feed_url: "",
+    },
     resolver: yupResolver(schema),
   });
 
@@ -66,6 +71,10 @@ const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    reset();
+  }, [open]);
 
   return (
     <Dialog open={open} onClose={handleClose}>
