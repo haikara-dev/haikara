@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"github.com/cubdesign/dailyfj/ent"
+	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/site"
 	"github.com/gin-gonic/gin"
@@ -98,16 +99,40 @@ func (h *FeedHandler) ParseFeed(c *gin.Context) {
 	}
 
 	for _, item := range feed.Items {
-		_, err := h.Client.Article.
-			Create().
-			SetTitle(item.Title).
-			SetURL(item.Link).
-			SetSiteID(existFeed.Edges.Site.ID).
-			Save(context.Background())
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+		existArticle, err := h.Client.Article.
+			Query().
+			Where(article.URL(item.Link)).
+			Only(context.Background())
+
+		if err != nil && !ent.IsNotFound(err) {
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
+
+		if existArticle == nil {
+			_, err := h.Client.Article.
+				Create().
+				SetTitle(item.Title).
+				SetURL(item.Link).
+				SetSiteID(existFeed.Edges.Site.ID).
+				Save(context.Background())
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		} else {
+			_, err := h.Client.Article.
+				UpdateOne(existArticle).
+				SetTitle(item.Title).
+				SetURL(item.Link).
+				SetSiteID(existFeed.Edges.Site.ID).
+				Save(context.Background())
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		}
+
 	}
 
 	c.JSON(http.StatusOK, existFeed)
