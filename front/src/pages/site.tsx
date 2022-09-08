@@ -250,6 +250,32 @@ const Sites: NextPage = () => {
     return "";
   };
 
+  const getRssUrlByUrl = async (url: string): Promise<string> => {
+    try {
+      const headers = await getRequestHeaders();
+      const queryParams = new URLSearchParams({ url: url });
+      const res = await fetch(
+        new URL(BACKEND_API_URL + "/sites/get-rss-url-by-url?" + queryParams),
+        {
+          method: "GET",
+          headers: {
+            ...headers,
+            ...{
+              "Content-Type": "application/json",
+            },
+          },
+        }
+      );
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+
+      const json = await res.json();
+      console.log(json);
+      return json.url;
+    } catch (err) {
+      console.log(err);
+    }
+    return "";
+  };
   useEffect(() => {
     setLoading(true);
     loadData();
@@ -312,7 +338,7 @@ const Sites: NextPage = () => {
         open={addOpen}
         handleClose={handleAddClose}
         addSite={addSite}
-        getRssUrl={getRssUrl}
+        getRssUrlByUrl={getRssUrlByUrl}
       />
 
       {editTarget && (

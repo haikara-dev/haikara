@@ -32,14 +32,14 @@ export type AddSiteFormProps = {
   open: boolean;
   handleClose: () => void;
   addSite: (name: string, url: string, feed_url: string) => void;
-  getRssUrl: (id: number) => Promise<string>;
+  getRssUrlByUrl: (url: string) => Promise<string>;
 };
 
 const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
   open,
   handleClose,
   addSite,
-  getRssUrl,
+  getRssUrlByUrl,
 }) => {
   const {
     register,
@@ -47,6 +47,7 @@ const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
     formState: { errors },
     reset,
     setValue,
+    getValues,
   } = useForm<FormInput>({
     defaultValues: {
       name: "",
@@ -79,10 +80,10 @@ const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    // const url = await getRssUrl(site.id);
-    // if (url !== "") {
-    //   setValue("feed_url", url, { shouldValidate: true });
-    // }
+    const url = await getRssUrlByUrl(getValues("url"));
+    if (url !== "") {
+      setValue("feed_url", url, { shouldValidate: true });
+    }
   };
 
   useEffect(() => {

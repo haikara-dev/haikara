@@ -231,10 +231,10 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"url": fmt.Sprintf("run: %s", existSite.URL)})
+	c.JSON(http.StatusOK, gin.H{"url": existSite.URL})
 }
 
-func (h *SiteHandler) GetRssUrl(c *gin.Context) {
+func (h *SiteHandler) GetRssUrlBySiteId(c *gin.Context) {
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
 	if err != nil {
@@ -262,7 +262,25 @@ func (h *SiteHandler) GetRssUrl(c *gin.Context) {
 	}
 	fmt.Println("end crawling")
 
-	c.JSON(http.StatusOK, gin.H{"url": fmt.Sprintf("%s", existSite.URL)})
+	c.JSON(http.StatusOK, gin.H{"url": rssUrl})
+}
+
+func (h *SiteHandler) GetRssUrlByUrl(c *gin.Context) {
+	url := c.Query("url")
+
+	if url == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("start crawling")
+	rssUrl := getRSSUrl(url)
+	if rssUrl != "" {
+		fmt.Println("link found:", rssUrl)
+	}
+	fmt.Println("end crawling")
+
+	c.JSON(http.StatusOK, gin.H{"url": rssUrl})
 }
 
 func getRSSUrl(baseUrl string) string {
