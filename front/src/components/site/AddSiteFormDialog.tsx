@@ -22,10 +22,7 @@ type FormInput = {
 const schema = yup.object({
   name: yup.string().required("必須です"),
   url: yup.string().required("必須です").url("正しいURLを入力してください"),
-  feed_url: yup
-    .string()
-    .required("必須です")
-    .url("正しいURLを入力してください"),
+  feed_url: yup.string().url("正しいURLを入力してください"),
 });
 
 export type AddSiteFormProps = {
@@ -66,7 +63,6 @@ const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
       if (trimmedUrl.length === 0) return;
 
       const trimmedfeed_url = data.feed_url.trim();
-      if (trimmedfeed_url.length === 0) return;
 
       await addSite(trimmedName, trimmedUrl, trimmedfeed_url);
       reset();
