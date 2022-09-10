@@ -7,10 +7,12 @@ import (
 	"github.com/cubdesign/dailyfj/ent/site"
 	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly/v2"
+	"github.com/gorilla/feeds"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 type SiteHandler struct {
@@ -235,22 +237,76 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 
 	var contents = ""
 
-	s := colly.NewCollector()
-	s.OnError(func(_ *colly.Response, err error) {
-		log.Println("Something went wrong:", err)
-	})
-	s.OnRequest(func(r *colly.Request) {
-		fmt.Println("visiting", r.URL)
-	})
-	s.OnResponse(func(r *colly.Response) {
-		contents = string(r.Body)
-	})
-	s.Visit(existSite.FeedURL)
+	if existSite.FeedURL != "" {
+		s := colly.NewCollector()
+		s.OnError(func(_ *colly.Response, err error) {
+			log.Println("Something went wrong:", err)
+		})
+		s.OnRequest(func(r *colly.Request) {
+			fmt.Println("visiting", r.URL)
+		})
+		s.OnResponse(func(r *colly.Response) {
+			contents = string(r.Body)
+		})
+		s.Visit(existSite.FeedURL)
 
-	if contents == "" {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
+		if contents == "" {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+	} else {
+		feed := &feeds.Feed{}
+		feed.Link = &feeds.Link{Href: existSite.URL}
+		feed.Created = time.Now()
+
+		s := colly.NewCollector()
+		s.OnError(func(_ *colly.Response, err error) {
+			log.Println("Something went wrong:", err)
+		})
+		s.OnRequest(func(r *colly.Request) {
+			fmt.Println("visiting", r.URL)
+		})
+		s.OnResponse(func(r *colly.Response) {
+			contents = string(r.Body)
+		})
+		s.OnHTML("title", func(e *colly.HTMLElement) {
+			feed.Title = e.Text
+		})
+		s.OnHTML("meta[name=\"description\"]", func(e *colly.HTMLElement) {
+			feed.Description = e.Attr("content")
+		})
+		s.OnHTML(".un_newsList .un_newsList_itemDetail a:last-child", func(e *colly.HTMLElement) {
+			loc, _ := time.LoadLocation("Asia/Tokyo")
+			layout := "2006.1.2"
+			title := e.ChildText(".un_newsList_title")
+			url := e.Attr("href")
+			date, err := time.ParseInLocation(layout, fmt.Sprintf("%s", e.ChildText(".un_newsList_date")), loc)
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+			item := &feeds.Item{
+				Title:   title,
+				Link:    &feeds.Link{Href: url},
+				Created: date,
+			}
+			feed.Add(item)
+		})
+		s.Visit(existSite.URL)
+
+		if contents == "" {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+
+		rss, err := feed.ToRss()
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		contents = rss
 	}
+
 	resFeed, err := h.Client.Feed.
 		Create().
 		SetContents(contents).
