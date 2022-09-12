@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cubdesign/dailyfj/ent"
 	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/dailyfj/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly/v2"
 	"github.com/gorilla/feeds"
@@ -255,9 +256,57 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 			return
 		}
 	} else {
+		type SiteCrawlRule struct {
+			Url                 string
+			ArticleSelector     string
+			TitleSelector       string
+			LinkSelector        string
+			DescriptionSelector string
+			DateSelector        string
+			DateLayout          string
+			IsTimeHumanize      bool
+		}
+
+		var siteCrawlRule SiteCrawlRule
+
+		loc, _ := time.LoadLocation("Asia/Tokyo")
+		now := time.Now().In(loc)
+
 		feed := &feeds.Feed{}
 		feed.Link = &feeds.Link{Href: existSite.URL}
-		feed.Created = time.Now()
+		feed.Created = now
+
+		switch existSite.URL {
+
+		case "https://www.snowpeak.co.jp/news/":
+			siteCrawlRule = SiteCrawlRule{
+				Url:                 existSite.URL,
+				ArticleSelector:     ".un_newsList .un_newsList_itemDetail",
+				TitleSelector:       ".un_newsList_title",
+				LinkSelector:        " > a:last-child",
+				DescriptionSelector: "",
+				DateSelector:        ".un_newsList_date",
+				DateLayout:          "2006.1.2",
+				IsTimeHumanize:      false,
+			}
+
+		case "https://www.fashion-press.net/news/":
+			siteCrawlRule = SiteCrawlRule{
+				Url:                 existSite.URL,
+				ArticleSelector:     ".pc_only .fp_media_tile.news_media",
+				TitleSelector:       " > a > div",
+				LinkSelector:        " > a",
+				DescriptionSelector: "",
+				DateSelector:        " > div > span",
+				DateLayout:          "2006.1.2",
+				IsTimeHumanize:      true,
+			}
+		default:
+
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+
+		}
 
 		s := colly.NewCollector()
 		s.OnError(func(_ *colly.Response, err error) {
@@ -275,20 +324,61 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 		s.OnHTML("meta[name=\"description\"]", func(e *colly.HTMLElement) {
 			feed.Description = e.Attr("content")
 		})
-		s.OnHTML(".un_newsList .un_newsList_itemDetail a:last-child", func(e *colly.HTMLElement) {
-			loc, _ := time.LoadLocation("Asia/Tokyo")
-			layout := "2006.1.2"
-			title := e.ChildText(".un_newsList_title")
-			url := e.Attr("href")
-			date, err := time.ParseInLocation(layout, fmt.Sprintf("%s", e.ChildText(".un_newsList_date")), loc)
+
+		s.OnHTML(siteCrawlRule.ArticleSelector, func(e *colly.HTMLElement) {
+			layout := siteCrawlRule.DateLayout
+
+			rootSelector := siteCrawlRule.ArticleSelector
+
+			titleSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
+				siteCrawlRule.TitleSelector,
+				rootSelector,
+			)
+
+			title := e.DOM.Find(titleSelector).Text()
+
+			linkSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
+				siteCrawlRule.LinkSelector,
+				rootSelector,
+			)
+
+			url, _ := e.DOM.Find(linkSelector).Attr("href")
+			url = e.Request.AbsoluteURL(url)
+
+			var description string
+			if siteCrawlRule.DescriptionSelector != "" {
+
+				descriptionSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
+					siteCrawlRule.DescriptionSelector,
+					rootSelector,
+				)
+
+				description = e.DOM.Find(descriptionSelector).Text()
+			}
+
+			dateSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
+				siteCrawlRule.DateSelector,
+				rootSelector,
+			)
+
+			dateStr := e.DOM.Find(dateSelector).Text()
+			date, err := time.ParseInLocation(layout, dateStr, loc)
 			if err != nil {
-				c.AbortWithError(http.StatusInternalServerError, err)
-				return
+				if siteCrawlRule.IsTimeHumanize {
+					date, err = utils.HumanizeParseTime(dateStr, now)
+				}
+
+				if err != nil {
+					c.AbortWithError(http.StatusInternalServerError, err)
+					return
+				}
+
 			}
 			item := &feeds.Item{
-				Title:   title,
-				Link:    &feeds.Link{Href: url},
-				Created: date,
+				Title:       title,
+				Link:        &feeds.Link{Href: url},
+				Description: description,
+				Created:     date,
 			}
 			feed.Add(item)
 		})
