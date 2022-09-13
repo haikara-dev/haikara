@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/cubdesign/dailyfj/ent"
+	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/cubdesign/dailyfj/ent/site"
 	"github.com/cubdesign/dailyfj/utils"
 	"github.com/gin-gonic/gin"
@@ -13,6 +14,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -262,6 +264,7 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 			TitleSelector       string
 			LinkSelector        string
 			DescriptionSelector string
+			hasDataToList       bool
 			DateSelector        string
 			DateLayout          string
 			IsTimeHumanize      bool
@@ -285,6 +288,7 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 				TitleSelector:       ".un_newsList_title",
 				LinkSelector:        " > a:last-child",
 				DescriptionSelector: "",
+				hasDataToList:       true,
 				DateSelector:        ".un_newsList_date",
 				DateLayout:          "2006.1.2",
 				IsTimeHumanize:      false,
@@ -297,10 +301,38 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 				TitleSelector:       " > a > div",
 				LinkSelector:        " > a",
 				DescriptionSelector: "",
+				hasDataToList:       true,
 				DateSelector:        " > div > span",
 				DateLayout:          "2006.1.2",
 				IsTimeHumanize:      true,
 			}
+
+		case "https://www.vogue.co.jp/fashion/news":
+			siteCrawlRule = SiteCrawlRule{
+				Url:                 existSite.URL,
+				ArticleSelector:     ".summary-item",
+				TitleSelector:       ".summary-item__content h2",
+				LinkSelector:        ".summary-item__content > a",
+				DescriptionSelector: "",
+				hasDataToList:       true,
+				DateSelector:        ".summary-item__publish-date",
+				DateLayout:          "2006年1月2日",
+				IsTimeHumanize:      false,
+			}
+
+		case "https://www.elle.com/jp/fashion-news/":
+			siteCrawlRule = SiteCrawlRule{
+				Url:                 existSite.URL,
+				ArticleSelector:     ".custom-item",
+				TitleSelector:       ".custom-item-title",
+				LinkSelector:        ".custom-item-title",
+				DescriptionSelector: "",
+				hasDataToList:       false,
+				DateSelector:        ".content-info-date",
+				DateLayout:          "2006/01/02",
+				IsTimeHumanize:      false,
+			}
+
 		default:
 
 			c.AbortWithStatus(http.StatusNotFound)
@@ -356,24 +388,66 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 				description = e.DOM.Find(descriptionSelector).Text()
 			}
 
-			dateSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
-				siteCrawlRule.DateSelector,
-				rootSelector,
-			)
+			var date time.Time
+			if siteCrawlRule.hasDataToList {
+				dateSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
+					siteCrawlRule.DateSelector,
+					rootSelector,
+				)
 
-			dateStr := e.DOM.Find(dateSelector).Text()
-			date, err := time.ParseInLocation(layout, dateStr, loc)
-			if err != nil {
-				if siteCrawlRule.IsTimeHumanize {
-					date, err = utils.HumanizeParseTime(dateStr, now)
-				}
-
+				dateStr := e.DOM.Find(dateSelector).Text()
+				dateStr = strings.TrimSpace(dateStr)
+				date, err = time.ParseInLocation(layout, dateStr, loc)
 				if err != nil {
-					c.AbortWithError(http.StatusInternalServerError, err)
+					if siteCrawlRule.IsTimeHumanize {
+						date, err = utils.HumanizeParseTime(dateStr, now)
+					}
+
+					if err != nil {
+						c.AbortWithError(http.StatusInternalServerError, err)
+						return
+					}
+
+				}
+			} else {
+				existArticle, err := h.Client.Article.
+					Query().
+					Where(article.URL(url)).
+					Only(context.Background())
+
+				if err != nil && !ent.IsNotFound(err) {
+					c.AbortWithError(http.StatusBadRequest, err)
 					return
 				}
 
+				if existArticle == nil {
+					s2 := colly.NewCollector()
+					s2.Limit(&colly.LimitRule{
+						RandomDelay: 5 * time.Second,
+					})
+					s2.OnHTML("body", func(e *colly.HTMLElement) {
+						dateStr := e.DOM.Find(siteCrawlRule.DateSelector).Text()
+						dateStr = strings.TrimSpace(dateStr)
+						date, err = time.ParseInLocation(layout, dateStr, loc)
+						if err != nil {
+							if siteCrawlRule.IsTimeHumanize {
+								date, err = utils.HumanizeParseTime(dateStr, now)
+							}
+
+							if err != nil {
+								c.AbortWithError(http.StatusInternalServerError, err)
+								return
+							}
+
+						}
+
+					})
+					s2.Visit(url)
+				} else {
+					date = existArticle.PublishedAt
+				}
 			}
+
 			item := &feeds.Item{
 				Title:       title,
 				Link:        &feeds.Link{Href: url},

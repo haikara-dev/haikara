@@ -70,6 +70,7 @@ func StartWebserver() {
 
 		authorized.GET("/feeds", apiFeedHandler.GetAllFeeds)
 		authorized.GET("/feeds/lite", apiFeedHandler.GetAllFeedsNoneContentsField)
+		authorized.DELETE("/feeds/:id", apiFeedHandler.DeleteFeed)
 		authorized.GET("/feeds/parse/:id", apiFeedHandler.ParseFeed)
 
 		authorized.GET("/articles", apiArticleHandler.GetAllArticles)

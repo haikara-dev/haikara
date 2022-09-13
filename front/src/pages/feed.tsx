@@ -1,10 +1,19 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Container, Typography, Box, Stack, Card, Button } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Box,
+  Stack,
+  Card,
+  Button,
+  IconButton,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuthUserContext } from "@/lib/AuthUser";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 
@@ -43,6 +52,28 @@ const Feeds: NextPage = () => {
     setLoading(false);
   };
 
+  const removeFeed = async (id: number) => {
+    try {
+      const headers = await getRequestHeaders();
+      const res = await fetch(
+        new URL(id.toString(), BACKEND_API_URL + "/feeds/"),
+        {
+          method: "DELETE",
+          headers: {
+            ...headers,
+            ...{
+              "Content-Type": "application/json",
+            },
+          },
+        }
+      );
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      await loadData();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const runParse = async (id: number) => {
     try {
       const headers = await getRequestHeaders();
@@ -58,6 +89,14 @@ const Feeds: NextPage = () => {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const onClickDeleteHandler = (
+    id: number,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    removeFeed(id);
   };
 
   const onClickRunHandler = (
@@ -111,7 +150,19 @@ const Feeds: NextPage = () => {
                       <div>{feed.id}</div>
                       <div>{new Date(feed.created_at).toLocaleString()}</div>
                       <div>{feed.site_id}</div>
-                      <div>{feed.site_name}</div>
+                      <Box
+                        sx={{
+                          flexGrow: 1,
+                        }}
+                      >
+                        {feed.site_name}
+                      </Box>
+                      <IconButton
+                        onClick={onClickDeleteHandler.bind(this, feed.id)}
+                        aria-label="remove"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
                     </Stack>
                   </Card>
                 );

@@ -65,6 +65,26 @@ func (h *FeedHandler) GetAllFeeds(c *gin.Context) {
 	c.JSON(http.StatusOK, articles)
 }
 
+func (h *FeedHandler) DeleteFeed(ctx *gin.Context) {
+	strId := ctx.Param("id")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	err = h.Client.Feed.
+		DeleteOneID(id).
+		Exec(context.Background())
+
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "deleted"})
+}
+
 func (h *FeedHandler) ParseFeed(c *gin.Context) {
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
