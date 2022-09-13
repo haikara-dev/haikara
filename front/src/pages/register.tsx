@@ -80,7 +80,7 @@ const Register: NextPage = () => {
       <Box
         component="main"
         sx={{
-          height: "80vh",
+          minHeight: "80vh",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",

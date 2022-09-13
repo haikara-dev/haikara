@@ -85,7 +85,7 @@ const Feeds: NextPage = () => {
       <Box
         component="main"
         sx={{
-          height: "100vh",
+          manHeight: "100vh",
         }}
       >
         <Container

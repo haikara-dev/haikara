@@ -293,7 +293,7 @@ const Sites: NextPage = () => {
       <Box
         component="main"
         sx={{
-          height: "100vh",
+          minHeight: "100vh",
         }}
       >
         <Container
