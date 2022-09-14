@@ -21,6 +21,7 @@ func (Feed) Mixin() []ent.Mixin {
 func (Feed) Fields() []ent.Field {
 	return []ent.Field{
 		field.Text("contents").NotEmpty(),
+		field.Int("count").Default(0),
 	}
 }
 

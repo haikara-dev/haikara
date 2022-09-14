@@ -102,6 +102,13 @@ func Contents(v string) predicate.Feed {
 	})
 }
 
+// Count applies equality check predicate on the "count" field. It's identical to CountEQ.
+func Count(v int) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCount), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Feed {
 	return predicate.Feed(func(s *sql.Selector) {
@@ -326,6 +333,70 @@ func ContentsEqualFold(v string) predicate.Feed {
 func ContentsContainsFold(v string) predicate.Feed {
 	return predicate.Feed(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldContents), v))
+	})
+}
+
+// CountEQ applies the EQ predicate on the "count" field.
+func CountEQ(v int) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCount), v))
+	})
+}
+
+// CountNEQ applies the NEQ predicate on the "count" field.
+func CountNEQ(v int) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCount), v))
+	})
+}
+
+// CountIn applies the In predicate on the "count" field.
+func CountIn(vs ...int) predicate.Feed {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldCount), v...))
+	})
+}
+
+// CountNotIn applies the NotIn predicate on the "count" field.
+func CountNotIn(vs ...int) predicate.Feed {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldCount), v...))
+	})
+}
+
+// CountGT applies the GT predicate on the "count" field.
+func CountGT(v int) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCount), v))
+	})
+}
+
+// CountGTE applies the GTE predicate on the "count" field.
+func CountGTE(v int) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCount), v))
+	})
+}
+
+// CountLT applies the LT predicate on the "count" field.
+func CountLT(v int) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCount), v))
+	})
+}
+
+// CountLTE applies the LTE predicate on the "count" field.
+func CountLTE(v int) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCount), v))
 	})
 }
 

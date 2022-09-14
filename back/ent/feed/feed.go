@@ -17,6 +17,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldContents holds the string denoting the contents field in the database.
 	FieldContents = "contents"
+	// FieldCount holds the string denoting the count field in the database.
+	FieldCount = "count"
 	// EdgeSite holds the string denoting the site edge name in mutations.
 	EdgeSite = "site"
 	// Table holds the table name of the feed in the database.
@@ -36,6 +38,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldContents,
+	FieldCount,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "feeds"
@@ -68,4 +71,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// ContentsValidator is a validator for the "contents" field. It is called by the builders before save.
 	ContentsValidator func(string) error
+	// DefaultCount holds the default value on creation for the "count" field.
+	DefaultCount int
 )

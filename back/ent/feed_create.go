@@ -55,6 +55,20 @@ func (fc *FeedCreate) SetContents(s string) *FeedCreate {
 	return fc
 }
 
+// SetCount sets the "count" field.
+func (fc *FeedCreate) SetCount(i int) *FeedCreate {
+	fc.mutation.SetCount(i)
+	return fc
+}
+
+// SetNillableCount sets the "count" field if the given value is not nil.
+func (fc *FeedCreate) SetNillableCount(i *int) *FeedCreate {
+	if i != nil {
+		fc.SetCount(*i)
+	}
+	return fc
+}
+
 // SetSiteID sets the "site" edge to the Site entity by ID.
 func (fc *FeedCreate) SetSiteID(id int) *FeedCreate {
 	fc.mutation.SetSiteID(id)
@@ -151,6 +165,10 @@ func (fc *FeedCreate) defaults() {
 		v := feed.DefaultUpdatedAt()
 		fc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := fc.mutation.Count(); !ok {
+		v := feed.DefaultCount
+		fc.mutation.SetCount(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -168,6 +186,9 @@ func (fc *FeedCreate) check() error {
 		if err := feed.ContentsValidator(v); err != nil {
 			return &ValidationError{Name: "contents", err: fmt.Errorf(`ent: validator failed for field "Feed.contents": %w`, err)}
 		}
+	}
+	if _, ok := fc.mutation.Count(); !ok {
+		return &ValidationError{Name: "count", err: errors.New(`ent: missing required field "Feed.count"`)}
 	}
 	if _, ok := fc.mutation.SiteID(); !ok {
 		return &ValidationError{Name: "site", err: errors.New(`ent: missing required edge "Feed.site"`)}
@@ -222,6 +243,14 @@ func (fc *FeedCreate) createSpec() (*Feed, *sqlgraph.CreateSpec) {
 			Column: feed.FieldContents,
 		})
 		_node.Contents = value
+	}
+	if value, ok := fc.mutation.Count(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: feed.FieldCount,
+		})
+		_node.Count = value
 	}
 	if nodes := fc.mutation.SiteIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

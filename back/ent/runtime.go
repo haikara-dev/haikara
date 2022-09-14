@@ -60,6 +60,10 @@ func init() {
 	feedDescContents := feedFields[0].Descriptor()
 	// feed.ContentsValidator is a validator for the "contents" field. It is called by the builders before save.
 	feed.ContentsValidator = feedDescContents.Validators[0].(func(string) error)
+	// feedDescCount is the schema descriptor for count field.
+	feedDescCount := feedFields[1].Descriptor()
+	// feed.DefaultCount holds the default value on creation for the count field.
+	feed.DefaultCount = feedDescCount.Default.(int)
 	siteMixin := schema.Site{}.Mixin()
 	siteMixinFields0 := siteMixin[0].Fields()
 	_ = siteMixinFields0

@@ -19,6 +19,7 @@ const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 
 export type Feed = {
   id: number;
+  count: number;
   created_at: string;
   site_id: number;
   site_name: string;
@@ -157,6 +158,7 @@ const Feeds: NextPage = () => {
                       >
                         {feed.site_name}
                       </Box>
+                      <div>{feed.count}</div>
                       <IconButton
                         onClick={onClickDeleteHandler.bind(this, feed.id)}
                         aria-label="remove"

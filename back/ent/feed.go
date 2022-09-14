@@ -23,6 +23,8 @@ type Feed struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Contents holds the value of the "contents" field.
 	Contents string `json:"contents,omitempty"`
+	// Count holds the value of the "count" field.
+	Count int `json:"count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the FeedQuery when eager-loading is set.
 	Edges      FeedEdges `json:"edges"`
@@ -56,7 +58,7 @@ func (*Feed) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case feed.FieldID:
+		case feed.FieldID, feed.FieldCount:
 			values[i] = new(sql.NullInt64)
 		case feed.FieldContents:
 			values[i] = new(sql.NullString)
@@ -102,6 +104,12 @@ func (f *Feed) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field contents", values[i])
 			} else if value.Valid {
 				f.Contents = value.String
+			}
+		case feed.FieldCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field count", values[i])
+			} else if value.Valid {
+				f.Count = int(value.Int64)
 			}
 		case feed.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -151,6 +159,9 @@ func (f *Feed) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("contents=")
 	builder.WriteString(f.Contents)
+	builder.WriteString(", ")
+	builder.WriteString("count=")
+	builder.WriteString(fmt.Sprintf("%v", f.Count))
 	builder.WriteByte(')')
 	return builder.String()
 }

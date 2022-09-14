@@ -7,6 +7,7 @@ import (
 	"github.com/cubdesign/dailyfj/ent/site"
 	"github.com/cubdesign/dailyfj/libs"
 	"github.com/gin-gonic/gin"
+	"github.com/mmcdole/gofeed"
 	"net/http"
 	"strconv"
 )
@@ -246,9 +247,19 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 			return
 		}
 	}
+
+	fp := gofeed.NewParser()
+	feed, err := fp.ParseString(contents)
+
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
 	resFeed, err := h.Client.Feed.
 		Create().
 		SetContents(contents).
+		SetCount(len(feed.Items)).
 		SetSite(existSite).
 		Save(context.Background())
 

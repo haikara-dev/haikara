@@ -38,6 +38,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "contents", Type: field.TypeString, Size: 2147483647},
+		{Name: "count", Type: field.TypeInt, Default: 0},
 		{Name: "site_feeds", Type: field.TypeInt},
 	}
 	// FeedsTable holds the schema information for the "feeds" table.
@@ -48,7 +49,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "feeds_sites_feeds",
-				Columns:    []*schema.Column{FeedsColumns[4]},
+				Columns:    []*schema.Column{FeedsColumns[5]},
 				RefColumns: []*schema.Column{SitesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

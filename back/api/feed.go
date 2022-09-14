@@ -20,29 +20,31 @@ type FeedHandler struct {
 func (h *FeedHandler) GetAllFeedsNoneContentsField(c *gin.Context) {
 	feeds, err := h.Client.Feed.
 		Query().
-		Select(feed.FieldID, feed.FieldCreatedAt).
+		Select(feed.FieldID, feed.FieldCount, feed.FieldCreatedAt).
 		WithSite(func(query *ent.SiteQuery) {
 			query.Select(site.FieldName)
 		}).
 		Order(ent.Desc(feed.FieldCreatedAt)).
 		All(context.Background())
 
-	if err != nil {
+	if err != nil && !ent.IsNotFound(err) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	type ResponseFeed struct {
 		ID        int       `json:"id"`
+		Count     int       `json:"count"`
 		CreatedAt time.Time `json:"created_at"`
 		SiteID    int       `json:"site_id"`
 		SiteName  string    `json:"site_name"`
 	}
-	var resFeeds []ResponseFeed
+	var resFeeds = make([]ResponseFeed, 0)
 
 	for _, feed := range feeds {
 		resFeeds = append(resFeeds, ResponseFeed{
 			ID:        feed.ID,
+			Count:     feed.Count,
 			CreatedAt: feed.CreatedAt,
 			SiteID:    feed.Edges.Site.ID,
 			SiteName:  feed.Edges.Site.Name,
@@ -57,11 +59,10 @@ func (h *FeedHandler) GetAllFeeds(c *gin.Context) {
 		Order(ent.Desc(feed.FieldCreatedAt)).
 		All(context.Background())
 
-	if err != nil {
+	if err != nil && !ent.IsNotFound(err) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-
 	c.JSON(http.StatusOK, articles)
 }
 

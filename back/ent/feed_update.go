@@ -41,6 +41,27 @@ func (fu *FeedUpdate) SetContents(s string) *FeedUpdate {
 	return fu
 }
 
+// SetCount sets the "count" field.
+func (fu *FeedUpdate) SetCount(i int) *FeedUpdate {
+	fu.mutation.ResetCount()
+	fu.mutation.SetCount(i)
+	return fu
+}
+
+// SetNillableCount sets the "count" field if the given value is not nil.
+func (fu *FeedUpdate) SetNillableCount(i *int) *FeedUpdate {
+	if i != nil {
+		fu.SetCount(*i)
+	}
+	return fu
+}
+
+// AddCount adds i to the "count" field.
+func (fu *FeedUpdate) AddCount(i int) *FeedUpdate {
+	fu.mutation.AddCount(i)
+	return fu
+}
+
 // SetSiteID sets the "site" edge to the Site entity by ID.
 func (fu *FeedUpdate) SetSiteID(id int) *FeedUpdate {
 	fu.mutation.SetSiteID(id)
@@ -177,6 +198,20 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: feed.FieldContents,
 		})
 	}
+	if value, ok := fu.mutation.Count(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: feed.FieldCount,
+		})
+	}
+	if value, ok := fu.mutation.AddedCount(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: feed.FieldCount,
+		})
+	}
 	if fu.mutation.SiteCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -240,6 +275,27 @@ func (fuo *FeedUpdateOne) SetUpdatedAt(t time.Time) *FeedUpdateOne {
 // SetContents sets the "contents" field.
 func (fuo *FeedUpdateOne) SetContents(s string) *FeedUpdateOne {
 	fuo.mutation.SetContents(s)
+	return fuo
+}
+
+// SetCount sets the "count" field.
+func (fuo *FeedUpdateOne) SetCount(i int) *FeedUpdateOne {
+	fuo.mutation.ResetCount()
+	fuo.mutation.SetCount(i)
+	return fuo
+}
+
+// SetNillableCount sets the "count" field if the given value is not nil.
+func (fuo *FeedUpdateOne) SetNillableCount(i *int) *FeedUpdateOne {
+	if i != nil {
+		fuo.SetCount(*i)
+	}
+	return fuo
+}
+
+// AddCount adds i to the "count" field.
+func (fuo *FeedUpdateOne) AddCount(i int) *FeedUpdateOne {
+	fuo.mutation.AddCount(i)
 	return fuo
 }
 
@@ -407,6 +463,20 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: feed.FieldContents,
+		})
+	}
+	if value, ok := fuo.mutation.Count(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: feed.FieldCount,
+		})
+	}
+	if value, ok := fuo.mutation.AddedCount(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: feed.FieldCount,
 		})
 	}
 	if fuo.mutation.SiteCleared() {
