@@ -15,6 +15,8 @@ import (
 	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/predicate"
 	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/dailyfj/ent/sitecategory"
+	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
 )
 
 // SiteUpdate is the builder for updating Site entities.
@@ -98,6 +100,40 @@ func (su *SiteUpdate) AddFeeds(f ...*Feed) *SiteUpdate {
 	return su.AddFeedIDs(ids...)
 }
 
+// SetSiteCrawlRuleID sets the "site_crawl_rule" edge to the SiteCrawlRule entity by ID.
+func (su *SiteUpdate) SetSiteCrawlRuleID(id int) *SiteUpdate {
+	su.mutation.SetSiteCrawlRuleID(id)
+	return su
+}
+
+// SetNillableSiteCrawlRuleID sets the "site_crawl_rule" edge to the SiteCrawlRule entity by ID if the given value is not nil.
+func (su *SiteUpdate) SetNillableSiteCrawlRuleID(id *int) *SiteUpdate {
+	if id != nil {
+		su = su.SetSiteCrawlRuleID(*id)
+	}
+	return su
+}
+
+// SetSiteCrawlRule sets the "site_crawl_rule" edge to the SiteCrawlRule entity.
+func (su *SiteUpdate) SetSiteCrawlRule(s *SiteCrawlRule) *SiteUpdate {
+	return su.SetSiteCrawlRuleID(s.ID)
+}
+
+// AddSiteCategoryIDs adds the "site_categories" edge to the SiteCategory entity by IDs.
+func (su *SiteUpdate) AddSiteCategoryIDs(ids ...int) *SiteUpdate {
+	su.mutation.AddSiteCategoryIDs(ids...)
+	return su
+}
+
+// AddSiteCategories adds the "site_categories" edges to the SiteCategory entity.
+func (su *SiteUpdate) AddSiteCategories(s ...*SiteCategory) *SiteUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddSiteCategoryIDs(ids...)
+}
+
 // Mutation returns the SiteMutation object of the builder.
 func (su *SiteUpdate) Mutation() *SiteMutation {
 	return su.mutation
@@ -143,6 +179,33 @@ func (su *SiteUpdate) RemoveFeeds(f ...*Feed) *SiteUpdate {
 		ids[i] = f[i].ID
 	}
 	return su.RemoveFeedIDs(ids...)
+}
+
+// ClearSiteCrawlRule clears the "site_crawl_rule" edge to the SiteCrawlRule entity.
+func (su *SiteUpdate) ClearSiteCrawlRule() *SiteUpdate {
+	su.mutation.ClearSiteCrawlRule()
+	return su
+}
+
+// ClearSiteCategories clears all "site_categories" edges to the SiteCategory entity.
+func (su *SiteUpdate) ClearSiteCategories() *SiteUpdate {
+	su.mutation.ClearSiteCategories()
+	return su
+}
+
+// RemoveSiteCategoryIDs removes the "site_categories" edge to SiteCategory entities by IDs.
+func (su *SiteUpdate) RemoveSiteCategoryIDs(ids ...int) *SiteUpdate {
+	su.mutation.RemoveSiteCategoryIDs(ids...)
+	return su
+}
+
+// RemoveSiteCategories removes "site_categories" edges to SiteCategory entities.
+func (su *SiteUpdate) RemoveSiteCategories(s ...*SiteCategory) *SiteUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveSiteCategoryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -390,6 +453,95 @@ func (su *SiteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if su.mutation.SiteCrawlRuleCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   site.SiteCrawlRuleTable,
+			Columns: []string{site.SiteCrawlRuleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecrawlrule.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.SiteCrawlRuleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   site.SiteCrawlRuleTable,
+			Columns: []string{site.SiteCrawlRuleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecrawlrule.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.SiteCategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   site.SiteCategoriesTable,
+			Columns: site.SiteCategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecategory.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedSiteCategoriesIDs(); len(nodes) > 0 && !su.mutation.SiteCategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   site.SiteCategoriesTable,
+			Columns: site.SiteCategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecategory.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.SiteCategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   site.SiteCategoriesTable,
+			Columns: site.SiteCategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecategory.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{site.Label}
@@ -477,6 +629,40 @@ func (suo *SiteUpdateOne) AddFeeds(f ...*Feed) *SiteUpdateOne {
 	return suo.AddFeedIDs(ids...)
 }
 
+// SetSiteCrawlRuleID sets the "site_crawl_rule" edge to the SiteCrawlRule entity by ID.
+func (suo *SiteUpdateOne) SetSiteCrawlRuleID(id int) *SiteUpdateOne {
+	suo.mutation.SetSiteCrawlRuleID(id)
+	return suo
+}
+
+// SetNillableSiteCrawlRuleID sets the "site_crawl_rule" edge to the SiteCrawlRule entity by ID if the given value is not nil.
+func (suo *SiteUpdateOne) SetNillableSiteCrawlRuleID(id *int) *SiteUpdateOne {
+	if id != nil {
+		suo = suo.SetSiteCrawlRuleID(*id)
+	}
+	return suo
+}
+
+// SetSiteCrawlRule sets the "site_crawl_rule" edge to the SiteCrawlRule entity.
+func (suo *SiteUpdateOne) SetSiteCrawlRule(s *SiteCrawlRule) *SiteUpdateOne {
+	return suo.SetSiteCrawlRuleID(s.ID)
+}
+
+// AddSiteCategoryIDs adds the "site_categories" edge to the SiteCategory entity by IDs.
+func (suo *SiteUpdateOne) AddSiteCategoryIDs(ids ...int) *SiteUpdateOne {
+	suo.mutation.AddSiteCategoryIDs(ids...)
+	return suo
+}
+
+// AddSiteCategories adds the "site_categories" edges to the SiteCategory entity.
+func (suo *SiteUpdateOne) AddSiteCategories(s ...*SiteCategory) *SiteUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddSiteCategoryIDs(ids...)
+}
+
 // Mutation returns the SiteMutation object of the builder.
 func (suo *SiteUpdateOne) Mutation() *SiteMutation {
 	return suo.mutation
@@ -522,6 +708,33 @@ func (suo *SiteUpdateOne) RemoveFeeds(f ...*Feed) *SiteUpdateOne {
 		ids[i] = f[i].ID
 	}
 	return suo.RemoveFeedIDs(ids...)
+}
+
+// ClearSiteCrawlRule clears the "site_crawl_rule" edge to the SiteCrawlRule entity.
+func (suo *SiteUpdateOne) ClearSiteCrawlRule() *SiteUpdateOne {
+	suo.mutation.ClearSiteCrawlRule()
+	return suo
+}
+
+// ClearSiteCategories clears all "site_categories" edges to the SiteCategory entity.
+func (suo *SiteUpdateOne) ClearSiteCategories() *SiteUpdateOne {
+	suo.mutation.ClearSiteCategories()
+	return suo
+}
+
+// RemoveSiteCategoryIDs removes the "site_categories" edge to SiteCategory entities by IDs.
+func (suo *SiteUpdateOne) RemoveSiteCategoryIDs(ids ...int) *SiteUpdateOne {
+	suo.mutation.RemoveSiteCategoryIDs(ids...)
+	return suo
+}
+
+// RemoveSiteCategories removes "site_categories" edges to SiteCategory entities.
+func (suo *SiteUpdateOne) RemoveSiteCategories(s ...*SiteCategory) *SiteUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveSiteCategoryIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -791,6 +1004,95 @@ func (suo *SiteUpdateOne) sqlSave(ctx context.Context) (_node *Site, err error) 
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: feed.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.SiteCrawlRuleCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   site.SiteCrawlRuleTable,
+			Columns: []string{site.SiteCrawlRuleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecrawlrule.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.SiteCrawlRuleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   site.SiteCrawlRuleTable,
+			Columns: []string{site.SiteCrawlRuleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecrawlrule.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.SiteCategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   site.SiteCategoriesTable,
+			Columns: site.SiteCategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecategory.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedSiteCategoriesIDs(); len(nodes) > 0 && !suo.mutation.SiteCategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   site.SiteCategoriesTable,
+			Columns: site.SiteCategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecategory.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.SiteCategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   site.SiteCategoriesTable,
+			Columns: site.SiteCategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecategory.FieldID,
 				},
 			},
 		}

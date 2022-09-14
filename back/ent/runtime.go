@@ -9,6 +9,8 @@ import (
 	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/schema"
 	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/dailyfj/ent/sitecategory"
+	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
 	"github.com/cubdesign/dailyfj/ent/user"
 )
 
@@ -85,6 +87,52 @@ func init() {
 	siteDescActive := siteFields[3].Descriptor()
 	// site.DefaultActive holds the default value on creation for the active field.
 	site.DefaultActive = siteDescActive.Default.(bool)
+	sitecategoryMixin := schema.SiteCategory{}.Mixin()
+	sitecategoryMixinFields0 := sitecategoryMixin[0].Fields()
+	_ = sitecategoryMixinFields0
+	sitecategoryFields := schema.SiteCategory{}.Fields()
+	_ = sitecategoryFields
+	// sitecategoryDescCreatedAt is the schema descriptor for created_at field.
+	sitecategoryDescCreatedAt := sitecategoryMixinFields0[0].Descriptor()
+	// sitecategory.DefaultCreatedAt holds the default value on creation for the created_at field.
+	sitecategory.DefaultCreatedAt = sitecategoryDescCreatedAt.Default.(func() time.Time)
+	// sitecategoryDescUpdatedAt is the schema descriptor for updated_at field.
+	sitecategoryDescUpdatedAt := sitecategoryMixinFields0[1].Descriptor()
+	// sitecategory.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	sitecategory.DefaultUpdatedAt = sitecategoryDescUpdatedAt.Default.(func() time.Time)
+	// sitecategory.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	sitecategory.UpdateDefaultUpdatedAt = sitecategoryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// sitecategoryDescLabel is the schema descriptor for label field.
+	sitecategoryDescLabel := sitecategoryFields[0].Descriptor()
+	// sitecategory.LabelValidator is a validator for the "label" field. It is called by the builders before save.
+	sitecategory.LabelValidator = sitecategoryDescLabel.Validators[0].(func(string) error)
+	sitecrawlruleMixin := schema.SiteCrawlRule{}.Mixin()
+	sitecrawlruleMixinFields0 := sitecrawlruleMixin[0].Fields()
+	_ = sitecrawlruleMixinFields0
+	sitecrawlruleFields := schema.SiteCrawlRule{}.Fields()
+	_ = sitecrawlruleFields
+	// sitecrawlruleDescCreatedAt is the schema descriptor for created_at field.
+	sitecrawlruleDescCreatedAt := sitecrawlruleMixinFields0[0].Descriptor()
+	// sitecrawlrule.DefaultCreatedAt holds the default value on creation for the created_at field.
+	sitecrawlrule.DefaultCreatedAt = sitecrawlruleDescCreatedAt.Default.(func() time.Time)
+	// sitecrawlruleDescUpdatedAt is the schema descriptor for updated_at field.
+	sitecrawlruleDescUpdatedAt := sitecrawlruleMixinFields0[1].Descriptor()
+	// sitecrawlrule.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	sitecrawlrule.DefaultUpdatedAt = sitecrawlruleDescUpdatedAt.Default.(func() time.Time)
+	// sitecrawlrule.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	sitecrawlrule.UpdateDefaultUpdatedAt = sitecrawlruleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// sitecrawlruleDescHasDataToList is the schema descriptor for has_data_to_list field.
+	sitecrawlruleDescHasDataToList := sitecrawlruleFields[4].Descriptor()
+	// sitecrawlrule.DefaultHasDataToList holds the default value on creation for the has_data_to_list field.
+	sitecrawlrule.DefaultHasDataToList = sitecrawlruleDescHasDataToList.Default.(bool)
+	// sitecrawlruleDescIsTimeHumanize is the schema descriptor for is_time_humanize field.
+	sitecrawlruleDescIsTimeHumanize := sitecrawlruleFields[7].Descriptor()
+	// sitecrawlrule.DefaultIsTimeHumanize holds the default value on creation for the is_time_humanize field.
+	sitecrawlrule.DefaultIsTimeHumanize = sitecrawlruleDescIsTimeHumanize.Default.(bool)
+	// sitecrawlruleDescIsSpa is the schema descriptor for is_spa field.
+	sitecrawlruleDescIsSpa := sitecrawlruleFields[8].Descriptor()
+	// sitecrawlrule.DefaultIsSpa holds the default value on creation for the is_spa field.
+	sitecrawlrule.DefaultIsSpa = sitecrawlruleDescIsSpa.Default.(bool)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0

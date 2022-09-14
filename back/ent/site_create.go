@@ -13,6 +13,8 @@ import (
 	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/dailyfj/ent/sitecategory"
+	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
 )
 
 // SiteCreate is the builder for creating a Site entity.
@@ -110,6 +112,40 @@ func (sc *SiteCreate) AddFeeds(f ...*Feed) *SiteCreate {
 		ids[i] = f[i].ID
 	}
 	return sc.AddFeedIDs(ids...)
+}
+
+// SetSiteCrawlRuleID sets the "site_crawl_rule" edge to the SiteCrawlRule entity by ID.
+func (sc *SiteCreate) SetSiteCrawlRuleID(id int) *SiteCreate {
+	sc.mutation.SetSiteCrawlRuleID(id)
+	return sc
+}
+
+// SetNillableSiteCrawlRuleID sets the "site_crawl_rule" edge to the SiteCrawlRule entity by ID if the given value is not nil.
+func (sc *SiteCreate) SetNillableSiteCrawlRuleID(id *int) *SiteCreate {
+	if id != nil {
+		sc = sc.SetSiteCrawlRuleID(*id)
+	}
+	return sc
+}
+
+// SetSiteCrawlRule sets the "site_crawl_rule" edge to the SiteCrawlRule entity.
+func (sc *SiteCreate) SetSiteCrawlRule(s *SiteCrawlRule) *SiteCreate {
+	return sc.SetSiteCrawlRuleID(s.ID)
+}
+
+// AddSiteCategoryIDs adds the "site_categories" edge to the SiteCategory entity by IDs.
+func (sc *SiteCreate) AddSiteCategoryIDs(ids ...int) *SiteCreate {
+	sc.mutation.AddSiteCategoryIDs(ids...)
+	return sc
+}
+
+// AddSiteCategories adds the "site_categories" edges to the SiteCategory entity.
+func (sc *SiteCreate) AddSiteCategories(s ...*SiteCategory) *SiteCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return sc.AddSiteCategoryIDs(ids...)
 }
 
 // Mutation returns the SiteMutation object of the builder.
@@ -338,6 +374,44 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: feed.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.SiteCrawlRuleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   site.SiteCrawlRuleTable,
+			Columns: []string{site.SiteCrawlRuleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecrawlrule.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.SiteCategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   site.SiteCategoriesTable,
+			Columns: site.SiteCategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: sitecategory.FieldID,
 				},
 			},
 		}

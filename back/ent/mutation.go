@@ -13,6 +13,8 @@ import (
 	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/predicate"
 	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/dailyfj/ent/sitecategory"
+	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
 	"github.com/cubdesign/dailyfj/ent/user"
 
 	"entgo.io/ent"
@@ -27,10 +29,12 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeArticle = "Article"
-	TypeFeed    = "Feed"
-	TypeSite    = "Site"
-	TypeUser    = "User"
+	TypeArticle       = "Article"
+	TypeFeed          = "Feed"
+	TypeSite          = "Site"
+	TypeSiteCategory  = "SiteCategory"
+	TypeSiteCrawlRule = "SiteCrawlRule"
+	TypeUser          = "User"
 )
 
 // ArticleMutation represents an operation that mutates the Article nodes in the graph.
@@ -1120,25 +1124,30 @@ func (m *FeedMutation) ResetEdge(name string) error {
 // SiteMutation represents an operation that mutates the Site nodes in the graph.
 type SiteMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	created_at      *time.Time
-	updated_at      *time.Time
-	name            *string
-	url             *string
-	feed_url        *string
-	active          *bool
-	clearedFields   map[string]struct{}
-	articles        map[int]struct{}
-	removedarticles map[int]struct{}
-	clearedarticles bool
-	feeds           map[int]struct{}
-	removedfeeds    map[int]struct{}
-	clearedfeeds    bool
-	done            bool
-	oldValue        func(context.Context) (*Site, error)
-	predicates      []predicate.Site
+	op                     Op
+	typ                    string
+	id                     *int
+	created_at             *time.Time
+	updated_at             *time.Time
+	name                   *string
+	url                    *string
+	feed_url               *string
+	active                 *bool
+	clearedFields          map[string]struct{}
+	articles               map[int]struct{}
+	removedarticles        map[int]struct{}
+	clearedarticles        bool
+	feeds                  map[int]struct{}
+	removedfeeds           map[int]struct{}
+	clearedfeeds           bool
+	site_crawl_rule        *int
+	clearedsite_crawl_rule bool
+	site_categories        map[int]struct{}
+	removedsite_categories map[int]struct{}
+	clearedsite_categories bool
+	done                   bool
+	oldValue               func(context.Context) (*Site, error)
+	predicates             []predicate.Site
 }
 
 var _ ent.Mutation = (*SiteMutation)(nil)
@@ -1563,6 +1572,99 @@ func (m *SiteMutation) ResetFeeds() {
 	m.removedfeeds = nil
 }
 
+// SetSiteCrawlRuleID sets the "site_crawl_rule" edge to the SiteCrawlRule entity by id.
+func (m *SiteMutation) SetSiteCrawlRuleID(id int) {
+	m.site_crawl_rule = &id
+}
+
+// ClearSiteCrawlRule clears the "site_crawl_rule" edge to the SiteCrawlRule entity.
+func (m *SiteMutation) ClearSiteCrawlRule() {
+	m.clearedsite_crawl_rule = true
+}
+
+// SiteCrawlRuleCleared reports if the "site_crawl_rule" edge to the SiteCrawlRule entity was cleared.
+func (m *SiteMutation) SiteCrawlRuleCleared() bool {
+	return m.clearedsite_crawl_rule
+}
+
+// SiteCrawlRuleID returns the "site_crawl_rule" edge ID in the mutation.
+func (m *SiteMutation) SiteCrawlRuleID() (id int, exists bool) {
+	if m.site_crawl_rule != nil {
+		return *m.site_crawl_rule, true
+	}
+	return
+}
+
+// SiteCrawlRuleIDs returns the "site_crawl_rule" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// SiteCrawlRuleID instead. It exists only for internal usage by the builders.
+func (m *SiteMutation) SiteCrawlRuleIDs() (ids []int) {
+	if id := m.site_crawl_rule; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetSiteCrawlRule resets all changes to the "site_crawl_rule" edge.
+func (m *SiteMutation) ResetSiteCrawlRule() {
+	m.site_crawl_rule = nil
+	m.clearedsite_crawl_rule = false
+}
+
+// AddSiteCategoryIDs adds the "site_categories" edge to the SiteCategory entity by ids.
+func (m *SiteMutation) AddSiteCategoryIDs(ids ...int) {
+	if m.site_categories == nil {
+		m.site_categories = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.site_categories[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSiteCategories clears the "site_categories" edge to the SiteCategory entity.
+func (m *SiteMutation) ClearSiteCategories() {
+	m.clearedsite_categories = true
+}
+
+// SiteCategoriesCleared reports if the "site_categories" edge to the SiteCategory entity was cleared.
+func (m *SiteMutation) SiteCategoriesCleared() bool {
+	return m.clearedsite_categories
+}
+
+// RemoveSiteCategoryIDs removes the "site_categories" edge to the SiteCategory entity by IDs.
+func (m *SiteMutation) RemoveSiteCategoryIDs(ids ...int) {
+	if m.removedsite_categories == nil {
+		m.removedsite_categories = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.site_categories, ids[i])
+		m.removedsite_categories[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSiteCategories returns the removed IDs of the "site_categories" edge to the SiteCategory entity.
+func (m *SiteMutation) RemovedSiteCategoriesIDs() (ids []int) {
+	for id := range m.removedsite_categories {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SiteCategoriesIDs returns the "site_categories" edge IDs in the mutation.
+func (m *SiteMutation) SiteCategoriesIDs() (ids []int) {
+	for id := range m.site_categories {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSiteCategories resets all changes to the "site_categories" edge.
+func (m *SiteMutation) ResetSiteCategories() {
+	m.site_categories = nil
+	m.clearedsite_categories = false
+	m.removedsite_categories = nil
+}
+
 // Where appends a list predicates to the SiteMutation builder.
 func (m *SiteMutation) Where(ps ...predicate.Site) {
 	m.predicates = append(m.predicates, ps...)
@@ -1766,12 +1868,18 @@ func (m *SiteMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SiteMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
 	if m.articles != nil {
 		edges = append(edges, site.EdgeArticles)
 	}
 	if m.feeds != nil {
 		edges = append(edges, site.EdgeFeeds)
+	}
+	if m.site_crawl_rule != nil {
+		edges = append(edges, site.EdgeSiteCrawlRule)
+	}
+	if m.site_categories != nil {
+		edges = append(edges, site.EdgeSiteCategories)
 	}
 	return edges
 }
@@ -1792,18 +1900,31 @@ func (m *SiteMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case site.EdgeSiteCrawlRule:
+		if id := m.site_crawl_rule; id != nil {
+			return []ent.Value{*id}
+		}
+	case site.EdgeSiteCategories:
+		ids := make([]ent.Value, 0, len(m.site_categories))
+		for id := range m.site_categories {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *SiteMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
 	if m.removedarticles != nil {
 		edges = append(edges, site.EdgeArticles)
 	}
 	if m.removedfeeds != nil {
 		edges = append(edges, site.EdgeFeeds)
+	}
+	if m.removedsite_categories != nil {
+		edges = append(edges, site.EdgeSiteCategories)
 	}
 	return edges
 }
@@ -1824,18 +1945,30 @@ func (m *SiteMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case site.EdgeSiteCategories:
+		ids := make([]ent.Value, 0, len(m.removedsite_categories))
+		for id := range m.removedsite_categories {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SiteMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
 	if m.clearedarticles {
 		edges = append(edges, site.EdgeArticles)
 	}
 	if m.clearedfeeds {
 		edges = append(edges, site.EdgeFeeds)
+	}
+	if m.clearedsite_crawl_rule {
+		edges = append(edges, site.EdgeSiteCrawlRule)
+	}
+	if m.clearedsite_categories {
+		edges = append(edges, site.EdgeSiteCategories)
 	}
 	return edges
 }
@@ -1848,6 +1981,10 @@ func (m *SiteMutation) EdgeCleared(name string) bool {
 		return m.clearedarticles
 	case site.EdgeFeeds:
 		return m.clearedfeeds
+	case site.EdgeSiteCrawlRule:
+		return m.clearedsite_crawl_rule
+	case site.EdgeSiteCategories:
+		return m.clearedsite_categories
 	}
 	return false
 }
@@ -1856,6 +1993,9 @@ func (m *SiteMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *SiteMutation) ClearEdge(name string) error {
 	switch name {
+	case site.EdgeSiteCrawlRule:
+		m.ClearSiteCrawlRule()
+		return nil
 	}
 	return fmt.Errorf("unknown Site unique edge %s", name)
 }
@@ -1870,8 +2010,1446 @@ func (m *SiteMutation) ResetEdge(name string) error {
 	case site.EdgeFeeds:
 		m.ResetFeeds()
 		return nil
+	case site.EdgeSiteCrawlRule:
+		m.ResetSiteCrawlRule()
+		return nil
+	case site.EdgeSiteCategories:
+		m.ResetSiteCategories()
+		return nil
 	}
 	return fmt.Errorf("unknown Site edge %s", name)
+}
+
+// SiteCategoryMutation represents an operation that mutates the SiteCategory nodes in the graph.
+type SiteCategoryMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	created_at    *time.Time
+	updated_at    *time.Time
+	label         *string
+	clearedFields map[string]struct{}
+	sites         map[int]struct{}
+	removedsites  map[int]struct{}
+	clearedsites  bool
+	done          bool
+	oldValue      func(context.Context) (*SiteCategory, error)
+	predicates    []predicate.SiteCategory
+}
+
+var _ ent.Mutation = (*SiteCategoryMutation)(nil)
+
+// sitecategoryOption allows management of the mutation configuration using functional options.
+type sitecategoryOption func(*SiteCategoryMutation)
+
+// newSiteCategoryMutation creates new mutation for the SiteCategory entity.
+func newSiteCategoryMutation(c config, op Op, opts ...sitecategoryOption) *SiteCategoryMutation {
+	m := &SiteCategoryMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeSiteCategory,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withSiteCategoryID sets the ID field of the mutation.
+func withSiteCategoryID(id int) sitecategoryOption {
+	return func(m *SiteCategoryMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *SiteCategory
+		)
+		m.oldValue = func(ctx context.Context) (*SiteCategory, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().SiteCategory.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withSiteCategory sets the old SiteCategory of the mutation.
+func withSiteCategory(node *SiteCategory) sitecategoryOption {
+	return func(m *SiteCategoryMutation) {
+		m.oldValue = func(context.Context) (*SiteCategory, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m SiteCategoryMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m SiteCategoryMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *SiteCategoryMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *SiteCategoryMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().SiteCategory.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *SiteCategoryMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *SiteCategoryMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the SiteCategory entity.
+// If the SiteCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCategoryMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *SiteCategoryMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *SiteCategoryMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *SiteCategoryMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the SiteCategory entity.
+// If the SiteCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCategoryMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *SiteCategoryMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetLabel sets the "label" field.
+func (m *SiteCategoryMutation) SetLabel(s string) {
+	m.label = &s
+}
+
+// Label returns the value of the "label" field in the mutation.
+func (m *SiteCategoryMutation) Label() (r string, exists bool) {
+	v := m.label
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLabel returns the old "label" field's value of the SiteCategory entity.
+// If the SiteCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCategoryMutation) OldLabel(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLabel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLabel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLabel: %w", err)
+	}
+	return oldValue.Label, nil
+}
+
+// ResetLabel resets all changes to the "label" field.
+func (m *SiteCategoryMutation) ResetLabel() {
+	m.label = nil
+}
+
+// AddSiteIDs adds the "sites" edge to the Site entity by ids.
+func (m *SiteCategoryMutation) AddSiteIDs(ids ...int) {
+	if m.sites == nil {
+		m.sites = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.sites[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSites clears the "sites" edge to the Site entity.
+func (m *SiteCategoryMutation) ClearSites() {
+	m.clearedsites = true
+}
+
+// SitesCleared reports if the "sites" edge to the Site entity was cleared.
+func (m *SiteCategoryMutation) SitesCleared() bool {
+	return m.clearedsites
+}
+
+// RemoveSiteIDs removes the "sites" edge to the Site entity by IDs.
+func (m *SiteCategoryMutation) RemoveSiteIDs(ids ...int) {
+	if m.removedsites == nil {
+		m.removedsites = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.sites, ids[i])
+		m.removedsites[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSites returns the removed IDs of the "sites" edge to the Site entity.
+func (m *SiteCategoryMutation) RemovedSitesIDs() (ids []int) {
+	for id := range m.removedsites {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SitesIDs returns the "sites" edge IDs in the mutation.
+func (m *SiteCategoryMutation) SitesIDs() (ids []int) {
+	for id := range m.sites {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSites resets all changes to the "sites" edge.
+func (m *SiteCategoryMutation) ResetSites() {
+	m.sites = nil
+	m.clearedsites = false
+	m.removedsites = nil
+}
+
+// Where appends a list predicates to the SiteCategoryMutation builder.
+func (m *SiteCategoryMutation) Where(ps ...predicate.SiteCategory) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *SiteCategoryMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (SiteCategory).
+func (m *SiteCategoryMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *SiteCategoryMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.created_at != nil {
+		fields = append(fields, sitecategory.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, sitecategory.FieldUpdatedAt)
+	}
+	if m.label != nil {
+		fields = append(fields, sitecategory.FieldLabel)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *SiteCategoryMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case sitecategory.FieldCreatedAt:
+		return m.CreatedAt()
+	case sitecategory.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case sitecategory.FieldLabel:
+		return m.Label()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *SiteCategoryMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case sitecategory.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case sitecategory.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case sitecategory.FieldLabel:
+		return m.OldLabel(ctx)
+	}
+	return nil, fmt.Errorf("unknown SiteCategory field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SiteCategoryMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case sitecategory.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case sitecategory.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case sitecategory.FieldLabel:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLabel(v)
+		return nil
+	}
+	return fmt.Errorf("unknown SiteCategory field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *SiteCategoryMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *SiteCategoryMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SiteCategoryMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown SiteCategory numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *SiteCategoryMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *SiteCategoryMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *SiteCategoryMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown SiteCategory nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *SiteCategoryMutation) ResetField(name string) error {
+	switch name {
+	case sitecategory.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case sitecategory.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case sitecategory.FieldLabel:
+		m.ResetLabel()
+		return nil
+	}
+	return fmt.Errorf("unknown SiteCategory field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *SiteCategoryMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.sites != nil {
+		edges = append(edges, sitecategory.EdgeSites)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *SiteCategoryMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case sitecategory.EdgeSites:
+		ids := make([]ent.Value, 0, len(m.sites))
+		for id := range m.sites {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *SiteCategoryMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedsites != nil {
+		edges = append(edges, sitecategory.EdgeSites)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *SiteCategoryMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case sitecategory.EdgeSites:
+		ids := make([]ent.Value, 0, len(m.removedsites))
+		for id := range m.removedsites {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *SiteCategoryMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedsites {
+		edges = append(edges, sitecategory.EdgeSites)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *SiteCategoryMutation) EdgeCleared(name string) bool {
+	switch name {
+	case sitecategory.EdgeSites:
+		return m.clearedsites
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *SiteCategoryMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown SiteCategory unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *SiteCategoryMutation) ResetEdge(name string) error {
+	switch name {
+	case sitecategory.EdgeSites:
+		m.ResetSites()
+		return nil
+	}
+	return fmt.Errorf("unknown SiteCategory edge %s", name)
+}
+
+// SiteCrawlRuleMutation represents an operation that mutates the SiteCrawlRule nodes in the graph.
+type SiteCrawlRuleMutation struct {
+	config
+	op                   Op
+	typ                  string
+	id                   *int
+	created_at           *time.Time
+	updated_at           *time.Time
+	article_selector     *string
+	title_selector       *string
+	link_selector        *string
+	description_selector *string
+	has_data_to_list     *bool
+	date_selector        *string
+	date_layout          *string
+	is_time_humanize     *bool
+	is_spa               *bool
+	clearedFields        map[string]struct{}
+	site                 *int
+	clearedsite          bool
+	done                 bool
+	oldValue             func(context.Context) (*SiteCrawlRule, error)
+	predicates           []predicate.SiteCrawlRule
+}
+
+var _ ent.Mutation = (*SiteCrawlRuleMutation)(nil)
+
+// sitecrawlruleOption allows management of the mutation configuration using functional options.
+type sitecrawlruleOption func(*SiteCrawlRuleMutation)
+
+// newSiteCrawlRuleMutation creates new mutation for the SiteCrawlRule entity.
+func newSiteCrawlRuleMutation(c config, op Op, opts ...sitecrawlruleOption) *SiteCrawlRuleMutation {
+	m := &SiteCrawlRuleMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeSiteCrawlRule,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withSiteCrawlRuleID sets the ID field of the mutation.
+func withSiteCrawlRuleID(id int) sitecrawlruleOption {
+	return func(m *SiteCrawlRuleMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *SiteCrawlRule
+		)
+		m.oldValue = func(ctx context.Context) (*SiteCrawlRule, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().SiteCrawlRule.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withSiteCrawlRule sets the old SiteCrawlRule of the mutation.
+func withSiteCrawlRule(node *SiteCrawlRule) sitecrawlruleOption {
+	return func(m *SiteCrawlRuleMutation) {
+		m.oldValue = func(context.Context) (*SiteCrawlRule, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m SiteCrawlRuleMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m SiteCrawlRuleMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *SiteCrawlRuleMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *SiteCrawlRuleMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().SiteCrawlRule.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *SiteCrawlRuleMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *SiteCrawlRuleMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *SiteCrawlRuleMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *SiteCrawlRuleMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *SiteCrawlRuleMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *SiteCrawlRuleMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetArticleSelector sets the "article_selector" field.
+func (m *SiteCrawlRuleMutation) SetArticleSelector(s string) {
+	m.article_selector = &s
+}
+
+// ArticleSelector returns the value of the "article_selector" field in the mutation.
+func (m *SiteCrawlRuleMutation) ArticleSelector() (r string, exists bool) {
+	v := m.article_selector
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldArticleSelector returns the old "article_selector" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldArticleSelector(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldArticleSelector is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldArticleSelector requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldArticleSelector: %w", err)
+	}
+	return oldValue.ArticleSelector, nil
+}
+
+// ResetArticleSelector resets all changes to the "article_selector" field.
+func (m *SiteCrawlRuleMutation) ResetArticleSelector() {
+	m.article_selector = nil
+}
+
+// SetTitleSelector sets the "title_selector" field.
+func (m *SiteCrawlRuleMutation) SetTitleSelector(s string) {
+	m.title_selector = &s
+}
+
+// TitleSelector returns the value of the "title_selector" field in the mutation.
+func (m *SiteCrawlRuleMutation) TitleSelector() (r string, exists bool) {
+	v := m.title_selector
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitleSelector returns the old "title_selector" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldTitleSelector(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitleSelector is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitleSelector requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitleSelector: %w", err)
+	}
+	return oldValue.TitleSelector, nil
+}
+
+// ResetTitleSelector resets all changes to the "title_selector" field.
+func (m *SiteCrawlRuleMutation) ResetTitleSelector() {
+	m.title_selector = nil
+}
+
+// SetLinkSelector sets the "link_selector" field.
+func (m *SiteCrawlRuleMutation) SetLinkSelector(s string) {
+	m.link_selector = &s
+}
+
+// LinkSelector returns the value of the "link_selector" field in the mutation.
+func (m *SiteCrawlRuleMutation) LinkSelector() (r string, exists bool) {
+	v := m.link_selector
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLinkSelector returns the old "link_selector" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldLinkSelector(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLinkSelector is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLinkSelector requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLinkSelector: %w", err)
+	}
+	return oldValue.LinkSelector, nil
+}
+
+// ResetLinkSelector resets all changes to the "link_selector" field.
+func (m *SiteCrawlRuleMutation) ResetLinkSelector() {
+	m.link_selector = nil
+}
+
+// SetDescriptionSelector sets the "description_selector" field.
+func (m *SiteCrawlRuleMutation) SetDescriptionSelector(s string) {
+	m.description_selector = &s
+}
+
+// DescriptionSelector returns the value of the "description_selector" field in the mutation.
+func (m *SiteCrawlRuleMutation) DescriptionSelector() (r string, exists bool) {
+	v := m.description_selector
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescriptionSelector returns the old "description_selector" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldDescriptionSelector(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescriptionSelector is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescriptionSelector requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescriptionSelector: %w", err)
+	}
+	return oldValue.DescriptionSelector, nil
+}
+
+// ResetDescriptionSelector resets all changes to the "description_selector" field.
+func (m *SiteCrawlRuleMutation) ResetDescriptionSelector() {
+	m.description_selector = nil
+}
+
+// SetHasDataToList sets the "has_data_to_list" field.
+func (m *SiteCrawlRuleMutation) SetHasDataToList(b bool) {
+	m.has_data_to_list = &b
+}
+
+// HasDataToList returns the value of the "has_data_to_list" field in the mutation.
+func (m *SiteCrawlRuleMutation) HasDataToList() (r bool, exists bool) {
+	v := m.has_data_to_list
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHasDataToList returns the old "has_data_to_list" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldHasDataToList(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHasDataToList is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHasDataToList requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHasDataToList: %w", err)
+	}
+	return oldValue.HasDataToList, nil
+}
+
+// ResetHasDataToList resets all changes to the "has_data_to_list" field.
+func (m *SiteCrawlRuleMutation) ResetHasDataToList() {
+	m.has_data_to_list = nil
+}
+
+// SetDateSelector sets the "date_selector" field.
+func (m *SiteCrawlRuleMutation) SetDateSelector(s string) {
+	m.date_selector = &s
+}
+
+// DateSelector returns the value of the "date_selector" field in the mutation.
+func (m *SiteCrawlRuleMutation) DateSelector() (r string, exists bool) {
+	v := m.date_selector
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDateSelector returns the old "date_selector" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldDateSelector(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDateSelector is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDateSelector requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateSelector: %w", err)
+	}
+	return oldValue.DateSelector, nil
+}
+
+// ResetDateSelector resets all changes to the "date_selector" field.
+func (m *SiteCrawlRuleMutation) ResetDateSelector() {
+	m.date_selector = nil
+}
+
+// SetDateLayout sets the "date_layout" field.
+func (m *SiteCrawlRuleMutation) SetDateLayout(s string) {
+	m.date_layout = &s
+}
+
+// DateLayout returns the value of the "date_layout" field in the mutation.
+func (m *SiteCrawlRuleMutation) DateLayout() (r string, exists bool) {
+	v := m.date_layout
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDateLayout returns the old "date_layout" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldDateLayout(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDateLayout is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDateLayout requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateLayout: %w", err)
+	}
+	return oldValue.DateLayout, nil
+}
+
+// ResetDateLayout resets all changes to the "date_layout" field.
+func (m *SiteCrawlRuleMutation) ResetDateLayout() {
+	m.date_layout = nil
+}
+
+// SetIsTimeHumanize sets the "is_time_humanize" field.
+func (m *SiteCrawlRuleMutation) SetIsTimeHumanize(b bool) {
+	m.is_time_humanize = &b
+}
+
+// IsTimeHumanize returns the value of the "is_time_humanize" field in the mutation.
+func (m *SiteCrawlRuleMutation) IsTimeHumanize() (r bool, exists bool) {
+	v := m.is_time_humanize
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsTimeHumanize returns the old "is_time_humanize" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldIsTimeHumanize(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsTimeHumanize is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsTimeHumanize requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsTimeHumanize: %w", err)
+	}
+	return oldValue.IsTimeHumanize, nil
+}
+
+// ResetIsTimeHumanize resets all changes to the "is_time_humanize" field.
+func (m *SiteCrawlRuleMutation) ResetIsTimeHumanize() {
+	m.is_time_humanize = nil
+}
+
+// SetIsSpa sets the "is_spa" field.
+func (m *SiteCrawlRuleMutation) SetIsSpa(b bool) {
+	m.is_spa = &b
+}
+
+// IsSpa returns the value of the "is_spa" field in the mutation.
+func (m *SiteCrawlRuleMutation) IsSpa() (r bool, exists bool) {
+	v := m.is_spa
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsSpa returns the old "is_spa" field's value of the SiteCrawlRule entity.
+// If the SiteCrawlRule object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteCrawlRuleMutation) OldIsSpa(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsSpa is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsSpa requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsSpa: %w", err)
+	}
+	return oldValue.IsSpa, nil
+}
+
+// ResetIsSpa resets all changes to the "is_spa" field.
+func (m *SiteCrawlRuleMutation) ResetIsSpa() {
+	m.is_spa = nil
+}
+
+// SetSiteID sets the "site" edge to the Site entity by id.
+func (m *SiteCrawlRuleMutation) SetSiteID(id int) {
+	m.site = &id
+}
+
+// ClearSite clears the "site" edge to the Site entity.
+func (m *SiteCrawlRuleMutation) ClearSite() {
+	m.clearedsite = true
+}
+
+// SiteCleared reports if the "site" edge to the Site entity was cleared.
+func (m *SiteCrawlRuleMutation) SiteCleared() bool {
+	return m.clearedsite
+}
+
+// SiteID returns the "site" edge ID in the mutation.
+func (m *SiteCrawlRuleMutation) SiteID() (id int, exists bool) {
+	if m.site != nil {
+		return *m.site, true
+	}
+	return
+}
+
+// SiteIDs returns the "site" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// SiteID instead. It exists only for internal usage by the builders.
+func (m *SiteCrawlRuleMutation) SiteIDs() (ids []int) {
+	if id := m.site; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetSite resets all changes to the "site" edge.
+func (m *SiteCrawlRuleMutation) ResetSite() {
+	m.site = nil
+	m.clearedsite = false
+}
+
+// Where appends a list predicates to the SiteCrawlRuleMutation builder.
+func (m *SiteCrawlRuleMutation) Where(ps ...predicate.SiteCrawlRule) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *SiteCrawlRuleMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (SiteCrawlRule).
+func (m *SiteCrawlRuleMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *SiteCrawlRuleMutation) Fields() []string {
+	fields := make([]string, 0, 11)
+	if m.created_at != nil {
+		fields = append(fields, sitecrawlrule.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, sitecrawlrule.FieldUpdatedAt)
+	}
+	if m.article_selector != nil {
+		fields = append(fields, sitecrawlrule.FieldArticleSelector)
+	}
+	if m.title_selector != nil {
+		fields = append(fields, sitecrawlrule.FieldTitleSelector)
+	}
+	if m.link_selector != nil {
+		fields = append(fields, sitecrawlrule.FieldLinkSelector)
+	}
+	if m.description_selector != nil {
+		fields = append(fields, sitecrawlrule.FieldDescriptionSelector)
+	}
+	if m.has_data_to_list != nil {
+		fields = append(fields, sitecrawlrule.FieldHasDataToList)
+	}
+	if m.date_selector != nil {
+		fields = append(fields, sitecrawlrule.FieldDateSelector)
+	}
+	if m.date_layout != nil {
+		fields = append(fields, sitecrawlrule.FieldDateLayout)
+	}
+	if m.is_time_humanize != nil {
+		fields = append(fields, sitecrawlrule.FieldIsTimeHumanize)
+	}
+	if m.is_spa != nil {
+		fields = append(fields, sitecrawlrule.FieldIsSpa)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *SiteCrawlRuleMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case sitecrawlrule.FieldCreatedAt:
+		return m.CreatedAt()
+	case sitecrawlrule.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case sitecrawlrule.FieldArticleSelector:
+		return m.ArticleSelector()
+	case sitecrawlrule.FieldTitleSelector:
+		return m.TitleSelector()
+	case sitecrawlrule.FieldLinkSelector:
+		return m.LinkSelector()
+	case sitecrawlrule.FieldDescriptionSelector:
+		return m.DescriptionSelector()
+	case sitecrawlrule.FieldHasDataToList:
+		return m.HasDataToList()
+	case sitecrawlrule.FieldDateSelector:
+		return m.DateSelector()
+	case sitecrawlrule.FieldDateLayout:
+		return m.DateLayout()
+	case sitecrawlrule.FieldIsTimeHumanize:
+		return m.IsTimeHumanize()
+	case sitecrawlrule.FieldIsSpa:
+		return m.IsSpa()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *SiteCrawlRuleMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case sitecrawlrule.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case sitecrawlrule.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case sitecrawlrule.FieldArticleSelector:
+		return m.OldArticleSelector(ctx)
+	case sitecrawlrule.FieldTitleSelector:
+		return m.OldTitleSelector(ctx)
+	case sitecrawlrule.FieldLinkSelector:
+		return m.OldLinkSelector(ctx)
+	case sitecrawlrule.FieldDescriptionSelector:
+		return m.OldDescriptionSelector(ctx)
+	case sitecrawlrule.FieldHasDataToList:
+		return m.OldHasDataToList(ctx)
+	case sitecrawlrule.FieldDateSelector:
+		return m.OldDateSelector(ctx)
+	case sitecrawlrule.FieldDateLayout:
+		return m.OldDateLayout(ctx)
+	case sitecrawlrule.FieldIsTimeHumanize:
+		return m.OldIsTimeHumanize(ctx)
+	case sitecrawlrule.FieldIsSpa:
+		return m.OldIsSpa(ctx)
+	}
+	return nil, fmt.Errorf("unknown SiteCrawlRule field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SiteCrawlRuleMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case sitecrawlrule.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case sitecrawlrule.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case sitecrawlrule.FieldArticleSelector:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetArticleSelector(v)
+		return nil
+	case sitecrawlrule.FieldTitleSelector:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitleSelector(v)
+		return nil
+	case sitecrawlrule.FieldLinkSelector:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLinkSelector(v)
+		return nil
+	case sitecrawlrule.FieldDescriptionSelector:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescriptionSelector(v)
+		return nil
+	case sitecrawlrule.FieldHasDataToList:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHasDataToList(v)
+		return nil
+	case sitecrawlrule.FieldDateSelector:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDateSelector(v)
+		return nil
+	case sitecrawlrule.FieldDateLayout:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDateLayout(v)
+		return nil
+	case sitecrawlrule.FieldIsTimeHumanize:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsTimeHumanize(v)
+		return nil
+	case sitecrawlrule.FieldIsSpa:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsSpa(v)
+		return nil
+	}
+	return fmt.Errorf("unknown SiteCrawlRule field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *SiteCrawlRuleMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *SiteCrawlRuleMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SiteCrawlRuleMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown SiteCrawlRule numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *SiteCrawlRuleMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *SiteCrawlRuleMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *SiteCrawlRuleMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown SiteCrawlRule nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *SiteCrawlRuleMutation) ResetField(name string) error {
+	switch name {
+	case sitecrawlrule.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case sitecrawlrule.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case sitecrawlrule.FieldArticleSelector:
+		m.ResetArticleSelector()
+		return nil
+	case sitecrawlrule.FieldTitleSelector:
+		m.ResetTitleSelector()
+		return nil
+	case sitecrawlrule.FieldLinkSelector:
+		m.ResetLinkSelector()
+		return nil
+	case sitecrawlrule.FieldDescriptionSelector:
+		m.ResetDescriptionSelector()
+		return nil
+	case sitecrawlrule.FieldHasDataToList:
+		m.ResetHasDataToList()
+		return nil
+	case sitecrawlrule.FieldDateSelector:
+		m.ResetDateSelector()
+		return nil
+	case sitecrawlrule.FieldDateLayout:
+		m.ResetDateLayout()
+		return nil
+	case sitecrawlrule.FieldIsTimeHumanize:
+		m.ResetIsTimeHumanize()
+		return nil
+	case sitecrawlrule.FieldIsSpa:
+		m.ResetIsSpa()
+		return nil
+	}
+	return fmt.Errorf("unknown SiteCrawlRule field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *SiteCrawlRuleMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.site != nil {
+		edges = append(edges, sitecrawlrule.EdgeSite)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *SiteCrawlRuleMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case sitecrawlrule.EdgeSite:
+		if id := m.site; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *SiteCrawlRuleMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *SiteCrawlRuleMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *SiteCrawlRuleMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedsite {
+		edges = append(edges, sitecrawlrule.EdgeSite)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *SiteCrawlRuleMutation) EdgeCleared(name string) bool {
+	switch name {
+	case sitecrawlrule.EdgeSite:
+		return m.clearedsite
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *SiteCrawlRuleMutation) ClearEdge(name string) error {
+	switch name {
+	case sitecrawlrule.EdgeSite:
+		m.ClearSite()
+		return nil
+	}
+	return fmt.Errorf("unknown SiteCrawlRule unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *SiteCrawlRuleMutation) ResetEdge(name string) error {
+	switch name {
+	case sitecrawlrule.EdgeSite:
+		m.ResetSite()
+		return nil
+	}
+	return fmt.Errorf("unknown SiteCrawlRule edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.

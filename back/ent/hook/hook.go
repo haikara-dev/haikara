@@ -48,6 +48,32 @@ func (f SiteFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return f(ctx, mv)
 }
 
+// The SiteCategoryFunc type is an adapter to allow the use of ordinary
+// function as SiteCategory mutator.
+type SiteCategoryFunc func(context.Context, *ent.SiteCategoryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SiteCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.SiteCategoryMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SiteCategoryMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The SiteCrawlRuleFunc type is an adapter to allow the use of ordinary
+// function as SiteCrawlRule mutator.
+type SiteCrawlRuleFunc func(context.Context, *ent.SiteCrawlRuleMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SiteCrawlRuleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.SiteCrawlRuleMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SiteCrawlRuleMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)

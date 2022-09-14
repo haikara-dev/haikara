@@ -70,6 +70,49 @@ var (
 		Columns:    SitesColumns,
 		PrimaryKey: []*schema.Column{SitesColumns[0]},
 	}
+	// SiteCategoriesColumns holds the columns for the "site_categories" table.
+	SiteCategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "label", Type: field.TypeString, Unique: true},
+	}
+	// SiteCategoriesTable holds the schema information for the "site_categories" table.
+	SiteCategoriesTable = &schema.Table{
+		Name:       "site_categories",
+		Columns:    SiteCategoriesColumns,
+		PrimaryKey: []*schema.Column{SiteCategoriesColumns[0]},
+	}
+	// SiteCrawlRulesColumns holds the columns for the "site_crawl_rules" table.
+	SiteCrawlRulesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "article_selector", Type: field.TypeString},
+		{Name: "title_selector", Type: field.TypeString},
+		{Name: "link_selector", Type: field.TypeString},
+		{Name: "description_selector", Type: field.TypeString},
+		{Name: "has_data_to_list", Type: field.TypeBool, Default: true},
+		{Name: "date_selector", Type: field.TypeString},
+		{Name: "date_layout", Type: field.TypeString},
+		{Name: "is_time_humanize", Type: field.TypeBool, Default: false},
+		{Name: "is_spa", Type: field.TypeBool, Default: false},
+		{Name: "site_site_crawl_rule", Type: field.TypeInt, Unique: true},
+	}
+	// SiteCrawlRulesTable holds the schema information for the "site_crawl_rules" table.
+	SiteCrawlRulesTable = &schema.Table{
+		Name:       "site_crawl_rules",
+		Columns:    SiteCrawlRulesColumns,
+		PrimaryKey: []*schema.Column{SiteCrawlRulesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "site_crawl_rules_sites_site_crawl_rule",
+				Columns:    []*schema.Column{SiteCrawlRulesColumns[12]},
+				RefColumns: []*schema.Column{SitesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -85,16 +128,47 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
+	// SiteCategorySitesColumns holds the columns for the "site_category_sites" table.
+	SiteCategorySitesColumns = []*schema.Column{
+		{Name: "site_category_id", Type: field.TypeInt},
+		{Name: "site_id", Type: field.TypeInt},
+	}
+	// SiteCategorySitesTable holds the schema information for the "site_category_sites" table.
+	SiteCategorySitesTable = &schema.Table{
+		Name:       "site_category_sites",
+		Columns:    SiteCategorySitesColumns,
+		PrimaryKey: []*schema.Column{SiteCategorySitesColumns[0], SiteCategorySitesColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "site_category_sites_site_category_id",
+				Columns:    []*schema.Column{SiteCategorySitesColumns[0]},
+				RefColumns: []*schema.Column{SiteCategoriesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "site_category_sites_site_id",
+				Columns:    []*schema.Column{SiteCategorySitesColumns[1]},
+				RefColumns: []*schema.Column{SitesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ArticlesTable,
 		FeedsTable,
 		SitesTable,
+		SiteCategoriesTable,
+		SiteCrawlRulesTable,
 		UsersTable,
+		SiteCategorySitesTable,
 	}
 )
 
 func init() {
 	ArticlesTable.ForeignKeys[0].RefTable = SitesTable
 	FeedsTable.ForeignKeys[0].RefTable = SitesTable
+	SiteCrawlRulesTable.ForeignKeys[0].RefTable = SitesTable
+	SiteCategorySitesTable.ForeignKeys[0].RefTable = SiteCategoriesTable
+	SiteCategorySitesTable.ForeignKeys[1].RefTable = SitesTable
 }

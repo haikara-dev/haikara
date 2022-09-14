@@ -27,6 +27,10 @@ const (
 	EdgeArticles = "articles"
 	// EdgeFeeds holds the string denoting the feeds edge name in mutations.
 	EdgeFeeds = "feeds"
+	// EdgeSiteCrawlRule holds the string denoting the site_crawl_rule edge name in mutations.
+	EdgeSiteCrawlRule = "site_crawl_rule"
+	// EdgeSiteCategories holds the string denoting the site_categories edge name in mutations.
+	EdgeSiteCategories = "site_categories"
 	// Table holds the table name of the site in the database.
 	Table = "sites"
 	// ArticlesTable is the table that holds the articles relation/edge.
@@ -43,6 +47,18 @@ const (
 	FeedsInverseTable = "feeds"
 	// FeedsColumn is the table column denoting the feeds relation/edge.
 	FeedsColumn = "site_feeds"
+	// SiteCrawlRuleTable is the table that holds the site_crawl_rule relation/edge.
+	SiteCrawlRuleTable = "site_crawl_rules"
+	// SiteCrawlRuleInverseTable is the table name for the SiteCrawlRule entity.
+	// It exists in this package in order to avoid circular dependency with the "sitecrawlrule" package.
+	SiteCrawlRuleInverseTable = "site_crawl_rules"
+	// SiteCrawlRuleColumn is the table column denoting the site_crawl_rule relation/edge.
+	SiteCrawlRuleColumn = "site_site_crawl_rule"
+	// SiteCategoriesTable is the table that holds the site_categories relation/edge. The primary key declared below.
+	SiteCategoriesTable = "site_category_sites"
+	// SiteCategoriesInverseTable is the table name for the SiteCategory entity.
+	// It exists in this package in order to avoid circular dependency with the "sitecategory" package.
+	SiteCategoriesInverseTable = "site_categories"
 )
 
 // Columns holds all SQL columns for site fields.
@@ -55,6 +71,12 @@ var Columns = []string{
 	FieldFeedURL,
 	FieldActive,
 }
+
+var (
+	// SiteCategoriesPrimaryKey and SiteCategoriesColumn2 are the table columns denoting the
+	// primary key for the site_categories relation (M2M).
+	SiteCategoriesPrimaryKey = []string{"site_category_id", "site_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

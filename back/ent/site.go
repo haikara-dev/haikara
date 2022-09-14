@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
 )
 
 // Site is the model entity for the Site schema.
@@ -39,9 +40,13 @@ type SiteEdges struct {
 	Articles []*Article `json:"articles,omitempty"`
 	// Feeds holds the value of the feeds edge.
 	Feeds []*Feed `json:"feeds,omitempty"`
+	// SiteCrawlRule holds the value of the site_crawl_rule edge.
+	SiteCrawlRule *SiteCrawlRule `json:"site_crawl_rule,omitempty"`
+	// SiteCategories holds the value of the site_categories edge.
+	SiteCategories []*SiteCategory `json:"site_categories,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
 }
 
 // ArticlesOrErr returns the Articles value or an error if the edge
@@ -60,6 +65,28 @@ func (e SiteEdges) FeedsOrErr() ([]*Feed, error) {
 		return e.Feeds, nil
 	}
 	return nil, &NotLoadedError{edge: "feeds"}
+}
+
+// SiteCrawlRuleOrErr returns the SiteCrawlRule value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SiteEdges) SiteCrawlRuleOrErr() (*SiteCrawlRule, error) {
+	if e.loadedTypes[2] {
+		if e.SiteCrawlRule == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: sitecrawlrule.Label}
+		}
+		return e.SiteCrawlRule, nil
+	}
+	return nil, &NotLoadedError{edge: "site_crawl_rule"}
+}
+
+// SiteCategoriesOrErr returns the SiteCategories value or an error if the edge
+// was not loaded in eager-loading.
+func (e SiteEdges) SiteCategoriesOrErr() ([]*SiteCategory, error) {
+	if e.loadedTypes[3] {
+		return e.SiteCategories, nil
+	}
+	return nil, &NotLoadedError{edge: "site_categories"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -145,6 +172,16 @@ func (s *Site) QueryArticles() *ArticleQuery {
 // QueryFeeds queries the "feeds" edge of the Site entity.
 func (s *Site) QueryFeeds() *FeedQuery {
 	return (&SiteClient{config: s.config}).QueryFeeds(s)
+}
+
+// QuerySiteCrawlRule queries the "site_crawl_rule" edge of the Site entity.
+func (s *Site) QuerySiteCrawlRule() *SiteCrawlRuleQuery {
+	return (&SiteClient{config: s.config}).QuerySiteCrawlRule(s)
+}
+
+// QuerySiteCategories queries the "site_categories" edge of the Site entity.
+func (s *Site) QuerySiteCategories() *SiteCategoryQuery {
+	return (&SiteClient{config: s.config}).QuerySiteCategories(s)
 }
 
 // Update returns a builder for updating this Site.

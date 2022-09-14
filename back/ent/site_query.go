@@ -15,19 +15,23 @@ import (
 	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/predicate"
 	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/dailyfj/ent/sitecategory"
+	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
 )
 
 // SiteQuery is the builder for querying Site entities.
 type SiteQuery struct {
 	config
-	limit        *int
-	offset       *int
-	unique       *bool
-	order        []OrderFunc
-	fields       []string
-	predicates   []predicate.Site
-	withArticles *ArticleQuery
-	withFeeds    *FeedQuery
+	limit              *int
+	offset             *int
+	unique             *bool
+	order              []OrderFunc
+	fields             []string
+	predicates         []predicate.Site
+	withArticles       *ArticleQuery
+	withFeeds          *FeedQuery
+	withSiteCrawlRule  *SiteCrawlRuleQuery
+	withSiteCategories *SiteCategoryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -101,6 +105,50 @@ func (sq *SiteQuery) QueryFeeds() *FeedQuery {
 			sqlgraph.From(site.Table, site.FieldID, selector),
 			sqlgraph.To(feed.Table, feed.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, site.FeedsTable, site.FeedsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySiteCrawlRule chains the current query on the "site_crawl_rule" edge.
+func (sq *SiteQuery) QuerySiteCrawlRule() *SiteCrawlRuleQuery {
+	query := &SiteCrawlRuleQuery{config: sq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, selector),
+			sqlgraph.To(sitecrawlrule.Table, sitecrawlrule.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, site.SiteCrawlRuleTable, site.SiteCrawlRuleColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySiteCategories chains the current query on the "site_categories" edge.
+func (sq *SiteQuery) QuerySiteCategories() *SiteCategoryQuery {
+	query := &SiteCategoryQuery{config: sq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, selector),
+			sqlgraph.To(sitecategory.Table, sitecategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, site.SiteCategoriesTable, site.SiteCategoriesPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -284,13 +332,15 @@ func (sq *SiteQuery) Clone() *SiteQuery {
 		return nil
 	}
 	return &SiteQuery{
-		config:       sq.config,
-		limit:        sq.limit,
-		offset:       sq.offset,
-		order:        append([]OrderFunc{}, sq.order...),
-		predicates:   append([]predicate.Site{}, sq.predicates...),
-		withArticles: sq.withArticles.Clone(),
-		withFeeds:    sq.withFeeds.Clone(),
+		config:             sq.config,
+		limit:              sq.limit,
+		offset:             sq.offset,
+		order:              append([]OrderFunc{}, sq.order...),
+		predicates:         append([]predicate.Site{}, sq.predicates...),
+		withArticles:       sq.withArticles.Clone(),
+		withFeeds:          sq.withFeeds.Clone(),
+		withSiteCrawlRule:  sq.withSiteCrawlRule.Clone(),
+		withSiteCategories: sq.withSiteCategories.Clone(),
 		// clone intermediate query.
 		sql:    sq.sql.Clone(),
 		path:   sq.path,
@@ -317,6 +367,28 @@ func (sq *SiteQuery) WithFeeds(opts ...func(*FeedQuery)) *SiteQuery {
 		opt(query)
 	}
 	sq.withFeeds = query
+	return sq
+}
+
+// WithSiteCrawlRule tells the query-builder to eager-load the nodes that are connected to
+// the "site_crawl_rule" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SiteQuery) WithSiteCrawlRule(opts ...func(*SiteCrawlRuleQuery)) *SiteQuery {
+	query := &SiteCrawlRuleQuery{config: sq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withSiteCrawlRule = query
+	return sq
+}
+
+// WithSiteCategories tells the query-builder to eager-load the nodes that are connected to
+// the "site_categories" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SiteQuery) WithSiteCategories(opts ...func(*SiteCategoryQuery)) *SiteQuery {
+	query := &SiteCategoryQuery{config: sq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withSiteCategories = query
 	return sq
 }
 
@@ -388,9 +460,11 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 	var (
 		nodes       = []*Site{}
 		_spec       = sq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [4]bool{
 			sq.withArticles != nil,
 			sq.withFeeds != nil,
+			sq.withSiteCrawlRule != nil,
+			sq.withSiteCategories != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -422,6 +496,19 @@ func (sq *SiteQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Site, e
 		if err := sq.loadFeeds(ctx, query, nodes,
 			func(n *Site) { n.Edges.Feeds = []*Feed{} },
 			func(n *Site, e *Feed) { n.Edges.Feeds = append(n.Edges.Feeds, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withSiteCrawlRule; query != nil {
+		if err := sq.loadSiteCrawlRule(ctx, query, nodes, nil,
+			func(n *Site, e *SiteCrawlRule) { n.Edges.SiteCrawlRule = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withSiteCategories; query != nil {
+		if err := sq.loadSiteCategories(ctx, query, nodes,
+			func(n *Site) { n.Edges.SiteCategories = []*SiteCategory{} },
+			func(n *Site, e *SiteCategory) { n.Edges.SiteCategories = append(n.Edges.SiteCategories, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -487,6 +574,92 @@ func (sq *SiteQuery) loadFeeds(ctx context.Context, query *FeedQuery, nodes []*S
 			return fmt.Errorf(`unexpected foreign-key "site_feeds" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (sq *SiteQuery) loadSiteCrawlRule(ctx context.Context, query *SiteCrawlRuleQuery, nodes []*Site, init func(*Site), assign func(*Site, *SiteCrawlRule)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Site)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	query.withFKs = true
+	query.Where(predicate.SiteCrawlRule(func(s *sql.Selector) {
+		s.Where(sql.InValues(site.SiteCrawlRuleColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.site_site_crawl_rule
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "site_site_crawl_rule" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "site_site_crawl_rule" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (sq *SiteQuery) loadSiteCategories(ctx context.Context, query *SiteCategoryQuery, nodes []*Site, init func(*Site), assign func(*Site, *SiteCategory)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Site)
+	nids := make(map[int]map[*Site]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(site.SiteCategoriesTable)
+		s.Join(joinT).On(s.C(sitecategory.FieldID), joinT.C(site.SiteCategoriesPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(site.SiteCategoriesPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(site.SiteCategoriesPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	neighbors, err := query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+		assign := spec.Assign
+		values := spec.ScanValues
+		spec.ScanValues = func(columns []string) ([]interface{}, error) {
+			values, err := values(columns[1:])
+			if err != nil {
+				return nil, err
+			}
+			return append([]interface{}{new(sql.NullInt64)}, values...), nil
+		}
+		spec.Assign = func(columns []string, values []interface{}) error {
+			outValue := int(values[0].(*sql.NullInt64).Int64)
+			inValue := int(values[1].(*sql.NullInt64).Int64)
+			if nids[inValue] == nil {
+				nids[inValue] = map[*Site]struct{}{byID[outValue]: struct{}{}}
+				return assign(columns[1:], values[1:])
+			}
+			nids[inValue][byID[outValue]] = struct{}{}
+			return nil
+		}
+	})
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "site_categories" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }

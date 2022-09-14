@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-type SiteCrawlRule struct {
+type SiteCrawlRuleByFile struct {
 	Url                 string
 	ArticleSelector     string
 	TitleSelector       string
@@ -27,7 +27,7 @@ type SiteCrawlRule struct {
 	DateSelector        string
 	DateLayout          string
 	IsTimeHumanize      bool
-	needChrome          bool
+	IsSpa               bool
 }
 
 func GetRSSUrl(baseUrl string) (string, error) {
@@ -81,13 +81,13 @@ func GetRSS(feedUrl string) (string, error) {
 	return contents, nil
 }
 
-func getSiteCrawlRule(siteUrl string) (SiteCrawlRule, error) {
-	var siteCrawlRule SiteCrawlRule
+func getSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
+	var siteCrawlRule SiteCrawlRuleByFile
 
 	switch siteUrl {
 
 	case "https://www.snowpeak.co.jp/news/":
-		siteCrawlRule = SiteCrawlRule{
+		siteCrawlRule = SiteCrawlRuleByFile{
 			Url:                 siteUrl,
 			ArticleSelector:     ".un_newsList .un_newsList_itemDetail",
 			TitleSelector:       ".un_newsList_title",
@@ -97,11 +97,11 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRule, error) {
 			DateSelector:        ".un_newsList_date",
 			DateLayout:          "2006.1.2",
 			IsTimeHumanize:      false,
-			needChrome:          false,
+			IsSpa:               false,
 		}
 
 	case "https://www.fashion-press.net/news/":
-		siteCrawlRule = SiteCrawlRule{
+		siteCrawlRule = SiteCrawlRuleByFile{
 			Url:                 siteUrl,
 			ArticleSelector:     ".pc_only .fp_media_tile.news_media",
 			TitleSelector:       " > a > div",
@@ -111,11 +111,11 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRule, error) {
 			DateSelector:        " > div > span",
 			DateLayout:          "2006.1.2",
 			IsTimeHumanize:      true,
-			needChrome:          false,
+			IsSpa:               false,
 		}
 
 	case "https://www.vogue.co.jp/fashion/news":
-		siteCrawlRule = SiteCrawlRule{
+		siteCrawlRule = SiteCrawlRuleByFile{
 			Url:                 siteUrl,
 			ArticleSelector:     ".summary-item",
 			TitleSelector:       ".summary-item__content h2",
@@ -125,11 +125,11 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRule, error) {
 			DateSelector:        ".summary-item__publish-date",
 			DateLayout:          "2006年1月2日",
 			IsTimeHumanize:      false,
-			needChrome:          false,
+			IsSpa:               false,
 		}
 
 	case "https://www.elle.com/jp/fashion-news/":
-		siteCrawlRule = SiteCrawlRule{
+		siteCrawlRule = SiteCrawlRuleByFile{
 			Url:                 siteUrl,
 			ArticleSelector:     ".custom-item",
 			TitleSelector:       ".custom-item-title",
@@ -139,11 +139,11 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRule, error) {
 			DateSelector:        ".content-info-date",
 			DateLayout:          "2006/01/02",
 			IsTimeHumanize:      false,
-			needChrome:          false,
+			IsSpa:               false,
 		}
 
 	case "https://lee.hpplus.jp/category/fashion/":
-		siteCrawlRule = SiteCrawlRule{
+		siteCrawlRule = SiteCrawlRuleByFile{
 			Url:                 siteUrl,
 			ArticleSelector:     "main > article",
 			TitleSelector:       ".entry-title",
@@ -153,12 +153,12 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRule, error) {
 			DateSelector:        ".post-date time",
 			DateLayout:          "2006/01/02",
 			IsTimeHumanize:      false,
-			needChrome:          false,
+			IsSpa:               false,
 		}
 
 		// Chromeが必要
 	case "https://corp.zozo.com/news-top/":
-		siteCrawlRule = SiteCrawlRule{
+		siteCrawlRule = SiteCrawlRuleByFile{
 			Url:                 siteUrl,
 			ArticleSelector:     ".news-list .list-item",
 			TitleSelector:       ".item-ttl .ttl-inner",
@@ -168,7 +168,7 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRule, error) {
 			DateSelector:        ".item-date",
 			DateLayout:          "2006年01月02日",
 			IsTimeHumanize:      false,
-			needChrome:          true,
+			IsSpa:               true,
 		}
 
 	default:
@@ -177,7 +177,7 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRule, error) {
 	}
 	return siteCrawlRule, nil
 }
-func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule SiteCrawlRule, client *ent.Client) (string, error) {
+func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule SiteCrawlRuleByFile, client *ent.Client) (string, error) {
 	var err error
 	var contents string
 
@@ -347,7 +347,7 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule SiteCrawlRule, client *
 	return contents, nil
 }
 
-func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule SiteCrawlRule, client *ent.Client) (string, error) {
+func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule SiteCrawlRuleByFile, client *ent.Client) (string, error) {
 	var err error
 	var contents string
 	loc, _ := time.LoadLocation("Asia/Tokyo")
@@ -497,7 +497,7 @@ func GetRSSByHTML(siteUrl string, client *ent.Client) (string, error) {
 		return "", err
 	}
 
-	if siteCrawlRule.needChrome {
+	if siteCrawlRule.IsSpa {
 		contents, err = GetRSSByHTMLUseChrome(siteUrl, siteCrawlRule, client)
 	} else {
 		contents, err = GetRSSByHTMLUseColly(siteUrl, siteCrawlRule, client)

@@ -13,6 +13,8 @@ import (
 	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/dailyfj/ent/sitecategory"
+	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
 	"github.com/cubdesign/dailyfj/ent/user"
 
 	"entgo.io/ent/dialect"
@@ -31,6 +33,10 @@ type Client struct {
 	Feed *FeedClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
+	// SiteCategory is the client for interacting with the SiteCategory builders.
+	SiteCategory *SiteCategoryClient
+	// SiteCrawlRule is the client for interacting with the SiteCrawlRule builders.
+	SiteCrawlRule *SiteCrawlRuleClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -49,6 +55,8 @@ func (c *Client) init() {
 	c.Article = NewArticleClient(c.config)
 	c.Feed = NewFeedClient(c.config)
 	c.Site = NewSiteClient(c.config)
+	c.SiteCategory = NewSiteCategoryClient(c.config)
+	c.SiteCrawlRule = NewSiteCrawlRuleClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -81,12 +89,14 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Article: NewArticleClient(cfg),
-		Feed:    NewFeedClient(cfg),
-		Site:    NewSiteClient(cfg),
-		User:    NewUserClient(cfg),
+		ctx:           ctx,
+		config:        cfg,
+		Article:       NewArticleClient(cfg),
+		Feed:          NewFeedClient(cfg),
+		Site:          NewSiteClient(cfg),
+		SiteCategory:  NewSiteCategoryClient(cfg),
+		SiteCrawlRule: NewSiteCrawlRuleClient(cfg),
+		User:          NewUserClient(cfg),
 	}, nil
 }
 
@@ -104,12 +114,14 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Article: NewArticleClient(cfg),
-		Feed:    NewFeedClient(cfg),
-		Site:    NewSiteClient(cfg),
-		User:    NewUserClient(cfg),
+		ctx:           ctx,
+		config:        cfg,
+		Article:       NewArticleClient(cfg),
+		Feed:          NewFeedClient(cfg),
+		Site:          NewSiteClient(cfg),
+		SiteCategory:  NewSiteCategoryClient(cfg),
+		SiteCrawlRule: NewSiteCrawlRuleClient(cfg),
+		User:          NewUserClient(cfg),
 	}, nil
 }
 
@@ -141,6 +153,8 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Article.Use(hooks...)
 	c.Feed.Use(hooks...)
 	c.Site.Use(hooks...)
+	c.SiteCategory.Use(hooks...)
+	c.SiteCrawlRule.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
@@ -473,9 +487,253 @@ func (c *SiteClient) QueryFeeds(s *Site) *FeedQuery {
 	return query
 }
 
+// QuerySiteCrawlRule queries the site_crawl_rule edge of a Site.
+func (c *SiteClient) QuerySiteCrawlRule(s *Site) *SiteCrawlRuleQuery {
+	query := &SiteCrawlRuleQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, id),
+			sqlgraph.To(sitecrawlrule.Table, sitecrawlrule.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, site.SiteCrawlRuleTable, site.SiteCrawlRuleColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySiteCategories queries the site_categories edge of a Site.
+func (c *SiteClient) QuerySiteCategories(s *Site) *SiteCategoryQuery {
+	query := &SiteCategoryQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(site.Table, site.FieldID, id),
+			sqlgraph.To(sitecategory.Table, sitecategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, site.SiteCategoriesTable, site.SiteCategoriesPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *SiteClient) Hooks() []Hook {
 	return c.hooks.Site
+}
+
+// SiteCategoryClient is a client for the SiteCategory schema.
+type SiteCategoryClient struct {
+	config
+}
+
+// NewSiteCategoryClient returns a client for the SiteCategory from the given config.
+func NewSiteCategoryClient(c config) *SiteCategoryClient {
+	return &SiteCategoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `sitecategory.Hooks(f(g(h())))`.
+func (c *SiteCategoryClient) Use(hooks ...Hook) {
+	c.hooks.SiteCategory = append(c.hooks.SiteCategory, hooks...)
+}
+
+// Create returns a builder for creating a SiteCategory entity.
+func (c *SiteCategoryClient) Create() *SiteCategoryCreate {
+	mutation := newSiteCategoryMutation(c.config, OpCreate)
+	return &SiteCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SiteCategory entities.
+func (c *SiteCategoryClient) CreateBulk(builders ...*SiteCategoryCreate) *SiteCategoryCreateBulk {
+	return &SiteCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SiteCategory.
+func (c *SiteCategoryClient) Update() *SiteCategoryUpdate {
+	mutation := newSiteCategoryMutation(c.config, OpUpdate)
+	return &SiteCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SiteCategoryClient) UpdateOne(sc *SiteCategory) *SiteCategoryUpdateOne {
+	mutation := newSiteCategoryMutation(c.config, OpUpdateOne, withSiteCategory(sc))
+	return &SiteCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SiteCategoryClient) UpdateOneID(id int) *SiteCategoryUpdateOne {
+	mutation := newSiteCategoryMutation(c.config, OpUpdateOne, withSiteCategoryID(id))
+	return &SiteCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SiteCategory.
+func (c *SiteCategoryClient) Delete() *SiteCategoryDelete {
+	mutation := newSiteCategoryMutation(c.config, OpDelete)
+	return &SiteCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SiteCategoryClient) DeleteOne(sc *SiteCategory) *SiteCategoryDeleteOne {
+	return c.DeleteOneID(sc.ID)
+}
+
+// DeleteOne returns a builder for deleting the given entity by its id.
+func (c *SiteCategoryClient) DeleteOneID(id int) *SiteCategoryDeleteOne {
+	builder := c.Delete().Where(sitecategory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SiteCategoryDeleteOne{builder}
+}
+
+// Query returns a query builder for SiteCategory.
+func (c *SiteCategoryClient) Query() *SiteCategoryQuery {
+	return &SiteCategoryQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a SiteCategory entity by its id.
+func (c *SiteCategoryClient) Get(ctx context.Context, id int) (*SiteCategory, error) {
+	return c.Query().Where(sitecategory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SiteCategoryClient) GetX(ctx context.Context, id int) *SiteCategory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySites queries the sites edge of a SiteCategory.
+func (c *SiteCategoryClient) QuerySites(sc *SiteCategory) *SiteQuery {
+	query := &SiteQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := sc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(sitecategory.Table, sitecategory.FieldID, id),
+			sqlgraph.To(site.Table, site.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, sitecategory.SitesTable, sitecategory.SitesPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(sc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SiteCategoryClient) Hooks() []Hook {
+	return c.hooks.SiteCategory
+}
+
+// SiteCrawlRuleClient is a client for the SiteCrawlRule schema.
+type SiteCrawlRuleClient struct {
+	config
+}
+
+// NewSiteCrawlRuleClient returns a client for the SiteCrawlRule from the given config.
+func NewSiteCrawlRuleClient(c config) *SiteCrawlRuleClient {
+	return &SiteCrawlRuleClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `sitecrawlrule.Hooks(f(g(h())))`.
+func (c *SiteCrawlRuleClient) Use(hooks ...Hook) {
+	c.hooks.SiteCrawlRule = append(c.hooks.SiteCrawlRule, hooks...)
+}
+
+// Create returns a builder for creating a SiteCrawlRule entity.
+func (c *SiteCrawlRuleClient) Create() *SiteCrawlRuleCreate {
+	mutation := newSiteCrawlRuleMutation(c.config, OpCreate)
+	return &SiteCrawlRuleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SiteCrawlRule entities.
+func (c *SiteCrawlRuleClient) CreateBulk(builders ...*SiteCrawlRuleCreate) *SiteCrawlRuleCreateBulk {
+	return &SiteCrawlRuleCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SiteCrawlRule.
+func (c *SiteCrawlRuleClient) Update() *SiteCrawlRuleUpdate {
+	mutation := newSiteCrawlRuleMutation(c.config, OpUpdate)
+	return &SiteCrawlRuleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SiteCrawlRuleClient) UpdateOne(scr *SiteCrawlRule) *SiteCrawlRuleUpdateOne {
+	mutation := newSiteCrawlRuleMutation(c.config, OpUpdateOne, withSiteCrawlRule(scr))
+	return &SiteCrawlRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SiteCrawlRuleClient) UpdateOneID(id int) *SiteCrawlRuleUpdateOne {
+	mutation := newSiteCrawlRuleMutation(c.config, OpUpdateOne, withSiteCrawlRuleID(id))
+	return &SiteCrawlRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SiteCrawlRule.
+func (c *SiteCrawlRuleClient) Delete() *SiteCrawlRuleDelete {
+	mutation := newSiteCrawlRuleMutation(c.config, OpDelete)
+	return &SiteCrawlRuleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SiteCrawlRuleClient) DeleteOne(scr *SiteCrawlRule) *SiteCrawlRuleDeleteOne {
+	return c.DeleteOneID(scr.ID)
+}
+
+// DeleteOne returns a builder for deleting the given entity by its id.
+func (c *SiteCrawlRuleClient) DeleteOneID(id int) *SiteCrawlRuleDeleteOne {
+	builder := c.Delete().Where(sitecrawlrule.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SiteCrawlRuleDeleteOne{builder}
+}
+
+// Query returns a query builder for SiteCrawlRule.
+func (c *SiteCrawlRuleClient) Query() *SiteCrawlRuleQuery {
+	return &SiteCrawlRuleQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a SiteCrawlRule entity by its id.
+func (c *SiteCrawlRuleClient) Get(ctx context.Context, id int) (*SiteCrawlRule, error) {
+	return c.Query().Where(sitecrawlrule.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SiteCrawlRuleClient) GetX(ctx context.Context, id int) *SiteCrawlRule {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySite queries the site edge of a SiteCrawlRule.
+func (c *SiteCrawlRuleClient) QuerySite(scr *SiteCrawlRule) *SiteQuery {
+	query := &SiteQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := scr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(sitecrawlrule.Table, sitecrawlrule.FieldID, id),
+			sqlgraph.To(site.Table, site.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, sitecrawlrule.SiteTable, sitecrawlrule.SiteColumn),
+		)
+		fromV = sqlgraph.Neighbors(scr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SiteCrawlRuleClient) Hooks() []Hook {
+	return c.hooks.SiteCrawlRule
 }
 
 // UserClient is a client for the User schema.

@@ -618,6 +618,62 @@ func HasFeedsWith(preds ...predicate.Feed) predicate.Site {
 	})
 }
 
+// HasSiteCrawlRule applies the HasEdge predicate on the "site_crawl_rule" edge.
+func HasSiteCrawlRule() predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(SiteCrawlRuleTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, SiteCrawlRuleTable, SiteCrawlRuleColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSiteCrawlRuleWith applies the HasEdge predicate on the "site_crawl_rule" edge with a given conditions (other predicates).
+func HasSiteCrawlRuleWith(preds ...predicate.SiteCrawlRule) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(SiteCrawlRuleInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, SiteCrawlRuleTable, SiteCrawlRuleColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSiteCategories applies the HasEdge predicate on the "site_categories" edge.
+func HasSiteCategories() predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(SiteCategoriesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, SiteCategoriesTable, SiteCategoriesPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSiteCategoriesWith applies the HasEdge predicate on the "site_categories" edge with a given conditions (other predicates).
+func HasSiteCategoriesWith(preds ...predicate.SiteCategory) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(SiteCategoriesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, SiteCategoriesTable, SiteCategoriesPrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Site) predicate.Site {
 	return predicate.Site(func(s *sql.Selector) {

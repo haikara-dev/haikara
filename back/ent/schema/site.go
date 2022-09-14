@@ -33,5 +33,8 @@ func (Site) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("articles", Article.Type),
 		edge.To("feeds", Feed.Type),
+		edge.To("site_crawl_rule", SiteCrawlRule.Type).Unique(),
+		edge.From("site_categories", SiteCategory.Type).
+			Ref("sites"),
 	}
 }

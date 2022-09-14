@@ -15,5 +15,11 @@ type Feed func(*sql.Selector)
 // Site is the predicate function for site builders.
 type Site func(*sql.Selector)
 
+// SiteCategory is the predicate function for sitecategory builders.
+type SiteCategory func(*sql.Selector)
+
+// SiteCrawlRule is the predicate function for sitecrawlrule builders.
+type SiteCrawlRule func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

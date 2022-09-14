@@ -13,6 +13,8 @@ import (
 	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/cubdesign/dailyfj/ent/feed"
 	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/dailyfj/ent/sitecategory"
+	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
 	"github.com/cubdesign/dailyfj/ent/user"
 )
 
@@ -34,10 +36,12 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		article.Table: article.ValidColumn,
-		feed.Table:    feed.ValidColumn,
-		site.Table:    site.ValidColumn,
-		user.Table:    user.ValidColumn,
+		article.Table:       article.ValidColumn,
+		feed.Table:          feed.ValidColumn,
+		site.Table:          site.ValidColumn,
+		sitecategory.Table:  sitecategory.ValidColumn,
+		sitecrawlrule.Table: sitecrawlrule.ValidColumn,
+		user.Table:          user.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {
