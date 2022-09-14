@@ -246,15 +246,13 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 			return
 		}
 	}
-	fmt.Println(contents)
-	c.JSON(http.StatusOK, gin.H{})
-	//resFeed, err := h.Client.Feed.
-	//	Create().
-	//	SetContents(contents).
-	//	SetSite(existSite).
-	//	Save(context.Background())
-	//
-	//c.JSON(http.StatusOK, gin.H{"id": resFeed.ID, "url": existSite.URL, "rss": existSite.FeedURL})
+	resFeed, err := h.Client.Feed.
+		Create().
+		SetContents(contents).
+		SetSite(existSite).
+		Save(context.Background())
+
+	c.JSON(http.StatusOK, gin.H{"id": resFeed.ID, "url": existSite.URL, "rss": existSite.FeedURL})
 }
 
 func (h *SiteHandler) GetRssUrlBySiteId(c *gin.Context) {
