@@ -4,18 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/cubdesign/dailyfj/ent"
-	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/cubdesign/dailyfj/ent/site"
-	"github.com/cubdesign/dailyfj/utils"
+	"github.com/cubdesign/dailyfj/libs"
 	"github.com/gin-gonic/gin"
-	"github.com/gocolly/colly/v2"
-	"github.com/gorilla/feeds"
-	"log"
 	"net/http"
-	"net/url"
 	"strconv"
-	"strings"
-	"time"
 )
 
 type SiteHandler struct {
@@ -241,243 +234,27 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 	var contents = ""
 
 	if existSite.FeedURL != "" {
-		s := colly.NewCollector()
-		s.OnError(func(_ *colly.Response, err error) {
-			log.Println("Something went wrong:", err)
-		})
-		s.OnRequest(func(r *colly.Request) {
-			fmt.Println("visiting", r.URL)
-		})
-		s.OnResponse(func(r *colly.Response) {
-			contents = string(r.Body)
-		})
-		s.Visit(existSite.FeedURL)
-
-		if contents == "" {
+		contents, err = libs.GetRSS(existSite.FeedURL)
+		if err != nil || contents == "" {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 	} else {
-		type SiteCrawlRule struct {
-			Url                 string
-			ArticleSelector     string
-			TitleSelector       string
-			LinkSelector        string
-			DescriptionSelector string
-			hasDataToList       bool
-			DateSelector        string
-			DateLayout          string
-			IsTimeHumanize      bool
-		}
-
-		var siteCrawlRule SiteCrawlRule
-
-		loc, _ := time.LoadLocation("Asia/Tokyo")
-		now := time.Now().In(loc)
-
-		feed := &feeds.Feed{}
-		feed.Link = &feeds.Link{Href: existSite.URL}
-		feed.Created = now
-
-		switch existSite.URL {
-
-		case "https://www.snowpeak.co.jp/news/":
-			siteCrawlRule = SiteCrawlRule{
-				Url:                 existSite.URL,
-				ArticleSelector:     ".un_newsList .un_newsList_itemDetail",
-				TitleSelector:       ".un_newsList_title",
-				LinkSelector:        " > a:last-child",
-				DescriptionSelector: "",
-				hasDataToList:       true,
-				DateSelector:        ".un_newsList_date",
-				DateLayout:          "2006.1.2",
-				IsTimeHumanize:      false,
-			}
-
-		case "https://www.fashion-press.net/news/":
-			siteCrawlRule = SiteCrawlRule{
-				Url:                 existSite.URL,
-				ArticleSelector:     ".pc_only .fp_media_tile.news_media",
-				TitleSelector:       " > a > div",
-				LinkSelector:        " > a",
-				DescriptionSelector: "",
-				hasDataToList:       true,
-				DateSelector:        " > div > span",
-				DateLayout:          "2006.1.2",
-				IsTimeHumanize:      true,
-			}
-
-		case "https://www.vogue.co.jp/fashion/news":
-			siteCrawlRule = SiteCrawlRule{
-				Url:                 existSite.URL,
-				ArticleSelector:     ".summary-item",
-				TitleSelector:       ".summary-item__content h2",
-				LinkSelector:        ".summary-item__content > a",
-				DescriptionSelector: "",
-				hasDataToList:       true,
-				DateSelector:        ".summary-item__publish-date",
-				DateLayout:          "2006年1月2日",
-				IsTimeHumanize:      false,
-			}
-
-		case "https://www.elle.com/jp/fashion-news/":
-			siteCrawlRule = SiteCrawlRule{
-				Url:                 existSite.URL,
-				ArticleSelector:     ".custom-item",
-				TitleSelector:       ".custom-item-title",
-				LinkSelector:        ".custom-item-title",
-				DescriptionSelector: "",
-				hasDataToList:       false,
-				DateSelector:        ".content-info-date",
-				DateLayout:          "2006/01/02",
-				IsTimeHumanize:      false,
-			}
-
-		default:
-
-			c.AbortWithStatus(http.StatusNotFound)
-			return
-
-		}
-
-		s := colly.NewCollector()
-		s.OnError(func(_ *colly.Response, err error) {
-			log.Println("Something went wrong:", err)
-		})
-		s.OnRequest(func(r *colly.Request) {
-			fmt.Println("visiting", r.URL)
-		})
-		s.OnResponse(func(r *colly.Response) {
-			contents = string(r.Body)
-		})
-		s.OnHTML("title", func(e *colly.HTMLElement) {
-			feed.Title = e.Text
-		})
-		s.OnHTML("meta[name=\"description\"]", func(e *colly.HTMLElement) {
-			feed.Description = e.Attr("content")
-		})
-
-		s.OnHTML(siteCrawlRule.ArticleSelector, func(e *colly.HTMLElement) {
-			layout := siteCrawlRule.DateLayout
-
-			rootSelector := siteCrawlRule.ArticleSelector
-
-			titleSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
-				siteCrawlRule.TitleSelector,
-				rootSelector,
-			)
-
-			title := e.DOM.Find(titleSelector).Text()
-
-			linkSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
-				siteCrawlRule.LinkSelector,
-				rootSelector,
-			)
-
-			url, _ := e.DOM.Find(linkSelector).Attr("href")
-			url = e.Request.AbsoluteURL(url)
-
-			var description string
-			if siteCrawlRule.DescriptionSelector != "" {
-
-				descriptionSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
-					siteCrawlRule.DescriptionSelector,
-					rootSelector,
-				)
-
-				description = e.DOM.Find(descriptionSelector).Text()
-			}
-
-			var date time.Time
-			if siteCrawlRule.hasDataToList {
-				dateSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
-					siteCrawlRule.DateSelector,
-					rootSelector,
-				)
-
-				dateStr := e.DOM.Find(dateSelector).Text()
-				dateStr = strings.TrimSpace(dateStr)
-				date, err = time.ParseInLocation(layout, dateStr, loc)
-				if err != nil {
-					if siteCrawlRule.IsTimeHumanize {
-						date, err = utils.HumanizeParseTime(dateStr, now)
-					}
-
-					if err != nil {
-						c.AbortWithError(http.StatusInternalServerError, err)
-						return
-					}
-
-				}
-			} else {
-				existArticle, err := h.Client.Article.
-					Query().
-					Where(article.URL(url)).
-					Only(context.Background())
-
-				if err != nil && !ent.IsNotFound(err) {
-					c.AbortWithError(http.StatusBadRequest, err)
-					return
-				}
-
-				if existArticle == nil {
-					s2 := colly.NewCollector()
-					s2.Limit(&colly.LimitRule{
-						RandomDelay: 5 * time.Second,
-					})
-					s2.OnHTML("body", func(e *colly.HTMLElement) {
-						dateStr := e.DOM.Find(siteCrawlRule.DateSelector).Text()
-						dateStr = strings.TrimSpace(dateStr)
-						date, err = time.ParseInLocation(layout, dateStr, loc)
-						if err != nil {
-							if siteCrawlRule.IsTimeHumanize {
-								date, err = utils.HumanizeParseTime(dateStr, now)
-							}
-
-							if err != nil {
-								c.AbortWithError(http.StatusInternalServerError, err)
-								return
-							}
-
-						}
-
-					})
-					s2.Visit(url)
-				} else {
-					date = existArticle.PublishedAt
-				}
-			}
-
-			item := &feeds.Item{
-				Title:       title,
-				Link:        &feeds.Link{Href: url},
-				Description: description,
-				Created:     date,
-			}
-			feed.Add(item)
-		})
-		s.Visit(existSite.URL)
-
-		if contents == "" {
+		contents, err = libs.GetHTML(existSite.URL, h.Client)
+		if err != nil || contents == "" {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
-
-		rss, err := feed.ToRss()
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
-		contents = rss
 	}
-
-	resFeed, err := h.Client.Feed.
-		Create().
-		SetContents(contents).
-		SetSite(existSite).
-		Save(context.Background())
-
-	c.JSON(http.StatusOK, gin.H{"id": resFeed.ID, "url": existSite.URL, "rss": existSite.FeedURL})
+	fmt.Println(contents)
+	c.JSON(http.StatusOK, gin.H{})
+	//resFeed, err := h.Client.Feed.
+	//	Create().
+	//	SetContents(contents).
+	//	SetSite(existSite).
+	//	Save(context.Background())
+	//
+	//c.JSON(http.StatusOK, gin.H{"id": resFeed.ID, "url": existSite.URL, "rss": existSite.FeedURL})
 }
 
 func (h *SiteHandler) GetRssUrlBySiteId(c *gin.Context) {
@@ -502,7 +279,11 @@ func (h *SiteHandler) GetRssUrlBySiteId(c *gin.Context) {
 	}
 
 	fmt.Println("start crawling")
-	rssUrl := getRSSUrl(existSite.URL)
+	rssUrl, err := libs.GetRSSUrl(existSite.URL)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 	if rssUrl != "" {
 		fmt.Println("link found:", rssUrl)
 	}
@@ -520,42 +301,15 @@ func (h *SiteHandler) GetRssUrlByUrl(c *gin.Context) {
 	}
 
 	fmt.Println("start crawling")
-	rssUrl := getRSSUrl(url)
+	rssUrl, err := libs.GetRSSUrl(url)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 	if rssUrl != "" {
 		fmt.Println("link found:", rssUrl)
 	}
 	fmt.Println("end crawling")
 
 	c.JSON(http.StatusOK, gin.H{"url": rssUrl})
-}
-
-func getRSSUrl(baseUrl string) string {
-	var rssUrl = ""
-	s := colly.NewCollector()
-	s.OnError(func(_ *colly.Response, err error) {
-		log.Println("Something went wrong:", err)
-	})
-	s.OnRequest(func(r *colly.Request) {
-		fmt.Println("visiting", r.URL)
-	})
-	s.OnHTML("link[type=\"application/rss+xml\"], link[type=\"application/atom+xml\"]", func(e *colly.HTMLElement) {
-		if rssUrl == "" {
-			rssUrl = e.Attr("href")
-		}
-	})
-	s.Visit(baseUrl)
-
-	if rssUrl != "" {
-		base, err := url.Parse(baseUrl)
-		if err != nil {
-			log.Fatal(err)
-		}
-		ref, err := url.Parse(rssUrl)
-		if err != nil {
-			log.Fatal(err)
-		}
-		rssUrl = base.ResolveReference(ref).String()
-	}
-
-	return rssUrl
 }
