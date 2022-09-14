@@ -240,7 +240,7 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 			return
 		}
 	} else {
-		contents, err = libs.GetHTML(existSite.URL, h.Client)
+		contents, err = libs.GetRSSByHTML(existSite.URL, h.Client)
 		if err != nil || contents == "" {
 			c.AbortWithStatus(http.StatusNotFound)
 			return

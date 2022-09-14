@@ -15,6 +15,19 @@ import (
 	"time"
 )
 
+type SiteCrawlRule struct {
+	Url                 string
+	ArticleSelector     string
+	TitleSelector       string
+	LinkSelector        string
+	DescriptionSelector string
+	hasDataToList       bool
+	DateSelector        string
+	DateLayout          string
+	IsTimeHumanize      bool
+	needChrome          bool
+}
+
 func GetRSSUrl(baseUrl string) (string, error) {
 	var rssUrl = ""
 	s := colly.NewCollector()
@@ -66,30 +79,8 @@ func GetRSS(feedUrl string) (string, error) {
 	return contents, nil
 }
 
-func GetHTML(siteUrl string, client *ent.Client) (string, error) {
-	var err error
-	var contents string
-	type SiteCrawlRule struct {
-		Url                 string
-		ArticleSelector     string
-		TitleSelector       string
-		LinkSelector        string
-		DescriptionSelector string
-		hasDataToList       bool
-		DateSelector        string
-		DateLayout          string
-		IsTimeHumanize      bool
-		needChrome          bool
-	}
-
+func getSiteCrawlRule(siteUrl string) (SiteCrawlRule, error) {
 	var siteCrawlRule SiteCrawlRule
-
-	loc, _ := time.LoadLocation("Asia/Tokyo")
-	now := time.Now().In(loc)
-
-	feed := &feeds.Feed{}
-	feed.Link = &feeds.Link{Href: siteUrl}
-	feed.Created = now
 
 	switch siteUrl {
 
@@ -162,6 +153,21 @@ func GetHTML(siteUrl string, client *ent.Client) (string, error) {
 			IsTimeHumanize:      false,
 			needChrome:          false,
 		}
+
+	case "https://webkei.dev/":
+		siteCrawlRule = SiteCrawlRule{
+			Url:                 siteUrl,
+			ArticleSelector:     ".c-entry .c-entries__item",
+			TitleSelector:       ".c-entry-summary__content",
+			LinkSelector:        " > a",
+			DescriptionSelector: "",
+			hasDataToList:       true,
+			DateSelector:        ".c-meta__item--published",
+			DateLayout:          "2006.01.02",
+			IsTimeHumanize:      false,
+			needChrome:          false,
+		}
+
 		// Chromeが必要
 	case "https://corp.zozo.com/news-top/":
 		siteCrawlRule = SiteCrawlRule{
@@ -179,9 +185,19 @@ func GetHTML(siteUrl string, client *ent.Client) (string, error) {
 
 	default:
 
-		return "", fmt.Errorf("not found")
-
+		return siteCrawlRule, fmt.Errorf("no crawl rule")
 	}
+	return siteCrawlRule, nil
+}
+func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule SiteCrawlRule, client *ent.Client) (string, error) {
+	var err error
+	var contents string
+	loc, _ := time.LoadLocation("Asia/Tokyo")
+	now := time.Now().In(loc)
+
+	feed := &feeds.Feed{}
+	feed.Link = &feeds.Link{Href: siteUrl}
+	feed.Created = now
 
 	s := colly.NewCollector()
 	s.OnError(func(_ *colly.Response, err error) {
@@ -211,6 +227,7 @@ func GetHTML(siteUrl string, client *ent.Client) (string, error) {
 		)
 
 		title := e.DOM.Find(titleSelector).Text()
+		title = strings.TrimSpace(title)
 
 		linkSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
 			siteCrawlRule.LinkSelector,
@@ -311,5 +328,168 @@ func GetHTML(siteUrl string, client *ent.Client) (string, error) {
 		return "", err
 	}
 	contents = rss
+	return contents, nil
+}
+
+func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule SiteCrawlRule, client *ent.Client) (string, error) {
+	var err error
+	var contents string
+	loc, _ := time.LoadLocation("Asia/Tokyo")
+	now := time.Now().In(loc)
+
+	feed := &feeds.Feed{}
+	feed.Link = &feeds.Link{Href: siteUrl}
+	feed.Created = now
+
+	s := colly.NewCollector()
+	s.OnError(func(_ *colly.Response, err error) {
+		log.Println("Something went wrong:", err)
+	})
+	s.OnRequest(func(r *colly.Request) {
+		fmt.Println("visiting", r.URL)
+	})
+	s.OnResponse(func(r *colly.Response) {
+		contents = string(r.Body)
+	})
+	s.OnHTML("title", func(e *colly.HTMLElement) {
+		feed.Title = e.Text
+	})
+	s.OnHTML("meta[name=\"description\"]", func(e *colly.HTMLElement) {
+		feed.Description = e.Attr("content")
+	})
+
+	s.OnHTML(siteCrawlRule.ArticleSelector, func(e *colly.HTMLElement) {
+		layout := siteCrawlRule.DateLayout
+
+		rootSelector := siteCrawlRule.ArticleSelector
+
+		titleSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
+			siteCrawlRule.TitleSelector,
+			rootSelector,
+		)
+
+		title := e.DOM.Find(titleSelector).Text()
+		title = strings.TrimSpace(title)
+
+		linkSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
+			siteCrawlRule.LinkSelector,
+			rootSelector,
+		)
+
+		url, _ := e.DOM.Find(linkSelector).Attr("href")
+		url = e.Request.AbsoluteURL(url)
+
+		var description string
+		if siteCrawlRule.DescriptionSelector != "" {
+
+			descriptionSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
+				siteCrawlRule.DescriptionSelector,
+				rootSelector,
+			)
+
+			description = e.DOM.Find(descriptionSelector).Text()
+		}
+
+		var date time.Time
+		if siteCrawlRule.hasDataToList {
+			dateSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
+				siteCrawlRule.DateSelector,
+				rootSelector,
+			)
+
+			dateStr := e.DOM.Find(dateSelector).Text()
+			dateStr = strings.TrimSpace(dateStr)
+			date, err = time.ParseInLocation(layout, dateStr, loc)
+			if err != nil {
+				if siteCrawlRule.IsTimeHumanize {
+					date, err = utils.HumanizeParseTime(dateStr, now)
+				}
+
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+			}
+		} else {
+			existArticle, err := client.Article.
+				Query().
+				Where(article.URL(url)).
+				Only(context.Background())
+
+			if err != nil && !ent.IsNotFound(err) {
+				log.Println(err)
+				return
+			}
+
+			if existArticle == nil {
+				s2 := colly.NewCollector()
+				s2.Limit(&colly.LimitRule{
+					RandomDelay: 5 * time.Second,
+				})
+				s2.OnHTML("body", func(e *colly.HTMLElement) {
+					dateStr := e.DOM.Find(siteCrawlRule.DateSelector).Text()
+					dateStr = strings.TrimSpace(dateStr)
+					date, err = time.ParseInLocation(layout, dateStr, loc)
+					if err != nil {
+						if siteCrawlRule.IsTimeHumanize {
+							date, err = utils.HumanizeParseTime(dateStr, now)
+						}
+
+						if err != nil {
+							log.Println(err)
+							return
+						}
+
+					}
+
+				})
+				s2.Visit(url)
+			} else {
+				date = existArticle.PublishedAt
+			}
+		}
+
+		item := &feeds.Item{
+			Title:       title,
+			Link:        &feeds.Link{Href: url},
+			Description: description,
+			Created:     date,
+		}
+		feed.Add(item)
+	})
+
+	s.Visit(siteUrl)
+
+	if contents == "" {
+		return "", errors.New("contents is empty")
+	}
+
+	rss, err := feed.ToRss()
+	if err != nil {
+		return "", err
+	}
+	contents = rss
+	return contents, nil
+}
+
+func GetRSSByHTML(siteUrl string, client *ent.Client) (string, error) {
+	var err error
+	var contents string
+	siteCrawlRule, err := getSiteCrawlRule(siteUrl)
+	if err != nil {
+		return "", err
+	}
+
+	if siteCrawlRule.needChrome {
+		contents, err = GetRSSByHTMLUseChrome(siteUrl, siteCrawlRule, client)
+	} else {
+		contents, err = GetRSSByHTMLUseColly(siteUrl, siteCrawlRule, client)
+	}
+
+	if err != nil {
+		return "", err
+	}
+
 	return contents, nil
 }
