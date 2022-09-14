@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type ArticleHandler struct {
@@ -17,6 +18,7 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 	articles, err := h.Client.Article.
 		Query().
 		Order(ent.Desc(article.FieldPublishedAt)).
+		Limit(10).
 		All(context.Background())
 
 	if err != nil {
@@ -24,7 +26,40 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, articles)
+	totalCount, err := h.Client.Article.
+		Query().
+		Count(context.Background())
+
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	type ResponseArticle struct {
+		ID          int       `json:"id"`
+		Title       string    `json:"title"`
+		PublishedAt time.Time `json:"published_at"`
+	}
+
+	type ResponseJson struct {
+		TotalCount int               `json:"totalCount"`
+		Data       []ResponseArticle `json:"data"`
+	}
+
+	var resFeeds = make([]ResponseArticle, 0)
+
+	for _, article := range articles {
+		resFeeds = append(resFeeds, ResponseArticle{
+			ID:          article.ID,
+			Title:       article.Title,
+			PublishedAt: article.PublishedAt,
+		})
+	}
+
+	c.JSON(http.StatusOK, ResponseJson{
+		TotalCount: totalCount,
+		Data:       resFeeds,
+	})
 }
 
 func (h *ArticleHandler) GetArticle(c *gin.Context) {
