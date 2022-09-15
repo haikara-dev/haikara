@@ -18,6 +18,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/router";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
+const BACKEND_ADMIN_API_URL: string =
+  process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
 export type Article = {
   id: number;
@@ -48,10 +50,13 @@ const Articles: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const queryParams = new URLSearchParams({ page: page.toString() });
-      const res = await fetch(BACKEND_API_URL + "/articles?" + queryParams, {
-        method: "GET",
-        headers: headers,
-      });
+      const res = await fetch(
+        BACKEND_ADMIN_API_URL + "/articles?" + queryParams,
+        {
+          method: "GET",
+          headers: headers,
+        }
+      );
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
       const json = await res.json();
       setTotalCount(json.totalCount);
@@ -68,7 +73,7 @@ const Articles: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/articles/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/articles/"),
         {
           method: "DELETE",
           headers: {

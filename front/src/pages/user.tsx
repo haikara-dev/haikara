@@ -8,6 +8,8 @@ import { User, useAuthUserContext } from "@/lib/AuthUser";
 import EditUserRoleFormDialog from "@/components/user/EditUserRoleFormDialog";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
+const BACKEND_ADMIN_API_URL: string =
+  process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
 const Users: NextPage = () => {
   const [editOpen, setEditOpen] = useState(false);
@@ -37,7 +39,7 @@ const Users: NextPage = () => {
   const loadData = async () => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_API_URL + "/users", {
+      const res = await fetch(BACKEND_ADMIN_API_URL + "/users", {
         method: "GET",
         headers: headers,
       });
@@ -54,7 +56,7 @@ const Users: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/users/role/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/users/role/"),
         {
           method: "PATCH",
           headers: {

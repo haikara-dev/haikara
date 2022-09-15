@@ -16,6 +16,8 @@ import { useAuthUserContext } from "@/lib/AuthUser";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
+const BACKEND_ADMIN_API_URL: string =
+  process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
 export type Feed = {
   id: number;
@@ -40,7 +42,7 @@ const Feeds: NextPage = () => {
   const loadData = async () => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_API_URL + "/feeds/lite", {
+      const res = await fetch(BACKEND_ADMIN_API_URL + "/feeds/lite", {
         method: "GET",
         headers: headers,
       });
@@ -57,7 +59,7 @@ const Feeds: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/feeds/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/feeds/"),
         {
           method: "DELETE",
           headers: {
@@ -79,7 +81,7 @@ const Feeds: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/feeds/parse/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/feeds/parse/"),
         {
           method: "GET",
           headers: headers,

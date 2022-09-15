@@ -11,6 +11,8 @@ import EditSiteFormDialog from "@/components/site/EditSiteFormDialog";
 import DryRunDialog from "@/components/site/DryRunDialog";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
+const BACKEND_ADMIN_API_URL: string =
+  process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
 export type Site = {
   id: number;
@@ -74,7 +76,7 @@ const Sites: NextPage = () => {
   const loadData = async () => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_API_URL + "/sites", {
+      const res = await fetch(BACKEND_ADMIN_API_URL + "/sites", {
         method: "GET",
         headers: headers,
       });
@@ -90,7 +92,7 @@ const Sites: NextPage = () => {
   const addSite = async (name: string, url: string, feed_url: string) => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_API_URL + "/sites", {
+      const res = await fetch(BACKEND_ADMIN_API_URL + "/sites", {
         method: "POST",
         headers: {
           ...headers,
@@ -116,7 +118,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/sites/active/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/sites/active/"),
         {
           method: "PATCH",
           headers: {
@@ -141,7 +143,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/sites/deActive/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/sites/deActive/"),
         {
           method: "PATCH",
           headers: {
@@ -166,7 +168,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/sites/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/sites/"),
         {
           method: "DELETE",
           headers: {
@@ -194,7 +196,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/sites/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/sites/"),
         {
           method: "PUT",
           headers: {
@@ -222,7 +224,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/sites/run-crawling/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/sites/run-crawling/"),
         {
           method: "GET",
           headers: {
@@ -247,7 +249,10 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/sites/dry-run-crawling/"),
+        new URL(
+          id.toString(),
+          BACKEND_ADMIN_API_URL + "/sites/dry-run-crawling/"
+        ),
         {
           method: "GET",
           headers: {
@@ -271,7 +276,7 @@ const Sites: NextPage = () => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_API_URL + "/sites/get-rss-url/"),
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/sites/get-rss-url/"),
         {
           method: "GET",
           headers: {
@@ -298,7 +303,9 @@ const Sites: NextPage = () => {
       const headers = await getRequestHeaders();
       const queryParams = new URLSearchParams({ url: url });
       const res = await fetch(
-        new URL(BACKEND_API_URL + "/sites/get-rss-url-by-url?" + queryParams),
+        new URL(
+          BACKEND_ADMIN_API_URL + "/sites/get-rss-url-by-url?" + queryParams
+        ),
         {
           method: "GET",
           headers: {
