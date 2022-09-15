@@ -4,6 +4,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -17,6 +18,8 @@ type ConfigList struct {
 
 	Port string
 	CORS []string
+
+	PageSize int
 }
 
 var Config ConfigList
@@ -32,6 +35,11 @@ func init() {
 		cors[i] = strings.TrimSpace(cors[i])
 	}
 
+	pageSize, err := strconv.Atoi(os.Getenv("PAGE_SIZE"))
+	if err != nil {
+		log.Fatalf("action: Load env page size format,  err: %s", err.Error())
+	}
+
 	Config = ConfigList{
 		LogFile:    os.Getenv("LOG_FILE"),
 		DbHost:     os.Getenv("DB_HOST"),
@@ -40,5 +48,6 @@ func init() {
 		DbPassword: os.Getenv("DB_PASSWORD"),
 		Port:       os.Getenv("PORT"),
 		CORS:       cors,
+		PageSize:   pageSize,
 	}
 }

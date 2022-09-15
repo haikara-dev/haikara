@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"github.com/cubdesign/dailyfj/config"
 	"github.com/cubdesign/dailyfj/ent"
 	"github.com/cubdesign/dailyfj/ent/article"
 	"github.com/gin-gonic/gin"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,10 +17,28 @@ type ArticleHandler struct {
 }
 
 func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
+	pageStr := c.Query("page")
+
+	if pageStr == "" {
+		pageStr = "1"
+	}
+
+	page, err := strconv.Atoi(pageStr)
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	pageSize := config.Config.PageSize
+
+	offset := (page - 1) * pageSize
+
 	articles, err := h.Client.Article.
 		Query().
 		Order(ent.Desc(article.FieldPublishedAt)).
-		Limit(10).
+		Offset(offset).
+		Limit(pageSize).
 		All(context.Background())
 
 	if err != nil {
@@ -43,6 +63,8 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 
 	type ResponseJson struct {
 		TotalCount int               `json:"totalCount"`
+		TotalPage  int               `json:"totalPage"`
+		PageSize   int               `json:"pageSize"`
 		Data       []ResponseArticle `json:"data"`
 	}
 
@@ -58,6 +80,8 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 
 	c.JSON(http.StatusOK, ResponseJson{
 		TotalCount: totalCount,
+		TotalPage:  int(math.Ceil(float64(totalCount) / float64(pageSize))),
+		PageSize:   pageSize,
 		Data:       resFeeds,
 	})
 }

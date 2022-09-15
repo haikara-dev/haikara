@@ -8,13 +8,14 @@ import {
   Card,
   Button,
   IconButton,
+  Pagination,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { textAlign } from "@mui/system";
+import { useRouter } from "next/router";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 
@@ -25,7 +26,13 @@ export type Article = {
 };
 
 const Articles: NextPage = () => {
+  const router = useRouter();
+  const [page, setPage] = useState<number>(
+    router.query.page ? parseInt(router.query.page.toString()) : 1
+  );
   const [totalCount, setTotalCount] = useState<number>(0);
+  const [totalPage, setTotalPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
   const [data, setData] = useState<Article[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { authUser } = useAuthUserContext();
@@ -40,13 +47,16 @@ const Articles: NextPage = () => {
   const loadData = async () => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_API_URL + "/articles", {
+      const queryParams = new URLSearchParams({ page: page.toString() });
+      const res = await fetch(BACKEND_API_URL + "/articles?" + queryParams, {
         method: "GET",
         headers: headers,
       });
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
       const json = await res.json();
       setTotalCount(json.totalCount);
+      setTotalPage(json.totalPage);
+      setPageSize(json.pageSize);
       setData(json.data);
     } catch (err) {
       console.log(err);
@@ -84,10 +94,24 @@ const Articles: NextPage = () => {
     removeArticle(id);
   };
 
+  const handleChangePagination = (
+    e: React.ChangeEvent<unknown>,
+    page: number
+  ) => {
+    router.push({ query: { page: page } });
+  };
+
   useEffect(() => {
     setLoading(true);
-    loadData();
   }, []);
+
+  useEffect(() => {
+    setPage(router.query.page ? parseInt(router.query.page.toString()) : 1);
+  }, [router]);
+
+  useEffect(() => {
+    loadData();
+  }, [page]);
 
   return (
     <div>
@@ -116,14 +140,11 @@ const Articles: NextPage = () => {
           {isLoading ? (
             <div>Loading...</div>
           ) : (
-            <Box>
-              <Box
-                sx={{
-                  textAlign: "center",
-                }}
-              >
-                {totalCount}件中　{1} - {100}
-              </Box>
+            <Stack gap={3} alignItems="center">
+              <Stack>
+                {totalCount}件中　{(page - 1) * pageSize + 1} -{" "}
+                {(page - 1) * pageSize + data.length}件
+              </Stack>
               <Stack gap={2} mt={2} pr={8}>
                 {data.map((article) => {
                   return (
@@ -150,7 +171,12 @@ const Articles: NextPage = () => {
                   );
                 })}
               </Stack>
-            </Box>
+              <Pagination
+                page={page}
+                count={totalPage}
+                onChange={handleChangePagination}
+              />
+            </Stack>
           )}
         </Container>
       </Box>
