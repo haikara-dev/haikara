@@ -65,6 +65,7 @@ func StartWebserver() {
 		authorized.PATCH("/sites/active/:id", apiSiteHandler.ActiveSite)
 		authorized.PATCH("/sites/deActive/:id", apiSiteHandler.DeActiveSite)
 		authorized.GET("/sites/run-crawling/:id", apiSiteHandler.RunCrawling)
+		authorized.GET("/sites/dry-run-crawling/:id", apiSiteHandler.DryRunCrawling)
 		authorized.GET("/sites/get-rss-url/:id", apiSiteHandler.GetRssUrlBySiteId)
 		authorized.GET("/sites/get-rss-url-by-url", apiSiteHandler.GetRssUrlByUrl)
 

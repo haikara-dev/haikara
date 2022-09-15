@@ -17,6 +17,7 @@ export type SiteRowProps = {
   ) => void;
   openDialog: (site: Site) => void;
   runCrawling: (id: number) => void;
+  dryRunCrawling: (id: number) => void;
 };
 
 const SiteRow: React.FC<SiteRowProps> = ({
@@ -26,10 +27,16 @@ const SiteRow: React.FC<SiteRowProps> = ({
   removeSite,
   openDialog,
   runCrawling,
+  dryRunCrawling,
 }) => {
   const onClickRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     runCrawling(site.id);
+  };
+
+  const onClickDryRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    dryRunCrawling(site.id);
   };
 
   const onChangeCheckboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +61,7 @@ const SiteRow: React.FC<SiteRowProps> = ({
   return (
     <Box display="flex" alignItems="center">
       <Button onClick={onClickRunHandler}>Run</Button>
+      <Button onClick={onClickDryRunHandler}>Dry</Button>
       <Box
         onClick={onClickTextHandler}
         sx={{

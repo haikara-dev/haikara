@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import EditSiteFormDialog from "@/components/site/EditSiteFormDialog";
+import DryRunDialog from "@/components/site/DryRunDialog";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 
@@ -19,6 +20,11 @@ export type Site = {
   active: boolean;
 };
 
+export type DryRunResult = {
+  count: number;
+  contents: string;
+};
+
 const Sites: NextPage = () => {
   const [data, setData] = useState<Site[]>([]);
   const [isLoading, setLoading] = useState(false);
@@ -27,6 +33,9 @@ const Sites: NextPage = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Site | null>(null);
+
+  const [dryOpen, setDryOpen] = useState(false);
+  const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
 
   const handleAddOpen = () => {
     setAddOpen(true);
@@ -44,6 +53,15 @@ const Sites: NextPage = () => {
   const handleEditClose = () => {
     setEditOpen(false);
     setEditTarget(null);
+  };
+
+  const openDryDialog = (result: DryRunResult) => {
+    setDryRunResult(result);
+    setDryOpen(true);
+  };
+
+  const handleDryClose = () => {
+    setDryOpen(false);
   };
 
   const getRequestHeaders = async () => {
@@ -224,6 +242,31 @@ const Sites: NextPage = () => {
     }
   };
 
+  const dryRunCrawling = async (id: number) => {
+    setDryRunResult(null);
+    try {
+      const headers = await getRequestHeaders();
+      const res = await fetch(
+        new URL(id.toString(), BACKEND_API_URL + "/sites/dry-run-crawling/"),
+        {
+          method: "GET",
+          headers: {
+            ...headers,
+            ...{
+              "Content-Type": "application/json",
+            },
+          },
+        }
+      );
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+
+      const json = await res.json();
+      openDryDialog(json);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const getRssUrl = async (id: number): Promise<string> => {
     try {
       const headers = await getRequestHeaders();
@@ -325,6 +368,7 @@ const Sites: NextPage = () => {
                       updateSite={updateSite}
                       openDialog={handleEditOpen}
                       runCrawling={runCrawling}
+                      dryRunCrawling={dryRunCrawling}
                     />
                   </Card>
                 );
@@ -351,6 +395,15 @@ const Sites: NextPage = () => {
           getRssUrl={getRssUrl}
         />
       )}
+
+      {dryRunResult && (
+        <DryRunDialog
+          open={dryOpen}
+          handleClose={handleDryClose}
+          dryRunResult={dryRunResult}
+        />
+      )}
+
       <Footer />
     </div>
   );

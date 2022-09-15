@@ -266,6 +266,54 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"id": resFeed.ID, "url": existSite.URL, "rss": existSite.FeedURL})
 }
 
+func (h *SiteHandler) DryRunCrawling(c *gin.Context) {
+	strId := c.Param("id")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	existSite, err := h.Client.Site.
+		Get(context.Background(), id)
+
+	if err != nil && !ent.IsNotFound(err) {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if existSite == nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	var contents = ""
+
+	if existSite.FeedURL != "" {
+		contents, err = libs.GetRSS(existSite.FeedURL)
+		if err != nil || contents == "" {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+	} else {
+		contents, err = libs.GetRSSByHTML(existSite.URL, h.Client)
+		if err != nil || contents == "" {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+	}
+
+	fp := gofeed.NewParser()
+	feed, err := fp.ParseString(contents)
+
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"count": len(feed.Items), "contents": contents})
+}
+
 func (h *SiteHandler) GetRssUrlBySiteId(c *gin.Context) {
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
