@@ -23,7 +23,7 @@ type SiteCrawlRuleByFile struct {
 	TitleSelector       string
 	LinkSelector        string
 	DescriptionSelector string
-	hasDataToList       bool
+	HasDataToList       bool
 	DateSelector        string
 	DateLayout          string
 	IsTimeHumanize      bool
@@ -81,7 +81,7 @@ func GetRSS(feedUrl string) (string, error) {
 	return contents, nil
 }
 
-func getSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
+func GetSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
 	var siteCrawlRule SiteCrawlRuleByFile
 
 	switch siteUrl {
@@ -93,7 +93,7 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
 			TitleSelector:       ".un_newsList_title",
 			LinkSelector:        " > a:last-child",
 			DescriptionSelector: "",
-			hasDataToList:       true,
+			HasDataToList:       true,
 			DateSelector:        ".un_newsList_date",
 			DateLayout:          "2006.1.2",
 			IsTimeHumanize:      false,
@@ -107,7 +107,7 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
 			TitleSelector:       " > a > div",
 			LinkSelector:        " > a",
 			DescriptionSelector: "",
-			hasDataToList:       true,
+			HasDataToList:       true,
 			DateSelector:        " > div > span",
 			DateLayout:          "2006.1.2",
 			IsTimeHumanize:      true,
@@ -121,7 +121,7 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
 			TitleSelector:       ".summary-item__content h2",
 			LinkSelector:        ".summary-item__content > a",
 			DescriptionSelector: "",
-			hasDataToList:       true,
+			HasDataToList:       true,
 			DateSelector:        ".summary-item__publish-date",
 			DateLayout:          "2006年1月2日",
 			IsTimeHumanize:      false,
@@ -135,7 +135,7 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
 			TitleSelector:       ".custom-item-title",
 			LinkSelector:        ".custom-item-title",
 			DescriptionSelector: "",
-			hasDataToList:       false,
+			HasDataToList:       false,
 			DateSelector:        ".content-info-date",
 			DateLayout:          "2006/01/02",
 			IsTimeHumanize:      false,
@@ -149,7 +149,7 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
 			TitleSelector:       ".entry-title",
 			LinkSelector:        " > a",
 			DescriptionSelector: "",
-			hasDataToList:       true,
+			HasDataToList:       true,
 			DateSelector:        ".post-date time",
 			DateLayout:          "2006/01/02",
 			IsTimeHumanize:      false,
@@ -164,7 +164,7 @@ func getSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
 			TitleSelector:       ".item-ttl .ttl-inner",
 			LinkSelector:        " > a",
 			DescriptionSelector: "",
-			hasDataToList:       true,
+			HasDataToList:       true,
 			DateSelector:        ".item-date",
 			DateLayout:          "2006年01月02日",
 			IsTimeHumanize:      false,
@@ -261,7 +261,7 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule SiteCrawlRuleByFile, cl
 		}
 
 		var date time.Time
-		if siteCrawlRule.hasDataToList {
+		if siteCrawlRule.HasDataToList {
 			dateSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
 				siteCrawlRule.DateSelector,
 				rootSelector,
@@ -407,7 +407,7 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule SiteCrawlRuleByFile, cli
 		}
 
 		var date time.Time
-		if siteCrawlRule.hasDataToList {
+		if siteCrawlRule.HasDataToList {
 			dateSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
 				siteCrawlRule.DateSelector,
 				rootSelector,
@@ -492,7 +492,7 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule SiteCrawlRuleByFile, cli
 func GetRSSByHTML(siteUrl string, client *ent.Client) (string, error) {
 	var err error
 	var contents string
-	siteCrawlRule, err := getSiteCrawlRule(siteUrl)
+	siteCrawlRule, err := GetSiteCrawlRule(siteUrl)
 	if err != nil {
 		return "", err
 	}
