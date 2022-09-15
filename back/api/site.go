@@ -297,7 +297,18 @@ func (h *SiteHandler) RunCrawling(c *gin.Context) {
 			return
 		}
 	} else {
-		contents, err = libs.GetRSSByHTML(existSite.URL, h.Client)
+		siteCrawlRule, err := existSite.QuerySiteCrawlRule().Only(context.Background())
+		if err != nil && !ent.IsNotFound(err) {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		if siteCrawlRule == nil {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+
+		contents, err = libs.GetRSSByHTML(existSite.URL, siteCrawlRule, h.Client)
 		if err != nil || contents == "" {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
@@ -352,7 +363,18 @@ func (h *SiteHandler) DryRunCrawling(c *gin.Context) {
 			return
 		}
 	} else {
-		contents, err = libs.GetRSSByHTML(existSite.URL, h.Client)
+		siteCrawlRule, err := existSite.QuerySiteCrawlRule().Only(context.Background())
+		if err != nil && !ent.IsNotFound(err) {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		if siteCrawlRule == nil {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+
+		contents, err = libs.GetRSSByHTML(existSite.URL, siteCrawlRule, h.Client)
 		if err != nil || contents == "" {
 			c.AbortWithStatus(http.StatusNotFound)
 			return

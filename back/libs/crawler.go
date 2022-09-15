@@ -17,18 +17,18 @@ import (
 	"time"
 )
 
-type SiteCrawlRuleByFile struct {
-	Url                 string
-	ArticleSelector     string
-	TitleSelector       string
-	LinkSelector        string
-	DescriptionSelector string
-	HasDataToList       bool
-	DateSelector        string
-	DateLayout          string
-	IsTimeHumanize      bool
-	IsSpa               bool
-}
+//type SiteCrawlRuleByFile struct {
+//	Url                 string
+//	ArticleSelector     string
+//	TitleSelector       string
+//	LinkSelector        string
+//	DescriptionSelector string
+//	HasDataToList       bool
+//	DateSelector        string
+//	DateLayout          string
+//	IsTimeHumanize      bool
+//	IsSpa               bool
+//}
 
 func GetRSSUrl(baseUrl string) (string, error) {
 	var rssUrl = ""
@@ -81,103 +81,103 @@ func GetRSS(feedUrl string) (string, error) {
 	return contents, nil
 }
 
-func GetSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
-	var siteCrawlRule SiteCrawlRuleByFile
-
-	switch siteUrl {
-
-	case "https://www.snowpeak.co.jp/news/":
-		siteCrawlRule = SiteCrawlRuleByFile{
-			Url:                 siteUrl,
-			ArticleSelector:     ".un_newsList .un_newsList_itemDetail",
-			TitleSelector:       ".un_newsList_title",
-			LinkSelector:        " > a:last-child",
-			DescriptionSelector: "",
-			HasDataToList:       true,
-			DateSelector:        ".un_newsList_date",
-			DateLayout:          "2006.1.2",
-			IsTimeHumanize:      false,
-			IsSpa:               false,
-		}
-
-	case "https://www.fashion-press.net/news/":
-		siteCrawlRule = SiteCrawlRuleByFile{
-			Url:                 siteUrl,
-			ArticleSelector:     ".pc_only .fp_media_tile.news_media",
-			TitleSelector:       " > a > div",
-			LinkSelector:        " > a",
-			DescriptionSelector: "",
-			HasDataToList:       true,
-			DateSelector:        " > div > span",
-			DateLayout:          "2006.1.2",
-			IsTimeHumanize:      true,
-			IsSpa:               false,
-		}
-
-	case "https://www.vogue.co.jp/fashion/news":
-		siteCrawlRule = SiteCrawlRuleByFile{
-			Url:                 siteUrl,
-			ArticleSelector:     ".summary-item",
-			TitleSelector:       ".summary-item__content h2",
-			LinkSelector:        ".summary-item__content > a",
-			DescriptionSelector: "",
-			HasDataToList:       true,
-			DateSelector:        ".summary-item__publish-date",
-			DateLayout:          "2006年1月2日",
-			IsTimeHumanize:      false,
-			IsSpa:               false,
-		}
-
-	case "https://www.elle.com/jp/fashion-news/":
-		siteCrawlRule = SiteCrawlRuleByFile{
-			Url:                 siteUrl,
-			ArticleSelector:     ".custom-item",
-			TitleSelector:       ".custom-item-title",
-			LinkSelector:        ".custom-item-title",
-			DescriptionSelector: "",
-			HasDataToList:       false,
-			DateSelector:        ".content-info-date",
-			DateLayout:          "2006/01/02",
-			IsTimeHumanize:      false,
-			IsSpa:               false,
-		}
-
-	case "https://lee.hpplus.jp/category/fashion/":
-		siteCrawlRule = SiteCrawlRuleByFile{
-			Url:                 siteUrl,
-			ArticleSelector:     "main > article",
-			TitleSelector:       ".entry-title",
-			LinkSelector:        " > a",
-			DescriptionSelector: "",
-			HasDataToList:       true,
-			DateSelector:        ".post-date time",
-			DateLayout:          "2006/01/02",
-			IsTimeHumanize:      false,
-			IsSpa:               false,
-		}
-
-		// Chromeが必要
-	case "https://corp.zozo.com/news-top/":
-		siteCrawlRule = SiteCrawlRuleByFile{
-			Url:                 siteUrl,
-			ArticleSelector:     ".news-list .list-item",
-			TitleSelector:       ".item-ttl .ttl-inner",
-			LinkSelector:        " > a",
-			DescriptionSelector: "",
-			HasDataToList:       true,
-			DateSelector:        ".item-date",
-			DateLayout:          "2006年01月02日",
-			IsTimeHumanize:      false,
-			IsSpa:               true,
-		}
-
-	default:
-
-		return siteCrawlRule, fmt.Errorf("no crawl rule")
-	}
-	return siteCrawlRule, nil
-}
-func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule SiteCrawlRuleByFile, client *ent.Client) (string, error) {
+//	func GetSiteCrawlRule(siteUrl string) (SiteCrawlRuleByFile, error) {
+//		var siteCrawlRule SiteCrawlRuleByFile
+//
+//		switch siteUrl {
+//
+//		case "https://www.snowpeak.co.jp/news/":
+//			siteCrawlRule = SiteCrawlRuleByFile{
+//				Url:                 siteUrl,
+//				ArticleSelector:     ".un_newsList .un_newsList_itemDetail",
+//				TitleSelector:       ".un_newsList_title",
+//				LinkSelector:        " > a:last-child",
+//				DescriptionSelector: "",
+//				HasDataToList:       true,
+//				DateSelector:        ".un_newsList_date",
+//				DateLayout:          "2006.1.2",
+//				IsTimeHumanize:      false,
+//				IsSpa:               false,
+//			}
+//
+//		case "https://www.fashion-press.net/news/":
+//			siteCrawlRule = SiteCrawlRuleByFile{
+//				Url:                 siteUrl,
+//				ArticleSelector:     ".pc_only .fp_media_tile.news_media",
+//				TitleSelector:       " > a > div",
+//				LinkSelector:        " > a",
+//				DescriptionSelector: "",
+//				HasDataToList:       true,
+//				DateSelector:        " > div > span",
+//				DateLayout:          "2006.1.2",
+//				IsTimeHumanize:      true,
+//				IsSpa:               false,
+//			}
+//
+//		case "https://www.vogue.co.jp/fashion/news":
+//			siteCrawlRule = SiteCrawlRuleByFile{
+//				Url:                 siteUrl,
+//				ArticleSelector:     ".summary-item",
+//				TitleSelector:       ".summary-item__content h2",
+//				LinkSelector:        ".summary-item__content > a",
+//				DescriptionSelector: "",
+//				HasDataToList:       true,
+//				DateSelector:        ".summary-item__publish-date",
+//				DateLayout:          "2006年1月2日",
+//				IsTimeHumanize:      false,
+//				IsSpa:               false,
+//			}
+//
+//		case "https://www.elle.com/jp/fashion-news/":
+//			siteCrawlRule = SiteCrawlRuleByFile{
+//				Url:                 siteUrl,
+//				ArticleSelector:     ".custom-item",
+//				TitleSelector:       ".custom-item-title",
+//				LinkSelector:        ".custom-item-title",
+//				DescriptionSelector: "",
+//				HasDataToList:       false,
+//				DateSelector:        ".content-info-date",
+//				DateLayout:          "2006/01/02",
+//				IsTimeHumanize:      false,
+//				IsSpa:               false,
+//			}
+//
+//		case "https://lee.hpplus.jp/category/fashion/":
+//			siteCrawlRule = SiteCrawlRuleByFile{
+//				Url:                 siteUrl,
+//				ArticleSelector:     "main > article",
+//				TitleSelector:       ".entry-title",
+//				LinkSelector:        " > a",
+//				DescriptionSelector: "",
+//				HasDataToList:       true,
+//				DateSelector:        ".post-date time",
+//				DateLayout:          "2006/01/02",
+//				IsTimeHumanize:      false,
+//				IsSpa:               false,
+//			}
+//
+//			// Chromeが必要
+//		case "https://corp.zozo.com/news-top/":
+//			siteCrawlRule = SiteCrawlRuleByFile{
+//				Url:                 siteUrl,
+//				ArticleSelector:     ".news-list .list-item",
+//				TitleSelector:       ".item-ttl .ttl-inner",
+//				LinkSelector:        " > a",
+//				DescriptionSelector: "",
+//				HasDataToList:       true,
+//				DateSelector:        ".item-date",
+//				DateLayout:          "2006年01月02日",
+//				IsTimeHumanize:      false,
+//				IsSpa:               true,
+//			}
+//
+//		default:
+//
+//			return siteCrawlRule, fmt.Errorf("no crawl rule")
+//		}
+//		return siteCrawlRule, nil
+//	}
+func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, client *ent.Client) (string, error) {
 	var err error
 	var contents string
 
@@ -347,7 +347,7 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule SiteCrawlRuleByFile, cl
 	return contents, nil
 }
 
-func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule SiteCrawlRuleByFile, client *ent.Client) (string, error) {
+func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, client *ent.Client) (string, error) {
 	var err error
 	var contents string
 	loc, _ := time.LoadLocation("Asia/Tokyo")
@@ -489,13 +489,9 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule SiteCrawlRuleByFile, cli
 	return contents, nil
 }
 
-func GetRSSByHTML(siteUrl string, client *ent.Client) (string, error) {
+func GetRSSByHTML(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, client *ent.Client) (string, error) {
 	var err error
 	var contents string
-	siteCrawlRule, err := GetSiteCrawlRule(siteUrl)
-	if err != nil {
-		return "", err
-	}
 
 	if siteCrawlRule.IsSpa {
 		contents, err = GetRSSByHTMLUseChrome(siteUrl, siteCrawlRule, client)
