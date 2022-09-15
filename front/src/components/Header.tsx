@@ -5,7 +5,7 @@ import { useAuthUserContext } from "@/lib/AuthUser";
 
 const Header = () => {
   const auth = getAuth();
-  const { currentUser, authUser, logout } = useAuthUserContext();
+  const { isAdmin, currentUser, authUser, logout } = useAuthUserContext();
   return (
     <AppBar component="header" position="sticky">
       <Toolbar>
@@ -22,22 +22,26 @@ const Header = () => {
             DailyFJ
           </Typography>
         </Link>
-        <>
-          <Link href="/article" passHref>
-            <Button color="inherit">Article</Button>
-          </Link>
-          <Link href="/site" passHref>
-            <Button color="inherit">Site</Button>
-          </Link>
-          <Link href="/feed" passHref>
-            <Button color="inherit">Feed</Button>
-          </Link>
-          <Link href="/user" passHref>
-            <Button color="inherit">User</Button>
-          </Link>
-        </>
+
         {authUser ? (
           <>
+            {isAdmin && (
+              <>
+                <Link href="/article" passHref>
+                  <Button color="inherit">Article</Button>
+                </Link>
+                <Link href="/site" passHref>
+                  <Button color="inherit">Site</Button>
+                </Link>
+                <Link href="/feed" passHref>
+                  <Button color="inherit">Feed</Button>
+                </Link>
+                <Link href="/user" passHref>
+                  <Button color="inherit">User</Button>
+                </Link>
+              </>
+            )}
+
             <Typography variant="h6" component="div">
               {currentUser?.email}
             </Typography>

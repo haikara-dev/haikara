@@ -15,6 +15,7 @@ export type AuthUserContextType = {
   authUser: AuthUser | null;
   login: (user: AuthUser, callback: () => void) => void;
   logout: (callback: () => void) => void;
+  isAdmin: boolean;
 };
 
 const AuthUserContext = createContext<AuthUserContextType>(
@@ -34,6 +35,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [initialize, setInitialize] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -68,6 +70,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
     authUser,
     login,
     logout,
+    isAdmin,
   };
 
   const getRequestHeaders = async (authUser: AuthUser) => {
@@ -120,6 +123,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
         email: json.email,
         role: json.role,
       });
+      setIsAdmin(json.role === "admin");
     } catch (err) {
       console.log(err);
     }
