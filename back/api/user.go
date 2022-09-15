@@ -170,3 +170,32 @@ func (h *UserHandler) GetCurrentUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, resUser)
 }
+
+func (h *UserHandler) UpdateUserRole(ctx *gin.Context) {
+	strId := ctx.Param("id")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var reqUser ent.User
+	err = ctx.ShouldBindJSON(&reqUser)
+
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	resUser, err := h.Client.User.
+		UpdateOneID(id).
+		SetRole(reqUser.Role).
+		Save(context.Background())
+
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &resUser)
+}

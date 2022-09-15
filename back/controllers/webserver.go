@@ -56,6 +56,7 @@ func StartWebserver() {
 		authorized.GET("/users/:id", apiUserHandler.GetUser)
 		authorized.PUT("/users/:id", apiUserHandler.UpdateUser)
 		authorized.DELETE("/users/:id", apiUserHandler.DeleteUser)
+		authorized.PATCH("/users/role/:id", apiUserHandler.UpdateUserRole)
 
 		authorized.GET("/sites", apiSiteHandler.GetAllSites)
 		authorized.POST("/sites", apiSiteHandler.CreateSite)
