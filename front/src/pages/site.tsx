@@ -22,6 +22,22 @@ export type Site = {
   active: boolean;
 };
 
+export type SiteCrawlRule = {
+  article_selector: string;
+  title_selector: string;
+  link_selector: string;
+  description_selector: string;
+  has_data_to_list: boolean;
+  date_selector: string;
+  date_layout: string;
+  is_time_humanize: boolean;
+  is_spa: boolean;
+};
+
+export type SiteWithSiteCrawlRule = Site & {
+  site_crawl_rule: SiteCrawlRule;
+};
+
 export type DryRunResult = {
   count: number;
   contents: string;
@@ -87,6 +103,55 @@ const Sites: NextPage = () => {
       console.log(err);
     }
     setLoading(false);
+  };
+
+  const loadSiteWithSiteCrawlRule = async (
+    id: number
+  ): Promise<SiteWithSiteCrawlRule | null> => {
+    try {
+      const headers = await getRequestHeaders();
+      const res = await fetch(
+        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/sites/"),
+        {
+          method: "GET",
+          headers: headers,
+        }
+      );
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      const json = await res.json();
+      if (json.edges.site_crawl_rule) {
+        return {
+          id: json.id,
+          name: json.name,
+          url: json.url,
+          feed_url: json.feed_url,
+          active: json.active,
+          site_crawl_rule: json.edges.site_crawl_rule,
+        };
+      } else {
+        return {
+          id: json.id,
+          name: json.name,
+          url: json.url,
+          feed_url: json.feed_url,
+          active: json.active,
+          site_crawl_rule: {
+            article_selector: "",
+            title_selector: "",
+            link_selector: "",
+            description_selector: "",
+            has_data_to_list: true,
+            date_selector: "",
+            date_layout: "",
+            is_time_humanize: false,
+            is_spa: false,
+          },
+        };
+      }
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
   };
 
   const addSite = async (name: string, url: string, feed_url: string) => {
@@ -186,17 +251,11 @@ const Sites: NextPage = () => {
     }
   };
 
-  const updateSite = async (
-    id: number,
-    name: string,
-    url: string,
-    feed_url: string,
-    active: boolean
-  ) => {
+  const updateSite = async (site: SiteWithSiteCrawlRule) => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
-        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/sites/"),
+        new URL(site.id.toString(), BACKEND_ADMIN_API_URL + "/sites/"),
         {
           method: "PUT",
           headers: {
@@ -206,10 +265,7 @@ const Sites: NextPage = () => {
             },
           },
           body: JSON.stringify({
-            name: name,
-            url: url,
-            feed_url: feed_url,
-            active: active,
+            ...site,
           }),
         }
       );
@@ -372,7 +428,6 @@ const Sites: NextPage = () => {
                       activeSite={activeSite}
                       deActiveSite={deActiveSite}
                       removeSite={removeSite}
-                      updateSite={updateSite}
                       openDialog={handleEditOpen}
                       runCrawling={runCrawling}
                       dryRunCrawling={dryRunCrawling}
@@ -400,6 +455,7 @@ const Sites: NextPage = () => {
           updateSite={updateSite}
           onEndEdit={handleEditClose}
           getRssUrl={getRssUrl}
+          loadSiteWithSiteCrawlRule={loadSiteWithSiteCrawlRule}
         />
       )}
 

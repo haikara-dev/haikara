@@ -3,10 +3,10 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/haikara-dev/haikara/libs"
-	"github.com/gin-gonic/gin"
 	"github.com/mmcdole/gofeed"
 	"net/http"
 	"strconv"
@@ -40,7 +40,10 @@ func (h *SiteHandler) GetSite(c *gin.Context) {
 	}
 
 	resSite, err := h.Client.Site.
-		Get(context.Background(), id)
+		Query().
+		Where(site.ID(id)).
+		WithSiteCrawlRule().
+		Only(context.Background())
 
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -79,7 +82,30 @@ func (h *SiteHandler) CreateSite(c *gin.Context) {
 	c.JSON(http.StatusOK, &resSite)
 }
 
+/*
+	site_crawl_rule: {
+	  article_selector: "",
+	  title_selector: "",
+	  link_selector: "",
+	  description_selector: "",
+	  has_data_to_list: true,
+	  date_selector: "",
+	  date_layout: "",
+	  is_time_humanize: false,
+	  is_spa: false,
+	},
+*/
 func (h *SiteHandler) UpdateSite(c *gin.Context) {
+
+	type RequestSite struct {
+		ID            int               `json:"id"`
+		Name          string            `json:"name"`
+		URL           string            `json:"url"`
+		FeedURL       string            `json:"feed_url"`
+		Active        bool              `json:"active"`
+		SiteCrawlRule ent.SiteCrawlRule `json:"site_crawl_rule"`
+	}
+
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
 	if err != nil {
@@ -87,7 +113,7 @@ func (h *SiteHandler) UpdateSite(c *gin.Context) {
 		return
 	}
 
-	var reqSite ent.Site
+	var reqSite RequestSite
 	err = c.ShouldBindJSON(&reqSite)
 
 	if err != nil {
@@ -128,52 +154,42 @@ func (h *SiteHandler) UpdateSite(c *gin.Context) {
 
 	if existSiteRule == nil {
 		fmt.Println("create site crawl rule")
-		//staticRule, err := libs.GetSiteCrawlRule(resSite.URL)
-		//if err != nil {
-		//	c.AbortWithError(http.StatusBadRequest, err)
-		//	return
-		//}
-		//_, err = h.Client.SiteCrawlRule.
-		//	Create().
-		//	SetSite(resSite).
-		//	SetArticleSelector(staticRule.ArticleSelector).
-		//	SetTitleSelector(staticRule.TitleSelector).
-		//	SetLinkSelector(staticRule.LinkSelector).
-		//	SetDescriptionSelector(staticRule.DescriptionSelector).
-		//	SetHasDataToList(staticRule.HasDataToList).
-		//	SetDateSelector(staticRule.DateSelector).
-		//	SetDateLayout(staticRule.DateLayout).
-		//	SetIsTimeHumanize(staticRule.IsTimeHumanize).
-		//	SetIsSpa(staticRule.IsSpa).
-		//	Save(context.Background())
-		//
-		//if err != nil {
-		//	c.AbortWithError(http.StatusBadRequest, err)
-		//	return
-		//}
+		_, err = h.Client.SiteCrawlRule.
+			Create().
+			SetSite(resSite).
+			SetArticleSelector(reqSite.SiteCrawlRule.ArticleSelector).
+			SetTitleSelector(reqSite.SiteCrawlRule.TitleSelector).
+			SetLinkSelector(reqSite.SiteCrawlRule.LinkSelector).
+			SetDescriptionSelector(reqSite.SiteCrawlRule.DescriptionSelector).
+			SetHasDataToList(reqSite.SiteCrawlRule.HasDataToList).
+			SetDateSelector(reqSite.SiteCrawlRule.DateSelector).
+			SetDateLayout(reqSite.SiteCrawlRule.DateLayout).
+			SetIsTimeHumanize(reqSite.SiteCrawlRule.IsTimeHumanize).
+			SetIsSpa(reqSite.SiteCrawlRule.IsSpa).
+			Save(context.Background())
+
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
 	} else {
 		fmt.Println("update site crawl rule")
-		//staticRule, err := libs.GetSiteCrawlRule(resSite.URL)
-		//if err != nil {
-		//	c.AbortWithError(http.StatusBadRequest, err)
-		//	return
-		//}
-		//_, err = existSiteRule.Update().
-		//SetArticleSelector(staticRule.ArticleSelector).
-		//	SetTitleSelector(staticRule.TitleSelector).
-		//	SetLinkSelector(staticRule.LinkSelector).
-		//	SetDescriptionSelector(staticRule.DescriptionSelector).
-		//	SetHasDataToList(staticRule.HasDataToList).
-		//	SetDateSelector(staticRule.DateSelector).
-		//	SetDateLayout(staticRule.DateLayout).
-		//	SetIsTimeHumanize(staticRule.IsTimeHumanize).
-		//	SetIsSpa(staticRule.IsSpa).
-		//	Save(context.Background())
-		//
-		//if err != nil {
-		//	c.AbortWithError(http.StatusBadRequest, err)
-		//	return
-		//}
+		_, err = existSiteRule.Update().
+			SetArticleSelector(reqSite.SiteCrawlRule.ArticleSelector).
+			SetTitleSelector(reqSite.SiteCrawlRule.TitleSelector).
+			SetLinkSelector(reqSite.SiteCrawlRule.LinkSelector).
+			SetDescriptionSelector(reqSite.SiteCrawlRule.DescriptionSelector).
+			SetHasDataToList(reqSite.SiteCrawlRule.HasDataToList).
+			SetDateSelector(reqSite.SiteCrawlRule.DateSelector).
+			SetDateLayout(reqSite.SiteCrawlRule.DateLayout).
+			SetIsTimeHumanize(reqSite.SiteCrawlRule.IsTimeHumanize).
+			SetIsSpa(reqSite.SiteCrawlRule.IsSpa).
+			Save(context.Background())
+
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, &resSite)
