@@ -5,13 +5,13 @@ package ent
 import (
 	"time"
 
-	"github.com/cubdesign/haikara/ent/article"
-	"github.com/cubdesign/haikara/ent/feed"
-	"github.com/cubdesign/haikara/ent/schema"
-	"github.com/cubdesign/haikara/ent/site"
-	"github.com/cubdesign/haikara/ent/sitecategory"
-	"github.com/cubdesign/haikara/ent/sitecrawlrule"
-	"github.com/cubdesign/haikara/ent/user"
+	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/feed"
+	"github.com/haikara-dev/haikara/ent/schema"
+	"github.com/haikara-dev/haikara/ent/site"
+	"github.com/haikara-dev/haikara/ent/sitecategory"
+	"github.com/haikara-dev/haikara/ent/sitecrawlrule"
+	"github.com/haikara-dev/haikara/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code

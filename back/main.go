@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/cubdesign/haikara/config"
-	"github.com/cubdesign/haikara/controllers"
-	"github.com/cubdesign/haikara/database"
-	"github.com/cubdesign/haikara/utils"
+	"github.com/haikara-dev/haikara/config"
+	"github.com/haikara-dev/haikara/controllers"
+	"github.com/haikara-dev/haikara/database"
+	"github.com/haikara-dev/haikara/utils"
 )
 
 func main() {

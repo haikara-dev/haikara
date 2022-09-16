@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"context"
-	"github.com/cubdesign/haikara/libs"
+	"github.com/haikara-dev/haikara/libs"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"

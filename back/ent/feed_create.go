@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/haikara/ent/feed"
-	"github.com/cubdesign/haikara/ent/site"
+	"github.com/haikara-dev/haikara/ent/feed"
+	"github.com/haikara-dev/haikara/ent/site"
 )
 
 // FeedCreate is the builder for creating a Feed entity.

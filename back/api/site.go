@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/cubdesign/haikara/ent"
-	"github.com/cubdesign/haikara/ent/site"
-	"github.com/cubdesign/haikara/libs"
+	"github.com/haikara-dev/haikara/ent"
+	"github.com/haikara-dev/haikara/ent/site"
+	"github.com/haikara-dev/haikara/libs"
 	"github.com/gin-gonic/gin"
 	"github.com/mmcdole/gofeed"
 	"net/http"

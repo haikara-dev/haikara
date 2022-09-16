@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cubdesign/haikara/ent"
+	"github.com/haikara-dev/haikara/ent"
 )
 
 // The ArticleFunc type is an adapter to allow the use of ordinary

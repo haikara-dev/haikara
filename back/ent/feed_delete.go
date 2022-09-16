@@ -9,8 +9,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/haikara/ent/feed"
-	"github.com/cubdesign/haikara/ent/predicate"
+	"github.com/haikara-dev/haikara/ent/feed"
+	"github.com/haikara-dev/haikara/ent/predicate"
 )
 
 // FeedDelete is the builder for deleting a Feed entity.

@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/haikara/ent/site"
-	"github.com/cubdesign/haikara/ent/sitecrawlrule"
+	"github.com/haikara-dev/haikara/ent/site"
+	"github.com/haikara-dev/haikara/ent/sitecrawlrule"
 )
 
 // SiteCrawlRuleCreate is the builder for creating a SiteCrawlRule entity.

@@ -2,8 +2,8 @@ package api
 
 import (
 	"context"
-	"github.com/cubdesign/haikara/ent"
-	"github.com/cubdesign/haikara/ent/user"
+	"github.com/haikara-dev/haikara/ent"
+	"github.com/haikara-dev/haikara/ent/user"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"

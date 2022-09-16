@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/cubdesign/haikara/ent/feed"
-	"github.com/cubdesign/haikara/ent/site"
+	"github.com/haikara-dev/haikara/ent/feed"
+	"github.com/haikara-dev/haikara/ent/site"
 )
 
 // Feed is the model entity for the Feed schema.

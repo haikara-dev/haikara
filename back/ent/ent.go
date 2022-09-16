@@ -10,12 +10,12 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/cubdesign/haikara/ent/article"
-	"github.com/cubdesign/haikara/ent/feed"
-	"github.com/cubdesign/haikara/ent/site"
-	"github.com/cubdesign/haikara/ent/sitecategory"
-	"github.com/cubdesign/haikara/ent/sitecrawlrule"
-	"github.com/cubdesign/haikara/ent/user"
+	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/feed"
+	"github.com/haikara-dev/haikara/ent/site"
+	"github.com/haikara-dev/haikara/ent/sitecategory"
+	"github.com/haikara-dev/haikara/ent/sitecrawlrule"
+	"github.com/haikara-dev/haikara/ent/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.

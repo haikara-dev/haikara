@@ -10,11 +10,11 @@ const Footer = () => {
       >
         Powered by{" "}
         <a
-          href="https://cubdesign.com"
+          href="https://haikara-dev.com"
           target="_blank"
           rel="noopener noreferrer"
         >
-          cubdesign
+          haikara-dev
         </a>
       </Container>
     </Box>

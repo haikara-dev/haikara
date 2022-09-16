@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/haikara/ent/predicate"
-	"github.com/cubdesign/haikara/ent/user"
+	"github.com/haikara-dev/haikara/ent/predicate"
+	"github.com/haikara-dev/haikara/ent/user"
 )
 
 // UserQuery is the builder for querying User entities.

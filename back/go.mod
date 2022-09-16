@@ -1,4 +1,4 @@
-module github.com/cubdesign/haikara
+module github.com/haikara-dev/haikara
 
 go 1.19
 

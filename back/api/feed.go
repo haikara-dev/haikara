@@ -2,10 +2,10 @@ package api
 
 import (
 	"context"
-	"github.com/cubdesign/haikara/ent"
-	"github.com/cubdesign/haikara/ent/article"
-	"github.com/cubdesign/haikara/ent/feed"
-	"github.com/cubdesign/haikara/ent/site"
+	"github.com/haikara-dev/haikara/ent"
+	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/feed"
+	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/gin-gonic/gin"
 	"github.com/mmcdole/gofeed"
 	"net/http"

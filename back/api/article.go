@@ -2,9 +2,9 @@ package api
 
 import (
 	"context"
-	"github.com/cubdesign/haikara/config"
-	"github.com/cubdesign/haikara/ent"
-	"github.com/cubdesign/haikara/ent/article"
+	"github.com/haikara-dev/haikara/config"
+	"github.com/haikara-dev/haikara/ent"
+	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"

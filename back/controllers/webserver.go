@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"github.com/cubdesign/haikara/api"
-	todoConfig "github.com/cubdesign/haikara/config"
-	"github.com/cubdesign/haikara/database"
-	"github.com/cubdesign/haikara/middleware"
+	"github.com/haikara-dev/haikara/api"
+	todoConfig "github.com/haikara-dev/haikara/config"
+	"github.com/haikara-dev/haikara/database"
+	"github.com/haikara-dev/haikara/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"

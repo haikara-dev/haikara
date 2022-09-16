@@ -9,8 +9,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/haikara/ent/article"
-	"github.com/cubdesign/haikara/ent/predicate"
+	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/predicate"
 )
 
 // ArticleDelete is the builder for deleting a Article entity.

@@ -3,9 +3,9 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/cubdesign/haikara/config"
-	"github.com/cubdesign/haikara/ent"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/haikara-dev/haikara/config"
+	"github.com/haikara-dev/haikara/ent"
 	"log"
 	"time"
 )

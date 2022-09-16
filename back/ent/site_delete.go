@@ -9,8 +9,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/haikara/ent/predicate"
-	"github.com/cubdesign/haikara/ent/site"
+	"github.com/haikara-dev/haikara/ent/predicate"
+	"github.com/haikara-dev/haikara/ent/site"
 )
 
 // SiteDelete is the builder for deleting a Site entity.
