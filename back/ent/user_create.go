@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/dailyfj/ent/user"
+	"github.com/cubdesign/haikara/ent/user"
 )
 
 // UserCreate is the builder for creating a User entity.

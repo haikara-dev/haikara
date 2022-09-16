@@ -7,13 +7,13 @@ const Home: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>dailyfj</title>
-        <meta name="description" content="dailyfj" />
+        <title>haikara</title>
+        <meta name="description" content="haikara" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header />
       <main>
-        <h1>dailyfj</h1>
+        <h1>haikara</h1>
       </main>
       <Footer />
     </div>

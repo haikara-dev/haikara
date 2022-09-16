@@ -2,9 +2,9 @@ package api
 
 import (
 	"context"
-	"github.com/cubdesign/dailyfj/config"
-	"github.com/cubdesign/dailyfj/ent"
-	"github.com/cubdesign/dailyfj/ent/article"
+	"github.com/cubdesign/haikara/config"
+	"github.com/cubdesign/haikara/ent"
+	"github.com/cubdesign/haikara/ent/article"
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"

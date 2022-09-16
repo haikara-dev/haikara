@@ -19,7 +19,7 @@ const Header = () => {
               textDecoration: "none",
             }}
           >
-            DailyFJ
+            haikara
           </Typography>
         </Link>
 

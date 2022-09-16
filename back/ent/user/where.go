@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/cubdesign/dailyfj/ent/predicate"
+	"github.com/cubdesign/haikara/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

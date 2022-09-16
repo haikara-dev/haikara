@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/dailyfj/ent/article"
-	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/haikara/ent/article"
+	"github.com/cubdesign/haikara/ent/site"
 )
 
 // ArticleCreate is the builder for creating a Article entity.

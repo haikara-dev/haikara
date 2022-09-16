@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"github.com/cubdesign/dailyfj/api"
-	todoConfig "github.com/cubdesign/dailyfj/config"
-	"github.com/cubdesign/dailyfj/database"
-	"github.com/cubdesign/dailyfj/middleware"
+	"github.com/cubdesign/haikara/api"
+	todoConfig "github.com/cubdesign/haikara/config"
+	"github.com/cubdesign/haikara/database"
+	"github.com/cubdesign/haikara/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"

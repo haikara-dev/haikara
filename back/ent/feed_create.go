@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/dailyfj/ent/feed"
-	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/haikara/ent/feed"
+	"github.com/cubdesign/haikara/ent/site"
 )
 
 // FeedCreate is the builder for creating a Feed entity.

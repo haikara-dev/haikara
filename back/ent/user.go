@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/cubdesign/dailyfj/ent/user"
+	"github.com/cubdesign/haikara/ent/user"
 )
 
 // User is the model entity for the User schema.

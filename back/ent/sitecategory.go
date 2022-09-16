@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/cubdesign/dailyfj/ent/sitecategory"
+	"github.com/cubdesign/haikara/ent/sitecategory"
 )
 
 // SiteCategory is the model entity for the SiteCategory schema.

@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"context"
-	"github.com/cubdesign/dailyfj/libs"
+	"github.com/cubdesign/haikara/libs"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"

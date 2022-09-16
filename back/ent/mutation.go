@@ -9,13 +9,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cubdesign/dailyfj/ent/article"
-	"github.com/cubdesign/dailyfj/ent/feed"
-	"github.com/cubdesign/dailyfj/ent/predicate"
-	"github.com/cubdesign/dailyfj/ent/site"
-	"github.com/cubdesign/dailyfj/ent/sitecategory"
-	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
-	"github.com/cubdesign/dailyfj/ent/user"
+	"github.com/cubdesign/haikara/ent/article"
+	"github.com/cubdesign/haikara/ent/feed"
+	"github.com/cubdesign/haikara/ent/predicate"
+	"github.com/cubdesign/haikara/ent/site"
+	"github.com/cubdesign/haikara/ent/sitecategory"
+	"github.com/cubdesign/haikara/ent/sitecrawlrule"
+	"github.com/cubdesign/haikara/ent/user"
 
 	"entgo.io/ent"
 )

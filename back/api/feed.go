@@ -2,10 +2,10 @@ package api
 
 import (
 	"context"
-	"github.com/cubdesign/dailyfj/ent"
-	"github.com/cubdesign/dailyfj/ent/article"
-	"github.com/cubdesign/dailyfj/ent/feed"
-	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/haikara/ent"
+	"github.com/cubdesign/haikara/ent/article"
+	"github.com/cubdesign/haikara/ent/feed"
+	"github.com/cubdesign/haikara/ent/site"
 	"github.com/gin-gonic/gin"
 	"github.com/mmcdole/gofeed"
 	"net/http"

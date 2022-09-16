@@ -64,8 +64,8 @@ const Login: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>DailyFJ</title>
-        <meta name="description" content="DailyFJ" />
+        <title>haikara</title>
+        <meta name="description" content="haikara" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

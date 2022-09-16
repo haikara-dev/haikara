@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/cubdesign/dailyfj/ent/article"
-	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/haikara/ent/article"
+	"github.com/cubdesign/haikara/ent/site"
 )
 
 // Article is the model entity for the Article schema.

@@ -1,4 +1,4 @@
-module github.com/cubdesign/dailyfj
+module github.com/cubdesign/haikara
 
 go 1.19
 

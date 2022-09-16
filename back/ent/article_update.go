@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/dailyfj/ent/article"
-	"github.com/cubdesign/dailyfj/ent/predicate"
-	"github.com/cubdesign/dailyfj/ent/site"
+	"github.com/cubdesign/haikara/ent/article"
+	"github.com/cubdesign/haikara/ent/predicate"
+	"github.com/cubdesign/haikara/ent/site"
 )
 
 // ArticleUpdate is the builder for updating Article entities.

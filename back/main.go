@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/cubdesign/dailyfj/config"
-	"github.com/cubdesign/dailyfj/controllers"
-	"github.com/cubdesign/dailyfj/database"
-	"github.com/cubdesign/dailyfj/utils"
+	"github.com/cubdesign/haikara/config"
+	"github.com/cubdesign/haikara/controllers"
+	"github.com/cubdesign/haikara/database"
+	"github.com/cubdesign/haikara/utils"
 )
 
 func main() {

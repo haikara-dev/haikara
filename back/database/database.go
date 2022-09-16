@@ -3,8 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/cubdesign/dailyfj/config"
-	"github.com/cubdesign/dailyfj/ent"
+	"github.com/cubdesign/haikara/config"
+	"github.com/cubdesign/haikara/ent"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"time"

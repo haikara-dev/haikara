@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/cubdesign/dailyfj/ent/predicate"
-	"github.com/cubdesign/dailyfj/ent/site"
-	"github.com/cubdesign/dailyfj/ent/sitecategory"
+	"github.com/cubdesign/haikara/ent/predicate"
+	"github.com/cubdesign/haikara/ent/site"
+	"github.com/cubdesign/haikara/ent/sitecategory"
 )
 
 // SiteCategoryUpdate is the builder for updating SiteCategory entities.

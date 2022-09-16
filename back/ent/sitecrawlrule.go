@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/cubdesign/dailyfj/ent/site"
-	"github.com/cubdesign/dailyfj/ent/sitecrawlrule"
+	"github.com/cubdesign/haikara/ent/site"
+	"github.com/cubdesign/haikara/ent/sitecrawlrule"
 )
 
 // SiteCrawlRule is the model entity for the SiteCrawlRule schema.

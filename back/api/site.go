@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/cubdesign/dailyfj/ent"
-	"github.com/cubdesign/dailyfj/ent/site"
-	"github.com/cubdesign/dailyfj/libs"
+	"github.com/cubdesign/haikara/ent"
+	"github.com/cubdesign/haikara/ent/site"
+	"github.com/cubdesign/haikara/libs"
 	"github.com/gin-gonic/gin"
 	"github.com/mmcdole/gofeed"
 	"net/http"

@@ -4,7 +4,7 @@ services:
   mysql:
     image: mysql:latest
     #    restart: on-failure
-    container_name: dailyfj_mysql_container
+    container_name: haikara_mysql_container
     environment:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}

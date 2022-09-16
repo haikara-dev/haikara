@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/cubdesign/dailyfj/ent"
+	"github.com/cubdesign/haikara/ent"
 	// required by schema hooks.
-	_ "github.com/cubdesign/dailyfj/ent/runtime"
+	_ "github.com/cubdesign/haikara/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/cubdesign/dailyfj/ent/migrate"
+	"github.com/cubdesign/haikara/ent/migrate"
 )
 
 type (
