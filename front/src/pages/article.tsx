@@ -24,6 +24,7 @@ const BACKEND_ADMIN_API_URL: string =
 export type Article = {
   id: number;
   title: string;
+  url: string;
   published_at: string;
 };
 
@@ -165,6 +166,14 @@ const Articles: NextPage = () => {
                         >
                           {article.title}
                         </Box>
+                        <Button
+                          component="a"
+                          href={article.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Read
+                        </Button>
                         <IconButton
                           onClick={onClickDeleteHandler.bind(this, article.id)}
                           aria-label="remove"

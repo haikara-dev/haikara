@@ -2,10 +2,10 @@ package api
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
-	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
 	"strconv"
@@ -58,6 +58,7 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 	type ResponseArticle struct {
 		ID          int       `json:"id"`
 		Title       string    `json:"title"`
+		URL         string    `json:"url"`
 		PublishedAt time.Time `json:"published_at"`
 	}
 
@@ -74,6 +75,7 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 		resFeeds = append(resFeeds, ResponseArticle{
 			ID:          article.ID,
 			Title:       article.Title,
+			URL:         article.URL,
 			PublishedAt: article.PublishedAt,
 		})
 	}
