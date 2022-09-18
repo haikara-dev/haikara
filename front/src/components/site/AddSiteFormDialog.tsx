@@ -11,24 +11,49 @@ import {
   Dialog,
   DialogContentText,
   DialogActions,
+  FormControl,
+  FormControlLabel,
+  Checkbox,
+  FormHelperText,
 } from "@mui/material";
+import { SiteWithSiteCrawlRule } from "@/pages/site";
 
 type FormInput = {
   name: string;
   url: string;
   feed_url: string;
+
+  article_selector: string;
+  title_selector: string;
+  link_selector: string;
+  description_selector: string;
+  has_data_to_list: boolean;
+  date_selector: string;
+  date_layout: string;
+  is_time_humanize: boolean;
+  is_spa: boolean;
 };
 
 const schema = yup.object({
   name: yup.string().required("必須です"),
   url: yup.string().required("必須です").url("正しいURLを入力してください"),
   feed_url: yup.string().url("正しいURLを入力してください"),
+
+  article_selector: yup.string(),
+  title_selector: yup.string(),
+  link_selector: yup.string(),
+  description_selector: yup.string(),
+  has_data_to_list: yup.boolean(),
+  date_selector: yup.string(),
+  date_layout: yup.string(),
+  is_time_humanize: yup.boolean(),
+  is_spa: yup.boolean(),
 });
 
 export type AddSiteFormProps = {
   open: boolean;
   handleClose: () => void;
-  addSite: (name: string, url: string, feed_url: string) => void;
+  addSite: (site: SiteWithSiteCrawlRule) => void;
   getRssUrlByUrl: (url: string) => Promise<string>;
 };
 
@@ -50,6 +75,16 @@ const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
       name: "",
       url: "",
       feed_url: "",
+
+      article_selector: "",
+      title_selector: "",
+      link_selector: "",
+      description_selector: "",
+      has_data_to_list: true,
+      date_selector: "",
+      date_layout: "",
+      is_time_humanize: false,
+      is_spa: false,
     },
     resolver: yupResolver(schema),
   });
@@ -64,7 +99,26 @@ const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
 
       const trimmedfeed_url = data.feed_url.trim();
 
-      await addSite(trimmedName, trimmedUrl, trimmedfeed_url);
+      await addSite({
+        // TODO: ここでidを生成しているが、使わない
+        id: 0,
+        name: trimmedName,
+        url: trimmedUrl,
+        feed_url: trimmedfeed_url,
+        active: true,
+        site_crawl_rule: {
+          article_selector: data.article_selector,
+          title_selector: data.title_selector,
+          link_selector: data.link_selector,
+          description_selector: data.description_selector,
+          has_data_to_list: data.has_data_to_list,
+          date_selector: data.date_selector,
+          date_layout: data.date_layout,
+          is_time_humanize: data.is_time_humanize,
+          is_spa: data.is_spa,
+        },
+      });
+
       reset();
       handleClose();
     } catch (err) {
@@ -128,6 +182,127 @@ const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
               sx={{ flexGrow: 1 }}
               InputLabelProps={{ shrink: true }}
             />
+
+            <div>Site Crawl Rule</div>
+
+            <TextField
+              label="article_selector"
+              error={errors.article_selector ? true : false}
+              helperText={
+                errors.article_selector && errors.article_selector.message
+              }
+              variant="outlined"
+              placeholder="article_selector"
+              {...register("article_selector")}
+              sx={{ flexGrow: 1 }}
+              InputLabelProps={{ shrink: true }}
+            />
+
+            <TextField
+              label="title_selector"
+              error={errors.title_selector ? true : false}
+              helperText={
+                errors.title_selector && errors.title_selector.message
+              }
+              variant="outlined"
+              placeholder="title_selector"
+              {...register("title_selector")}
+              sx={{ flexGrow: 1 }}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="link_selector"
+              error={errors.link_selector ? true : false}
+              helperText={errors.link_selector && errors.link_selector.message}
+              variant="outlined"
+              placeholder="link_selector"
+              {...register("link_selector")}
+              sx={{ flexGrow: 1 }}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="description_selector"
+              error={errors.description_selector ? true : false}
+              helperText={
+                errors.description_selector &&
+                errors.description_selector.message
+              }
+              variant="outlined"
+              placeholder="description_selector"
+              {...register("description_selector")}
+              sx={{ flexGrow: 1 }}
+              InputLabelProps={{ shrink: true }}
+            />
+
+            <FormControl error={errors.has_data_to_list ? true : false}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    {...register("has_data_to_list")}
+                    defaultChecked={getValues("has_data_to_list")}
+                  />
+                }
+                label="has_data_to_list"
+              />
+              {errors.has_data_to_list && (
+                <FormHelperText>
+                  {errors.has_data_to_list.message}
+                </FormHelperText>
+              )}
+            </FormControl>
+
+            <TextField
+              label="date_selector"
+              error={errors.date_selector ? true : false}
+              helperText={errors.date_selector && errors.date_selector.message}
+              variant="outlined"
+              placeholder="date_selector"
+              {...register("date_selector")}
+              sx={{ flexGrow: 1 }}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="date_layout"
+              error={errors.date_layout ? true : false}
+              helperText={errors.date_layout && errors.date_layout.message}
+              variant="outlined"
+              placeholder="date_layout"
+              {...register("date_layout")}
+              sx={{ flexGrow: 1 }}
+              InputLabelProps={{ shrink: true }}
+            />
+
+            <FormControl error={errors.is_time_humanize ? true : false}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    {...register("is_time_humanize")}
+                    defaultChecked={getValues("is_time_humanize")}
+                  />
+                }
+                label="is_time_humanize"
+              />
+              {errors.is_time_humanize && (
+                <FormHelperText>
+                  {errors.is_time_humanize.message}
+                </FormHelperText>
+              )}
+            </FormControl>
+
+            <FormControl error={errors.is_spa ? true : false}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    {...register("is_spa")}
+                    defaultChecked={getValues("is_spa")}
+                  />
+                }
+                label="is_spa"
+              />
+              {errors.is_spa && (
+                <FormHelperText>{errors.is_spa.message}</FormHelperText>
+              )}
+            </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>

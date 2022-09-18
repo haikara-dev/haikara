@@ -154,7 +154,7 @@ const Sites: NextPage = () => {
     }
   };
 
-  const addSite = async (name: string, url: string, feed_url: string) => {
+  const addSite = async (site: SiteWithSiteCrawlRule) => {
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(BACKEND_ADMIN_API_URL + "/sites", {
@@ -166,10 +166,7 @@ const Sites: NextPage = () => {
           },
         },
         body: JSON.stringify({
-          name: name,
-          url: url,
-          feed_url: feed_url,
-          active: true,
+          ...site,
         }),
       });
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);

@@ -58,7 +58,16 @@ func (h *SiteHandler) GetSite(c *gin.Context) {
 }
 
 func (h *SiteHandler) CreateSite(c *gin.Context) {
-	var reqSite ent.Site
+
+	type RequestSite struct {
+		Name          string            `json:"name"`
+		URL           string            `json:"url"`
+		FeedURL       string            `json:"feed_url"`
+		Active        bool              `json:"active"`
+		SiteCrawlRule ent.SiteCrawlRule `json:"site_crawl_rule"`
+	}
+
+	var reqSite RequestSite
 	err := c.ShouldBindJSON(&reqSite)
 
 	if err != nil {
@@ -79,22 +88,29 @@ func (h *SiteHandler) CreateSite(c *gin.Context) {
 		return
 	}
 
+	fmt.Println("create site crawl rule")
+	_, err = h.Client.SiteCrawlRule.
+		Create().
+		SetSite(resSite).
+		SetArticleSelector(reqSite.SiteCrawlRule.ArticleSelector).
+		SetTitleSelector(reqSite.SiteCrawlRule.TitleSelector).
+		SetLinkSelector(reqSite.SiteCrawlRule.LinkSelector).
+		SetDescriptionSelector(reqSite.SiteCrawlRule.DescriptionSelector).
+		SetHasDataToList(reqSite.SiteCrawlRule.HasDataToList).
+		SetDateSelector(reqSite.SiteCrawlRule.DateSelector).
+		SetDateLayout(reqSite.SiteCrawlRule.DateLayout).
+		SetIsTimeHumanize(reqSite.SiteCrawlRule.IsTimeHumanize).
+		SetIsSpa(reqSite.SiteCrawlRule.IsSpa).
+		Save(context.Background())
+
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, &resSite)
 }
 
-/*
-	site_crawl_rule: {
-	  article_selector: "",
-	  title_selector: "",
-	  link_selector: "",
-	  description_selector: "",
-	  has_data_to_list: true,
-	  date_selector: "",
-	  date_layout: "",
-	  is_time_humanize: false,
-	  is_spa: false,
-	},
-*/
 func (h *SiteHandler) UpdateSite(c *gin.Context) {
 
 	type RequestSite struct {
