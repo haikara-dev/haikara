@@ -41,6 +41,8 @@ func StartWebserver() {
 	config.AllowHeaders = append(config.AllowHeaders, "Authorization")
 	config.AllowOrigins = todoConfig.Config.CORS
 
+	log.Printf("config.AllowOrigins: %v", config.AllowOrigins)
+
 	r.Use(cors.New(config))
 
 	r.GET("/health-check", healthCheck)
