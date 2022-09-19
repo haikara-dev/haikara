@@ -165,7 +165,8 @@ const Settings: NextPage = () => {
                       backgroundColor: "grey.100",
                     }}
                   >
-                    Drag 'n' drop some files here, or click to select files
+                    Drag &apos;n&apos; drop some files here, or click to select
+                    files
                   </Box>
                 )}
               </div>{" "}
@@ -190,9 +191,9 @@ const Settings: NextPage = () => {
                   }) => (
                     <pre className={className} style={style}>
                       {tokens.map((line, i) => (
-                        <div {...getLineProps({ line, key: i })}>
+                        <div key={i} {...getLineProps({ line })}>
                           {line.map((token, key) => (
-                            <span {...getTokenProps({ token, key })} />
+                            <span key={key} {...getTokenProps({ token })} />
                           ))}
                         </div>
                       ))}
