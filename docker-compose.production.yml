@@ -1,6 +1,48 @@
 version: "3"
 
 services:
+  node:
+    build:
+      context: .
+      dockerfile: ./docker/node/Dockerfile
+    #    restart: on-failure
+    container_name: node_container
+    tty: true
+    environment:
+      - VIRTUAL_HOST=${FRONTEND_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${FRONTEND_LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - LETSENCRYPT_TEST=${LETSENCRYPT_TEST}
+    volumes:
+      - ./front:/app/front
+    # command: sh -c "cd /app/frontend && yarn install && yarn start"
+    ports:
+      - "3000:3000"
+    networks:
+      - front_bridge
+
+  go:
+    build:
+      context: .
+      dockerfile: ./docker/golang/Dockerfile
+    #    restart: on-failure
+    container_name: go_container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "mysql"
+    tty: true
+    environment:
+      - VIRTUAL_HOST=${BACKEND_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${BACKEND_LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - LETSENCRYPT_TEST=${LETSENCRYPT_TEST}
+    volumes:
+      - ./back:/app/back
+    networks:
+      - front_bridge
+      - back_bridge
+
   mysql:
     image: mysql:latest
     #    restart: on-failure
@@ -18,9 +60,44 @@ services:
     networks:
       - back_bridge
 
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    #    restart: on-failure
+    container_name: "nginx_proxy_container"
+    volumes:
+      - nginx-proxy-data:/etc/nginx/vhost.d
+      - nginx-proxy-data:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
+    privileged: true
+    networks:
+      - front_bridge
+
+  letsencrypt-nginx:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    #    restart: on-failure
+    container_name: "letsencrypt_nginx_container"
+    volumes:
+      - nginx-proxy-data:/etc/nginx/vhost.d
+      - nginx-proxy-data:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/etc/nginx/certs:rw
+    depends_on:
+      - "nginx-proxy"
+    networks:
+      - front_bridge
+
 networks:
+  front_bridge:
+    external: true
   back_bridge:
     external: true
 
 volumes:
   mysql-data:
+  nginx-proxy-data:
