@@ -23,4 +23,5 @@ COPY --from=builder /app/haikaraapp .
 COPY --from=builder /app/.env.production .env
 COPY --from=builder /app/google-application-credentials.json google-application-credentials.json
 
+RUN mkdir tmp
 CMD ["./haikaraapp"]
