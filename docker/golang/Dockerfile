@@ -14,7 +14,8 @@ COPY ./back /app
 RUN go build -o haikaraapp
 
 
-FROM chromedp/headless-shell:latest as runner
+FROM golang:latest as runner
+
 WORKDIR /app
 ENV GIN_MODE release
 
