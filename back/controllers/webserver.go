@@ -46,6 +46,7 @@ func StartWebserver() {
 	r.GET("/health-check", healthCheck)
 
 	authorized := r.Group("/api")
+	authorized.Use(cors.New(config))
 	authorized.Use(middleware.AuthMiddleware())
 	{
 		authorized.POST("/users/create", apiUserHandler.CreateUserByUUIDAndEmail)
@@ -54,6 +55,7 @@ func StartWebserver() {
 	}
 
 	admin := r.Group("/admin/api")
+	admin.Use(cors.New(config))
 	admin.Use(middleware.AuthMiddleware())
 	admin.Use(middleware.AdminMiddleware(database.Client))
 	{
