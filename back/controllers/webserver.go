@@ -1,12 +1,12 @@
 package controllers
 
 import (
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/haikara-dev/haikara/api"
 	todoConfig "github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/database"
 	"github.com/haikara-dev/haikara/middleware"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"log"
 )
 
@@ -75,6 +75,9 @@ func StartWebserver() {
 		admin.GET("/sites/dry-run-crawling/:id", apiSiteHandler.DryRunCrawling)
 		admin.GET("/sites/get-rss-url/:id", apiSiteHandler.GetRssUrlBySiteId)
 		admin.GET("/sites/get-rss-url-by-url", apiSiteHandler.GetRssUrlByUrl)
+
+		admin.GET("/sites/export", apiSiteHandler.ExportSites)
+		admin.POST("/sites/import", apiSiteHandler.ImportSites)
 
 		admin.GET("/feeds", apiFeedHandler.GetAllFeeds)
 		admin.GET("/feeds/lite", apiFeedHandler.GetAllFeedsNoneContentsField)

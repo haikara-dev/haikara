@@ -39,6 +39,9 @@ const Header = () => {
                 <Link href="/user" passHref>
                   <Button color="inherit">User</Button>
                 </Link>
+                <Link href="/setting" passHref>
+                  <Button color="inherit">Setting</Button>
+                </Link>
               </>
             )}
 
