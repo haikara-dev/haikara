@@ -194,7 +194,7 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 		WebSocketDebuggerUrl string `json:"webSocketDebuggerUrl"`
 	}
 
-	url := config.Config.ChromeDevToolsURL + "/json/version"
+	url := config.Config.ChromeDevToolsHostAndPort + "/json/version"
 
 	fmt.Println(url)
 
@@ -205,6 +205,8 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// fix Host header is specified and is not an IP address or localhost
+	req.Header.Set("HOST", "localhost")
 
 	client := new(http.Client)
 	resp, err := client.Do(req)
@@ -233,7 +235,11 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 	}
 
 	fmt.Println(5)
+
+	// fix Host header is specified and is not an IP address or localhost
+	strings.Replace(versionResponse.WebSocketDebuggerUrl, "localhost", config.Config.ChromeDevToolsHostAndPort, 1)
 	fmt.Println(versionResponse)
+
 	return versionResponse.WebSocketDebuggerUrl, nil
 }
 
@@ -249,7 +255,7 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 	feed.Created = now
 
 	var chromedpContext context.Context
-	if config.Config.ChromeDevToolsURL == "" {
+	if config.Config.ChromeDevToolsHostAndPort == "" {
 		chromedpContext = context.Background()
 	} else {
 		webSocketDebuggerUrl, err := getChromeDevToolsWebSocketDebuggerUrl()
