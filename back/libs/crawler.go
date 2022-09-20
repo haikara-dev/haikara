@@ -222,7 +222,7 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 		return "", err
 	}
 
-	fmt.Println(body)
+	fmt.Println(string(body))
 	// JSONを構造体にエンコード
 	var versionResponse VersionResponse
 	err = json.Unmarshal(body, &versionResponse)
