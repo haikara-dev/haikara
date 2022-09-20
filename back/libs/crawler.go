@@ -2,6 +2,7 @@ package libs
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -13,7 +14,9 @@ import (
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/utils"
+	"io"
 	"log"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -179,6 +182,50 @@ func GetRSS(feedUrl string) (string, error) {
 //		}
 //		return siteCrawlRule, nil
 //	}
+
+func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
+
+	type VersionResponse struct {
+		Browser              string `json:"Browser"`
+		ProtocolVersion      string `json:"Protocol-Version"`
+		UserAgent            string `json:"User-Agent"`
+		V8Version            string `json:"V8-Version"`
+		WebKitVersion        string `json:"WebKit-Version"`
+		WebSocketDebuggerUrl string `json:"webSocketDebuggerUrl"`
+	}
+
+	url := config.Config.ChromeDevToolsURL + "/json/version"
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+
+	if err != nil {
+		return "", err
+	}
+
+	client := new(http.Client)
+	resp, err := client.Do(req)
+
+	defer resp.Body.Close()
+
+	if err != nil {
+		return "", err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	// JSONを構造体にエンコード
+	var versionResponse VersionResponse
+	err = json.Unmarshal(body, &versionResponse)
+
+	if err != nil {
+		return "", err
+	}
+
+	return versionResponse.WebSocketDebuggerUrl, nil
+}
+
 func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, client *ent.Client) (string, error) {
 	var err error
 	var contents string
@@ -191,10 +238,15 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 	feed.Created = now
 
 	var chromedpContext context.Context
-	if config.Config.DevToolsWsUrl == "" {
+	if config.Config.ChromeDevToolsURL == "" {
 		chromedpContext = context.Background()
 	} else {
-		devtoolsWsURL := flag.String("devtools-ws-url", config.Config.DevToolsWsUrl, "DevTools WebSocket URL")
+		webSocketDebuggerUrl, err := getChromeDevToolsWebSocketDebuggerUrl()
+		if err != nil {
+			log.Println(err)
+			return "", err
+		}
+		devtoolsWsURL := flag.String("devtools-ws-url", webSocketDebuggerUrl, "DevTools WebSocket URL")
 		flag.Parse()
 
 		// create allocator context for use with creating a browser context later

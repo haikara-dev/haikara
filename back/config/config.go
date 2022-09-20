@@ -21,7 +21,7 @@ type ConfigList struct {
 
 	PageSize int
 
-	DevToolsWsUrl string
+	ChromeDevToolsURL string
 }
 
 var Config ConfigList
@@ -43,14 +43,14 @@ func init() {
 	}
 
 	Config = ConfigList{
-		LogFile:       os.Getenv("LOG_FILE"),
-		DbHost:        os.Getenv("DB_HOST"),
-		DbName:        os.Getenv("DB_NAME"),
-		DbUser:        os.Getenv("DB_USER"),
-		DbPassword:    os.Getenv("DB_PASSWORD"),
-		Port:          os.Getenv("PORT"),
-		CORS:          cors,
-		PageSize:      pageSize,
-		DevToolsWsUrl: os.Getenv("DEVTOOLS_WS_URL"),
+		LogFile:           os.Getenv("LOG_FILE"),
+		DbHost:            os.Getenv("DB_HOST"),
+		DbName:            os.Getenv("DB_NAME"),
+		DbUser:            os.Getenv("DB_USER"),
+		DbPassword:        os.Getenv("DB_PASSWORD"),
+		Port:              os.Getenv("PORT"),
+		CORS:              cors,
+		PageSize:          pageSize,
+		ChromeDevToolsURL: os.Getenv("CHROME_DEVTOOLS_URL"),
 	}
 }
