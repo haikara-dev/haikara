@@ -8,13 +8,8 @@ const Footer = () => {
           textAlign: "center",
         }}
       >
-        Powered by{" "}
-        <a
-          href="https://haikara-dev.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          haikara-dev
+        <a href="https://haikara.dev" target="_blank" rel="noopener noreferrer">
+          ©︎haikara
         </a>
       </Container>
     </Box>
