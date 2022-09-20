@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/chromedp"
@@ -263,13 +262,13 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 			log.Println(err)
 			return "", err
 		}
-		devtoolsWsURL := flag.String("devtools-ws-url", webSocketDebuggerUrl, "DevTools WebSocket URL")
-		flag.Parse()
-		fmt.Printf("webSocketDebuggerUrl: %v", webSocketDebuggerUrl)
-		fmt.Printf("devtoolsWsURL: %v", devtoolsWsURL)
+		//devtoolsWsURL := flag.String("devtools-ws-url", webSocketDebuggerUrl, "DevTools WebSocket URL")
+		//flag.Parse()
+		//fmt.Printf("webSocketDebuggerUrl: %v", webSocketDebuggerUrl)
+		//fmt.Printf("devtoolsWsURL: %v", devtoolsWsURL)
 
 		// create allocator context for use with creating a browser context later
-		allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), *devtoolsWsURL)
+		allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), webSocketDebuggerUrl)
 		defer cancel()
 		chromedpContext = allocatorContext
 	}
