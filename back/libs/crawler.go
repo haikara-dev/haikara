@@ -237,7 +237,7 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 	fmt.Println(5)
 
 	// fix Host header is specified and is not an IP address or localhost
-	strings.Replace(versionResponse.WebSocketDebuggerUrl, "localhost", config.Config.ChromeDevToolsHostAndPort, 1)
+	versionResponse.WebSocketDebuggerUrl = strings.Replace(versionResponse.WebSocketDebuggerUrl, "localhost", config.Config.ChromeDevToolsHostAndPort, 1)
 	fmt.Println(versionResponse)
 
 	return versionResponse.WebSocketDebuggerUrl, nil
