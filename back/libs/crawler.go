@@ -205,13 +205,14 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 	client := new(http.Client)
 	resp, err := client.Do(req)
 
-	defer resp.Body.Close()
-
 	if err != nil {
 		return "", err
 	}
 
+	defer resp.Body.Close()
+
 	body, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		return "", err
 	}
@@ -222,7 +223,7 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
+	fmt.Println(versionResponse)
 	return versionResponse.WebSocketDebuggerUrl, nil
 }
 
