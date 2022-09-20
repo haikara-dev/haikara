@@ -206,7 +206,7 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 		return "", err
 	}
 	// fix Host header is specified and is not an IP address or localhost
-	req.Header.Set("HOST", "localhost")
+	req.Host = "localhost"
 
 	client := new(http.Client)
 	resp, err := client.Do(req)
