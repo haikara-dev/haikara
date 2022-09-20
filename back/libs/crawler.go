@@ -196,7 +196,11 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 
 	url := config.Config.ChromeDevToolsURL + "/json/version"
 
+	fmt.Println(url)
+
 	req, err := http.NewRequest(http.MethodGet, url, nil)
+
+	fmt.Println(1)
 
 	if err != nil {
 		return "", err
@@ -205,6 +209,7 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 	client := new(http.Client)
 	resp, err := client.Do(req)
 
+	fmt.Println(2)
 	if err != nil {
 		return "", err
 	}
@@ -212,17 +217,22 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
-
+	fmt.Println(3)
 	if err != nil {
 		return "", err
 	}
+
+	fmt.Println(body)
 	// JSONを構造体にエンコード
 	var versionResponse VersionResponse
 	err = json.Unmarshal(body, &versionResponse)
 
+	fmt.Println(4)
 	if err != nil {
 		return "", err
 	}
+
+	fmt.Println(5)
 	fmt.Println(versionResponse)
 	return versionResponse.WebSocketDebuggerUrl, nil
 }
