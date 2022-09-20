@@ -3,14 +3,16 @@ package libs
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/chromedp"
+	"github.com/gocolly/colly/v2"
+	"github.com/gorilla/feeds"
+	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/utils"
-	"github.com/gocolly/colly/v2"
-	"github.com/gorilla/feeds"
 	"log"
 	"net/url"
 	"strings"
@@ -188,8 +190,20 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 	feed.Link = &feeds.Link{Href: siteUrl}
 	feed.Created = now
 
+	devtoolsWsURL := flag.String("devtools-ws-url", config.Config.DevToolsWsUrl, "DevTools WebSocket URL")
+	flag.Parse()
+	if *devtoolsWsURL == "" {
+		log.Fatal("must specify -devtools-ws-url")
+	}
+
+	fmt.Println("----", *devtoolsWsURL)
+
+	// create allocator context for use with creating a browser context later
+	allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), *devtoolsWsURL)
+	defer cancel()
+
 	ctx, cancel := chromedp.NewContext(
-		context.Background(),
+		allocatorContext,
 		chromedp.WithLogf(log.Printf),
 	)
 	defer cancel()
