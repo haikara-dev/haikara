@@ -190,20 +190,21 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 	feed.Link = &feeds.Link{Href: siteUrl}
 	feed.Created = now
 
-	devtoolsWsURL := flag.String("devtools-ws-url", config.Config.DevToolsWsUrl, "DevTools WebSocket URL")
-	flag.Parse()
-	if *devtoolsWsURL == "" {
-		log.Fatal("must specify -devtools-ws-url")
+	var chromedpContext context.Context
+	if config.Config.DevToolsWsUrl == "" {
+		chromedpContext = context.Background()
+	} else {
+		devtoolsWsURL := flag.String("devtools-ws-url", config.Config.DevToolsWsUrl, "DevTools WebSocket URL")
+		flag.Parse()
+
+		// create allocator context for use with creating a browser context later
+		allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), *devtoolsWsURL)
+		defer cancel()
+		chromedpContext = allocatorContext
 	}
 
-	fmt.Println("----", *devtoolsWsURL)
-
-	// create allocator context for use with creating a browser context later
-	allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), *devtoolsWsURL)
-	defer cancel()
-
 	ctx, cancel := chromedp.NewContext(
-		allocatorContext,
+		chromedpContext,
 		chromedp.WithLogf(log.Printf),
 	)
 	defer cancel()
