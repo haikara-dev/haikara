@@ -31,6 +31,7 @@ services:
       - "8080:8080"
     depends_on:
       - "mysql"
+      - "chrome"
     tty: true
     environment:
       - VIRTUAL_HOST=${BACKEND_VIRTUAL_HOST}
@@ -41,6 +42,16 @@ services:
       - ./back:/app/back
     networks:
       - front_bridge
+      - back_bridge
+
+  chrome:
+    image: chromedp/headless-shell:latest
+    #    restart: on-failure
+    container_name: chrome_container
+    ports:
+      - "9222:9222"
+    tty: true
+    networks:
       - back_bridge
 
   mysql:
