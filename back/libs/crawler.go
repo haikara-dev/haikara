@@ -194,7 +194,7 @@ func getChromeDevToolsWebSocketDebuggerUrl() (string, error) {
 		WebSocketDebuggerUrl string `json:"webSocketDebuggerUrl"`
 	}
 
-	url := config.Config.ChromeDevToolsHostAndPort + "/json/version"
+	url := "http://" + config.Config.ChromeDevToolsHostAndPort + "/json/version"
 
 	fmt.Println(url)
 
