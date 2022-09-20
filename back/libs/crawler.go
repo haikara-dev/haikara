@@ -265,6 +265,8 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 		}
 		devtoolsWsURL := flag.String("devtools-ws-url", webSocketDebuggerUrl, "DevTools WebSocket URL")
 		flag.Parse()
+		fmt.Printf("webSocketDebuggerUrl: %v", webSocketDebuggerUrl)
+		fmt.Printf("devtoolsWsURL: %v", devtoolsWsURL)
 
 		// create allocator context for use with creating a browser context later
 		allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), *devtoolsWsURL)
