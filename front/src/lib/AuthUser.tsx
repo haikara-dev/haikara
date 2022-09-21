@@ -130,12 +130,29 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
   };
 
   if (initialize) {
-    if ("/site" === router.pathname) {
+    const adminRoutes: string[] = [
+      "/site",
+      "/feed",
+      "/user",
+      "/setting",
+      "/article",
+    ];
+    const authorizedRoutes: string[] = [...adminRoutes, "/dashboard"];
+
+    if (authorizedRoutes.includes(router.pathname)) {
       if (!authUser) {
         router.push("/login");
         return <></>;
       }
     }
+
+    if (adminRoutes.includes(router.pathname)) {
+      if (!isAdmin) {
+        router.push("/dashboard");
+        return <></>;
+      }
+    }
+
     // ログインしていなくても表示するページ
     // /login /register
 

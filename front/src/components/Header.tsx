@@ -1,13 +1,49 @@
-import { AppBar, Button, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar as MuiAppBar,
+  AppBarProps as MuiAppBarProps,
+  Button,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
 import { useAuthUserContext } from "@/lib/AuthUser";
 
-const Header = () => {
+import { styled } from "@mui/material/styles";
+import { FC, useState } from "react";
+
+const drawerWidth = 240;
+
+interface AppBarProps extends MuiAppBarProps {
+  open?: boolean;
+}
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== "open",
+})<AppBarProps>(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+export type HeaderProps = {
+  open?: boolean;
+};
+
+const Header: FC<HeaderProps> = ({ open }) => {
   const auth = getAuth();
   const { isAdmin, currentUser, authUser, logout } = useAuthUserContext();
   return (
-    <AppBar component="header" position="sticky">
+    <AppBar position="fixed" open={open}>
       <Toolbar>
         <Link href="/" passHref>
           <Typography
@@ -25,29 +61,13 @@ const Header = () => {
 
         {authUser ? (
           <>
-            {isAdmin && (
-              <>
-                <Link href="/article" passHref>
-                  <Button color="inherit">Article</Button>
-                </Link>
-                <Link href="/site" passHref>
-                  <Button color="inherit">Site</Button>
-                </Link>
-                <Link href="/feed" passHref>
-                  <Button color="inherit">Feed</Button>
-                </Link>
-                <Link href="/user" passHref>
-                  <Button color="inherit">User</Button>
-                </Link>
-                <Link href="/setting" passHref>
-                  <Button color="inherit">Setting</Button>
-                </Link>
-              </>
-            )}
+            <Link href="/dashboard" passHref>
+              <Button color="inherit">コンソール</Button>
+            </Link>
 
-            <Typography variant="h6" component="div">
-              {currentUser?.email}
-            </Typography>
+            {/*<Typography variant="h6" component="div">*/}
+            {/*  {currentUser?.email}*/}
+            {/*</Typography>*/}
             <Button
               color="inherit"
               onClick={async () => {

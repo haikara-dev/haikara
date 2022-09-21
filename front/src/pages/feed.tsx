@@ -9,11 +9,13 @@ import {
   Button,
   IconButton,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { NextPageWithLayout } from "@/pages/_app";
+import AdminLayout from "@/components/layouts/AdminLayout";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -27,7 +29,7 @@ export type Feed = {
   site_name: string;
 };
 
-const Feeds: NextPage = () => {
+const Feeds: NextPageWithLayout = () => {
   const [data, setData] = useState<Feed[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { authUser } = useAuthUserContext();
@@ -117,68 +119,48 @@ const Feeds: NextPage = () => {
 
   return (
     <div>
-      <Head>
-        <title>haikara</title>
-        <meta name="description" content="haikara" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Typography variant="h3" component="h1">
+        Feeds
+      </Typography>
 
-      <Header />
-      <Box
-        component="main"
-        sx={{
-          manHeight: "100vh",
-        }}
-      >
-        <Container
-          sx={{
-            p: 2,
-          }}
-        >
-          <Typography variant="h3" component="h1">
-            Feeds
-          </Typography>
-
-          {isLoading ? (
-            <div>Loading...</div>
-          ) : (
-            <Stack gap={2} mt={2} pr={8}>
-              {data.map((feed) => {
-                return (
-                  <Card key={feed.id}>
-                    <Stack direction="row" gap={3} alignItems="center">
-                      <Button onClick={onClickRunHandler.bind(this, feed.id)}>
-                        Run
-                      </Button>
-                      <div>{feed.id}</div>
-                      <div>{new Date(feed.created_at).toLocaleString()}</div>
-                      <div>{feed.site_id}</div>
-                      <Box
-                        sx={{
-                          flexGrow: 1,
-                        }}
-                      >
-                        {feed.site_name}
-                      </Box>
-                      <div>{feed.count}</div>
-                      <IconButton
-                        onClick={onClickDeleteHandler.bind(this, feed.id)}
-                        aria-label="remove"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Stack>
-                  </Card>
-                );
-              })}
-            </Stack>
-          )}
-        </Container>
-      </Box>
-
-      <Footer />
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <Stack gap={2} mt={2} pr={8}>
+          {data.map((feed) => {
+            return (
+              <Card key={feed.id}>
+                <Stack direction="row" gap={3} alignItems="center">
+                  <Button onClick={onClickRunHandler.bind(this, feed.id)}>
+                    Run
+                  </Button>
+                  <div>{feed.id}</div>
+                  <div>{new Date(feed.created_at).toLocaleString()}</div>
+                  <div>{feed.site_id}</div>
+                  <Box
+                    sx={{
+                      flexGrow: 1,
+                    }}
+                  >
+                    {feed.site_name}
+                  </Box>
+                  <div>{feed.count}</div>
+                  <IconButton
+                    onClick={onClickDeleteHandler.bind(this, feed.id)}
+                    aria-label="remove"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
+              </Card>
+            );
+          })}
+        </Stack>
+      )}
     </div>
   );
 };
+
+Feeds.getLayout = (page: ReactElement) => <AdminLayout>{page}</AdminLayout>;
 
 export default Feeds;

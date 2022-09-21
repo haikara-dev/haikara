@@ -1,14 +1,12 @@
-import type { NextPage } from "next";
-import Head from "next/head";
 import { Container, Typography, Box, Stack, Card, Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import AddSiteFormDialog from "@/components/site/AddSiteFormDialog";
 import SiteRow from "@/components/site/SiteRow";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import EditSiteFormDialog from "@/components/site/EditSiteFormDialog";
 import DryRunDialog from "@/components/site/DryRunDialog";
+import { NextPageWithLayout } from "@/pages/_app";
+import AdminLayout from "@/components/layouts/AdminLayout";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -43,7 +41,7 @@ export type DryRunResult = {
   contents: string;
 };
 
-const Sites: NextPage = () => {
+const Sites: NextPageWithLayout = () => {
   const [data, setData] = useState<Site[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { authUser } = useAuthUserContext();
@@ -386,56 +384,36 @@ const Sites: NextPage = () => {
 
   return (
     <div>
-      <Head>
-        <title>haikara</title>
-        <meta name="description" content="haikara" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Typography variant="h3" component="h1">
+        Sites
+      </Typography>
 
-      <Header />
-      <Box
-        component="main"
-        sx={{
-          minHeight: "100vh",
-        }}
-      >
-        <Container
-          sx={{
-            p: 2,
-          }}
-        >
-          <Typography variant="h3" component="h1">
-            Sites
-          </Typography>
+      <Button variant="outlined" onClick={handleAddOpen}>
+        Add Site
+      </Button>
 
-          <Button variant="outlined" onClick={handleAddOpen}>
-            Add Site
-          </Button>
-
-          {isLoading ? (
-            <div>Loading...</div>
-          ) : (
-            <Stack gap={2} mt={2} pr={8}>
-              {data.map((site) => {
-                return (
-                  <Card key={site.id}>
-                    <SiteRow
-                      key={site.id}
-                      site={site}
-                      activeSite={activeSite}
-                      deActiveSite={deActiveSite}
-                      removeSite={removeSite}
-                      openDialog={handleEditOpen}
-                      runCrawling={runCrawling}
-                      dryRunCrawling={dryRunCrawling}
-                    />
-                  </Card>
-                );
-              })}
-            </Stack>
-          )}
-        </Container>
-      </Box>
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <Stack gap={2} mt={2} pr={8}>
+          {data.map((site) => {
+            return (
+              <Card key={site.id}>
+                <SiteRow
+                  key={site.id}
+                  site={site}
+                  activeSite={activeSite}
+                  deActiveSite={deActiveSite}
+                  removeSite={removeSite}
+                  openDialog={handleEditOpen}
+                  runCrawling={runCrawling}
+                  dryRunCrawling={dryRunCrawling}
+                />
+              </Card>
+            );
+          })}
+        </Stack>
+      )}
 
       <AddSiteFormDialog
         open={addOpen}
@@ -463,10 +441,10 @@ const Sites: NextPage = () => {
           dryRunResult={dryRunResult}
         />
       )}
-
-      <Footer />
     </div>
   );
 };
+
+Sites.getLayout = (page: ReactElement) => <AdminLayout>{page}</AdminLayout>;
 
 export default Sites;

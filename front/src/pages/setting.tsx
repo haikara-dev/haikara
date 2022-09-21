@@ -1,17 +1,16 @@
-import { NextPage } from "next";
-import Head from "next/head";
-import React, { useCallback, useState } from "react";
-import Header from "@/components/Header";
+import React, { ReactElement, useCallback, useState } from "react";
 import { Box, Button, Card, Container, Stack, Typography } from "@mui/material";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import { useDropzone } from "react-dropzone";
+import AdminLayout from "@/components/layouts/AdminLayout";
+import { NextPageWithLayout } from "@/pages/_app";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
-const Settings: NextPage = () => {
+const Settings: NextPageWithLayout = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [importFile, setImportFile] = useState<File | null>(null);
 
@@ -101,112 +100,84 @@ const Settings: NextPage = () => {
 
   return (
     <div>
-      <Head>
-        <title>haikara</title>
-        <meta name="description" content="haikara" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <Header />
-      <Box
-        component="main"
-        sx={{
-          manHeight: "100vh",
-        }}
-      >
-        <Container
-          sx={{
-            p: 2,
-          }}
-        >
-          <Typography variant="h3" component="h1">
-            Settings
-          </Typography>
+      <Typography variant="h3" component="h1">
+        Settings
+      </Typography>
 
-          <h2>Site</h2>
+      <h2>Site</h2>
 
-          <Stack spacing={2}>
-            <Card>
-              <Stack direction="row" alignItems="center">
-                <div>サイトをjson形式でダウンロードします。</div>
-                <Button onClick={handleExportButtonClick}>エクスポート</Button>
-              </Stack>
-            </Card>
-
-            <Card>
-              <Stack direction="row" alignItems="center">
-                <div>サイトをjson形式でアップロードし、インポートします。</div>
-
-                <Button onClick={handleImportButtonClick}>インポート</Button>
-              </Stack>
-              <div {...getRootProps()}>
-                <input {...getInputProps()} />
-                {importFile ? (
-                  <Box
-                    p={3}
-                    sx={{
-                      backgroundColor: "grey.100",
-                    }}
-                  >
-                    {importFile.name}
-                  </Box>
-                ) : isDragActive ? (
-                  <Box
-                    p={3}
-                    sx={{
-                      backgroundColor: "grey.100",
-                    }}
-                  >
-                    Drop the files here ...
-                  </Box>
-                ) : (
-                  <Box
-                    p={3}
-                    sx={{
-                      backgroundColor: "grey.100",
-                    }}
-                  >
-                    Drag &apos;n&apos; drop some files here, or click to select
-                    files
-                  </Box>
-                )}
-              </div>{" "}
-            </Card>
+      <Stack spacing={2}>
+        <Card>
+          <Stack direction="row" alignItems="center">
+            <div>サイトをjson形式でダウンロードします。</div>
+            <Button onClick={handleExportButtonClick}>エクスポート</Button>
           </Stack>
+        </Card>
 
-          <div>
-            {logs.map((log, index) => {
-              return (
-                <Highlight
-                  {...defaultProps}
-                  key={index}
-                  code={log}
-                  language="json"
-                >
-                  {({
-                    className,
-                    style,
-                    tokens,
-                    getLineProps,
-                    getTokenProps,
-                  }) => (
-                    <pre className={className} style={style}>
-                      {tokens.map((line, i) => (
-                        <div key={i} {...getLineProps({ line })}>
-                          {line.map((token, key) => (
-                            <span key={key} {...getTokenProps({ token })} />
-                          ))}
-                        </div>
+        <Card>
+          <Stack direction="row" alignItems="center">
+            <div>サイトをjson形式でアップロードし、インポートします。</div>
+
+            <Button onClick={handleImportButtonClick}>インポート</Button>
+          </Stack>
+          <div {...getRootProps()}>
+            <input {...getInputProps()} />
+            {importFile ? (
+              <Box
+                p={3}
+                sx={{
+                  backgroundColor: "grey.100",
+                }}
+              >
+                {importFile.name}
+              </Box>
+            ) : isDragActive ? (
+              <Box
+                p={3}
+                sx={{
+                  backgroundColor: "grey.100",
+                }}
+              >
+                Drop the files here ...
+              </Box>
+            ) : (
+              <Box
+                p={3}
+                sx={{
+                  backgroundColor: "grey.100",
+                }}
+              >
+                Drag &apos;n&apos; drop some files here, or click to select
+                files
+              </Box>
+            )}
+          </div>{" "}
+        </Card>
+      </Stack>
+
+      <div>
+        {logs.map((log, index) => {
+          return (
+            <Highlight {...defaultProps} key={index} code={log} language="json">
+              {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                <pre className={className} style={style}>
+                  {tokens.map((line, i) => (
+                    <div key={i} {...getLineProps({ line })}>
+                      {line.map((token, key) => (
+                        <span key={key} {...getTokenProps({ token })} />
                       ))}
-                    </pre>
-                  )}
-                </Highlight>
-              );
-            })}
-          </div>
-        </Container>
-      </Box>
+                    </div>
+                  ))}
+                </pre>
+              )}
+            </Highlight>
+          );
+        })}
+      </div>
     </div>
   );
 };
+
+Settings.getLayout = (page: ReactElement) => <AdminLayout>{page}</AdminLayout>;
 
 export default Settings;

@@ -1,17 +1,19 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { Container, Typography, Box, Stack, Card, Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { User, useAuthUserContext } from "@/lib/AuthUser";
 import EditUserRoleFormDialog from "@/components/user/EditUserRoleFormDialog";
+import { NextPageWithLayout } from "@/pages/_app";
+import AdminLayout from "@/components/layouts/AdminLayout";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
-const Users: NextPage = () => {
+const Users: NextPageWithLayout = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<User | null>(null);
 
@@ -92,49 +94,29 @@ const Users: NextPage = () => {
 
   return (
     <div>
-      <Head>
-        <title>haikara</title>
-        <meta name="description" content="haikara" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Typography variant="h3" component="h1">
+        Users
+      </Typography>
 
-      <Header />
-      <Box
-        component="main"
-        sx={{
-          minHeight: "100vh",
-        }}
-      >
-        <Container
-          sx={{
-            p: 2,
-          }}
-        >
-          <Typography variant="h3" component="h1">
-            Users
-          </Typography>
-
-          {isLoading ? (
-            <div>Loading...</div>
-          ) : (
-            <Stack gap={2} mt={2} pr={8}>
-              {data.map((user) => {
-                return (
-                  <Card key={user.id}>
-                    <Stack direction="row" gap={3} alignItems="center">
-                      <div>{user.id}</div>
-                      <div onClick={onClickTextHandler.bind(this, user)}>
-                        {user.email}
-                      </div>
-                      <div>{user.role}</div>
-                    </Stack>
-                  </Card>
-                );
-              })}
-            </Stack>
-          )}
-        </Container>
-      </Box>
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <Stack gap={2} mt={2} pr={8}>
+          {data.map((user) => {
+            return (
+              <Card key={user.id}>
+                <Stack direction="row" gap={3} alignItems="center">
+                  <div>{user.id}</div>
+                  <div onClick={onClickTextHandler.bind(this, user)}>
+                    {user.email}
+                  </div>
+                  <div>{user.role}</div>
+                </Stack>
+              </Card>
+            );
+          })}
+        </Stack>
+      )}
 
       {editTarget && (
         <EditUserRoleFormDialog
@@ -145,10 +127,10 @@ const Users: NextPage = () => {
           onEndEdit={handleEditClose}
         />
       )}
-
-      <Footer />
     </div>
   );
 };
+
+Users.getLayout = (page: ReactElement) => <AdminLayout>{page}</AdminLayout>;
 
 export default Users;
