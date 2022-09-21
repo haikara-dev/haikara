@@ -2,13 +2,25 @@ import type { AppProps } from "next/app";
 import { CssBaseline } from "@mui/material";
 import AuthUserProvider from "@/lib/AuthUser";
 import "../firebaseConfig";
+import { ReactElement, ReactNode } from "react";
+import { NextPage } from "next";
 
-function MyApp({ Component, pageProps }: AppProps) {
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  // Use the layout defined at the page level, if available
+  const getLayout = Component.getLayout ?? ((page) => page);
   return (
     <>
       <CssBaseline />
       <AuthUserProvider>
-        <Component {...pageProps} />
+        {getLayout(<Component {...pageProps} />)}
       </AuthUserProvider>
     </>
   );

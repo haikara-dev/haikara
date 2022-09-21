@@ -1,7 +1,4 @@
-import type { NextPage } from "next";
-import Head from "next/head";
 import {
-  Container,
   Typography,
   Box,
   Stack,
@@ -10,12 +7,12 @@ import {
   IconButton,
   Pagination,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import React, { ReactElement, useEffect, useState } from "react";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/router";
+import { NextPageWithLayout } from "@/pages/_app";
+import AdminLayout from "@/components/layouts/AdminLayout";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -28,7 +25,7 @@ export type Article = {
   published_at: string;
 };
 
-const Articles: NextPage = () => {
+const Articles: NextPageWithLayout = () => {
   const router = useRouter();
   const [page, setPage] = useState<number>(
     router.query.page ? parseInt(router.query.page.toString()) : 1
@@ -121,83 +118,63 @@ const Articles: NextPage = () => {
 
   return (
     <div>
-      <Head>
-        <title>haikara</title>
-        <meta name="description" content="haikara" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Typography variant="h3" component="h1">
+        Articles
+      </Typography>
 
-      <Header />
-      <Box
-        component="main"
-        sx={{
-          minHeight: "100vh",
-        }}
-      >
-        <Container
-          sx={{
-            p: 2,
-          }}
-        >
-          <Typography variant="h3" component="h1">
-            Articles
-          </Typography>
-
-          {isLoading ? (
-            <div>Loading...</div>
-          ) : (
-            <Stack gap={3} alignItems="center">
-              <Stack>
-                {totalCount}件中　{(page - 1) * pageSize + 1} -{" "}
-                {(page - 1) * pageSize + data.length}件
-              </Stack>
-              <Stack gap={2} mt={2} pr={8}>
-                {data.map((article) => {
-                  return (
-                    <Card key={article.id}>
-                      <Stack direction="row" gap={3} alignItems="center">
-                        <div>
-                          {new Date(article.published_at).toLocaleDateString()}
-                        </div>
-                        <Box
-                          sx={{
-                            flexGrow: 1,
-                          }}
-                        >
-                          {article.title}
-                        </Box>
-                        <Button
-                          component="a"
-                          href={article.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Read
-                        </Button>
-                        <IconButton
-                          onClick={onClickDeleteHandler.bind(this, article.id)}
-                          aria-label="remove"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Stack>
-                    </Card>
-                  );
-                })}
-              </Stack>
-              <Pagination
-                page={page}
-                count={totalPage}
-                onChange={handleChangePagination}
-              />
-            </Stack>
-          )}
-        </Container>
-      </Box>
-
-      <Footer />
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <Stack gap={3} alignItems="center">
+          <Stack>
+            {totalCount}件中　{(page - 1) * pageSize + 1} -{" "}
+            {(page - 1) * pageSize + data.length}件
+          </Stack>
+          <Stack gap={2} mt={2} pr={8}>
+            {data.map((article) => {
+              return (
+                <Card key={article.id}>
+                  <Stack direction="row" gap={3} alignItems="center">
+                    <div>
+                      {new Date(article.published_at).toLocaleDateString()}
+                    </div>
+                    <Box
+                      sx={{
+                        flexGrow: 1,
+                      }}
+                    >
+                      {article.title}
+                    </Box>
+                    <Button
+                      component="a"
+                      href={article.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Read
+                    </Button>
+                    <IconButton
+                      onClick={onClickDeleteHandler.bind(this, article.id)}
+                      aria-label="remove"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
+                </Card>
+              );
+            })}
+          </Stack>
+          <Pagination
+            page={page}
+            count={totalPage}
+            onChange={handleChangePagination}
+          />
+        </Stack>
+      )}
     </div>
   );
 };
+
+Articles.getLayout = (page: ReactElement) => <AdminLayout>{page}</AdminLayout>;
 
 export default Articles;
