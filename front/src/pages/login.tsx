@@ -1,20 +1,18 @@
-import { NextPage } from "next";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Alert, Box, Button, Card, TextField, Typography } from "@mui/material";
 import {
   getAuth,
   signInWithEmailAndPassword,
   UserCredential,
 } from "firebase/auth";
-import Head from "next/head";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useState } from "react";
+import React, { ReactElement, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Link from "next/link";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import { useRouter } from "next/router";
+import AuthLayout from "@/components/layouts/AuthLayout";
+import { NextPageWithLayout } from "@/pages/_app";
 
 type FormInput = {
   email: string;
@@ -29,7 +27,7 @@ const schema = yup.object({
   password: yup.string().required("必須です"),
 });
 
-const Login: NextPage = () => {
+const Login: NextPageWithLayout = () => {
   const auth = getAuth();
   const { authUser, login } = useAuthUserContext();
   const router = useRouter();
@@ -63,74 +61,51 @@ const Login: NextPage = () => {
 
   return (
     <div>
-      <Head>
-        <title>haikara</title>
-        <meta name="description" content="haikara" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <Header />
+      <Typography variant="h3" component="h1">
+        Login
+      </Typography>
       <Box
-        component="main"
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
         sx={{
-          minHeight: "80vh",
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          flexDirection: "column",
+          gap: 2,
+          mt: 3,
         }}
       >
-        <Card
-          sx={{
-            width: "min(90vw, 400px)",
-            p: 2,
-          }}
-        >
-          <Typography variant="h3" component="h1">
-            Login
-          </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit(onSubmit)}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              mt: 3,
-            }}
-          >
-            {serverError && <Alert severity="error">{serverError}</Alert>}
-            <TextField
-              label="email"
-              placeholder="email"
-              autoFocus={true}
-              {...register("email")}
-              error={errors.email ? true : false}
-              helperText={errors.email?.message}
-              variant="outlined"
-            />
+        {serverError && <Alert severity="error">{serverError}</Alert>}
+        <TextField
+          label="email"
+          placeholder="email"
+          autoFocus={true}
+          {...register("email")}
+          error={errors.email ? true : false}
+          helperText={errors.email?.message}
+          variant="outlined"
+        />
 
-            <TextField
-              label="password"
-              type="password"
-              placeholder="password"
-              {...register("password")}
-              error={errors.password ? true : false}
-              helperText={errors.password?.message}
-              variant="outlined"
-            />
+        <TextField
+          label="password"
+          type="password"
+          placeholder="password"
+          {...register("password")}
+          error={errors.password ? true : false}
+          helperText={errors.password?.message}
+          variant="outlined"
+        />
 
-            <Button type="submit" aria-label="login" variant="contained">
-              Login
-            </Button>
-            <Link href="/register" passHref>
-              <Button aria-label="login">Register</Button>
-            </Link>
-          </Box>
-        </Card>
+        <Button type="submit" aria-label="login" variant="contained">
+          Login
+        </Button>
+        <Link href="/register" passHref>
+          <Button aria-label="login">Register</Button>
+        </Link>
       </Box>
-      <Footer />
     </div>
   );
 };
+
+Login.getLayout = (page: ReactElement) => <AuthLayout>{page}</AuthLayout>;
 
 export default Login;
