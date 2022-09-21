@@ -333,6 +333,7 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 			)
 
 			description = dom.Find(descriptionSelector).Text()
+			description = strings.TrimSpace(description)
 		}
 
 		var date time.Time
@@ -479,6 +480,7 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, clie
 			)
 
 			description = e.DOM.Find(descriptionSelector).Text()
+			description = strings.TrimSpace(description)
 		}
 
 		var date time.Time
