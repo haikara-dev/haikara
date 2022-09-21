@@ -42,10 +42,11 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
   useEffect(() => {
     const unSubscribe = auth.onAuthStateChanged((authUser) => {
       console.log("onAuthStateChanged", authUser);
-      setInitialize(true);
       setAuthUser(authUser);
       if (authUser) {
         getUser(authUser);
+      } else {
+        setInitialize(true);
       }
     });
     return () => {
@@ -124,6 +125,7 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
         role: json.role,
       });
       setIsAdmin(json.role === "admin");
+      setInitialize(true);
     } catch (err) {
       console.log(err);
     }
