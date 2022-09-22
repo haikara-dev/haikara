@@ -19,6 +19,8 @@ const (
 	FieldContents = "contents"
 	// FieldCount holds the string denoting the count field in the database.
 	FieldCount = "count"
+	// FieldIndexedAt holds the string denoting the indexed_at field in the database.
+	FieldIndexedAt = "indexed_at"
 	// EdgeSite holds the string denoting the site edge name in mutations.
 	EdgeSite = "site"
 	// Table holds the table name of the feed in the database.
@@ -39,6 +41,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldContents,
 	FieldCount,
+	FieldIndexedAt,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "feeds"

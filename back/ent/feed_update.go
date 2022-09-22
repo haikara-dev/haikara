@@ -62,6 +62,26 @@ func (fu *FeedUpdate) AddCount(i int) *FeedUpdate {
 	return fu
 }
 
+// SetIndexedAt sets the "indexed_at" field.
+func (fu *FeedUpdate) SetIndexedAt(t time.Time) *FeedUpdate {
+	fu.mutation.SetIndexedAt(t)
+	return fu
+}
+
+// SetNillableIndexedAt sets the "indexed_at" field if the given value is not nil.
+func (fu *FeedUpdate) SetNillableIndexedAt(t *time.Time) *FeedUpdate {
+	if t != nil {
+		fu.SetIndexedAt(*t)
+	}
+	return fu
+}
+
+// ClearIndexedAt clears the value of the "indexed_at" field.
+func (fu *FeedUpdate) ClearIndexedAt() *FeedUpdate {
+	fu.mutation.ClearIndexedAt()
+	return fu
+}
+
 // SetSiteID sets the "site" edge to the Site entity by ID.
 func (fu *FeedUpdate) SetSiteID(id int) *FeedUpdate {
 	fu.mutation.SetSiteID(id)
@@ -212,6 +232,19 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: feed.FieldCount,
 		})
 	}
+	if value, ok := fu.mutation.IndexedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: feed.FieldIndexedAt,
+		})
+	}
+	if fu.mutation.IndexedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: feed.FieldIndexedAt,
+		})
+	}
 	if fu.mutation.SiteCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -296,6 +329,26 @@ func (fuo *FeedUpdateOne) SetNillableCount(i *int) *FeedUpdateOne {
 // AddCount adds i to the "count" field.
 func (fuo *FeedUpdateOne) AddCount(i int) *FeedUpdateOne {
 	fuo.mutation.AddCount(i)
+	return fuo
+}
+
+// SetIndexedAt sets the "indexed_at" field.
+func (fuo *FeedUpdateOne) SetIndexedAt(t time.Time) *FeedUpdateOne {
+	fuo.mutation.SetIndexedAt(t)
+	return fuo
+}
+
+// SetNillableIndexedAt sets the "indexed_at" field if the given value is not nil.
+func (fuo *FeedUpdateOne) SetNillableIndexedAt(t *time.Time) *FeedUpdateOne {
+	if t != nil {
+		fuo.SetIndexedAt(*t)
+	}
+	return fuo
+}
+
+// ClearIndexedAt clears the value of the "indexed_at" field.
+func (fuo *FeedUpdateOne) ClearIndexedAt() *FeedUpdateOne {
+	fuo.mutation.ClearIndexedAt()
 	return fuo
 }
 
@@ -477,6 +530,19 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 			Type:   field.TypeInt,
 			Value:  value,
 			Column: feed.FieldCount,
+		})
+	}
+	if value, ok := fuo.mutation.IndexedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: feed.FieldIndexedAt,
+		})
+	}
+	if fuo.mutation.IndexedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: feed.FieldIndexedAt,
 		})
 	}
 	if fuo.mutation.SiteCleared() {

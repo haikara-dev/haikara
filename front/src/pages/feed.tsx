@@ -25,6 +25,7 @@ export type Feed = {
   id: number;
   count: number;
   created_at: string;
+  indexed_at: string;
   site_id: number;
   site_name: string;
 };
@@ -134,9 +135,7 @@ const Feeds: NextPageWithLayout = () => {
                   <Button onClick={onClickRunHandler.bind(this, feed.id)}>
                     Run
                   </Button>
-                  <div>{feed.id}</div>
                   <div>{new Date(feed.created_at).toLocaleString()}</div>
-                  <div>{feed.site_id}</div>
                   <Box
                     sx={{
                       flexGrow: 1,
@@ -144,6 +143,9 @@ const Feeds: NextPageWithLayout = () => {
                   >
                     {feed.site_name}
                   </Box>
+                  {feed.indexed_at && (
+                    <div>{new Date(feed.indexed_at).toLocaleString()}</div>
+                  )}
                   <div>{feed.count}</div>
                   <IconButton
                     onClick={onClickDeleteHandler.bind(this, feed.id)}

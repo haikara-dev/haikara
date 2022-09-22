@@ -2,11 +2,11 @@ package api
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/feed"
 	"github.com/haikara-dev/haikara/ent/site"
-	"github.com/gin-gonic/gin"
 	"github.com/mmcdole/gofeed"
 	"net/http"
 	"strconv"
@@ -20,7 +20,7 @@ type FeedHandler struct {
 func (h *FeedHandler) GetAllFeedsNoneContentsField(c *gin.Context) {
 	feeds, err := h.Client.Feed.
 		Query().
-		Select(feed.FieldID, feed.FieldCount, feed.FieldCreatedAt).
+		Select(feed.FieldID, feed.FieldCount, feed.FieldCreatedAt, feed.FieldIndexedAt).
 		WithSite(func(query *ent.SiteQuery) {
 			query.Select(site.FieldName)
 		}).
@@ -33,11 +33,12 @@ func (h *FeedHandler) GetAllFeedsNoneContentsField(c *gin.Context) {
 	}
 
 	type ResponseFeed struct {
-		ID        int       `json:"id"`
-		Count     int       `json:"count"`
-		CreatedAt time.Time `json:"created_at"`
-		SiteID    int       `json:"site_id"`
-		SiteName  string    `json:"site_name"`
+		ID        int        `json:"id"`
+		Count     int        `json:"count"`
+		CreatedAt time.Time  `json:"created_at"`
+		SiteID    int        `json:"site_id"`
+		SiteName  string     `json:"site_name"`
+		IndexedAt *time.Time `json:"indexed_at"`
 	}
 	var resFeeds = make([]ResponseFeed, 0)
 
@@ -48,6 +49,7 @@ func (h *FeedHandler) GetAllFeedsNoneContentsField(c *gin.Context) {
 			CreatedAt: feed.CreatedAt,
 			SiteID:    feed.Edges.Site.ID,
 			SiteName:  feed.Edges.Site.Name,
+			IndexedAt: feed.IndexedAt,
 		})
 	}
 	c.JSON(http.StatusOK, resFeeds)
@@ -155,6 +157,18 @@ func (h *FeedHandler) ParseFeed(c *gin.Context) {
 			}
 		}
 
+	}
+
+	loc, _ := time.LoadLocation("Asia/Tokyo")
+	now := time.Now().In(loc)
+
+	existFeed, err = existFeed.Update().
+		SetIndexedAt(now).
+		Save(context.Background())
+
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, existFeed)

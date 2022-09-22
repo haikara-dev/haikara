@@ -644,6 +644,7 @@ type FeedMutation struct {
 	contents      *string
 	count         *int
 	addcount      *int
+	indexed_at    *time.Time
 	clearedFields map[string]struct{}
 	site          *int
 	clearedsite   bool
@@ -914,6 +915,55 @@ func (m *FeedMutation) ResetCount() {
 	m.addcount = nil
 }
 
+// SetIndexedAt sets the "indexed_at" field.
+func (m *FeedMutation) SetIndexedAt(t time.Time) {
+	m.indexed_at = &t
+}
+
+// IndexedAt returns the value of the "indexed_at" field in the mutation.
+func (m *FeedMutation) IndexedAt() (r time.Time, exists bool) {
+	v := m.indexed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIndexedAt returns the old "indexed_at" field's value of the Feed entity.
+// If the Feed object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FeedMutation) OldIndexedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIndexedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIndexedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIndexedAt: %w", err)
+	}
+	return oldValue.IndexedAt, nil
+}
+
+// ClearIndexedAt clears the value of the "indexed_at" field.
+func (m *FeedMutation) ClearIndexedAt() {
+	m.indexed_at = nil
+	m.clearedFields[feed.FieldIndexedAt] = struct{}{}
+}
+
+// IndexedAtCleared returns if the "indexed_at" field was cleared in this mutation.
+func (m *FeedMutation) IndexedAtCleared() bool {
+	_, ok := m.clearedFields[feed.FieldIndexedAt]
+	return ok
+}
+
+// ResetIndexedAt resets all changes to the "indexed_at" field.
+func (m *FeedMutation) ResetIndexedAt() {
+	m.indexed_at = nil
+	delete(m.clearedFields, feed.FieldIndexedAt)
+}
+
 // SetSiteID sets the "site" edge to the Site entity by id.
 func (m *FeedMutation) SetSiteID(id int) {
 	m.site = &id
@@ -972,7 +1022,7 @@ func (m *FeedMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *FeedMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.created_at != nil {
 		fields = append(fields, feed.FieldCreatedAt)
 	}
@@ -984,6 +1034,9 @@ func (m *FeedMutation) Fields() []string {
 	}
 	if m.count != nil {
 		fields = append(fields, feed.FieldCount)
+	}
+	if m.indexed_at != nil {
+		fields = append(fields, feed.FieldIndexedAt)
 	}
 	return fields
 }
@@ -1001,6 +1054,8 @@ func (m *FeedMutation) Field(name string) (ent.Value, bool) {
 		return m.Contents()
 	case feed.FieldCount:
 		return m.Count()
+	case feed.FieldIndexedAt:
+		return m.IndexedAt()
 	}
 	return nil, false
 }
@@ -1018,6 +1073,8 @@ func (m *FeedMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldContents(ctx)
 	case feed.FieldCount:
 		return m.OldCount(ctx)
+	case feed.FieldIndexedAt:
+		return m.OldIndexedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Feed field %s", name)
 }
@@ -1054,6 +1111,13 @@ func (m *FeedMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCount(v)
+		return nil
+	case feed.FieldIndexedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIndexedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Feed field %s", name)
@@ -1099,7 +1163,11 @@ func (m *FeedMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *FeedMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(feed.FieldIndexedAt) {
+		fields = append(fields, feed.FieldIndexedAt)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1112,6 +1180,11 @@ func (m *FeedMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *FeedMutation) ClearField(name string) error {
+	switch name {
+	case feed.FieldIndexedAt:
+		m.ClearIndexedAt()
+		return nil
+	}
 	return fmt.Errorf("unknown Feed nullable field %s", name)
 }
 
@@ -1130,6 +1203,9 @@ func (m *FeedMutation) ResetField(name string) error {
 		return nil
 	case feed.FieldCount:
 		m.ResetCount()
+		return nil
+	case feed.FieldIndexedAt:
+		m.ResetIndexedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Feed field %s", name)

@@ -69,6 +69,20 @@ func (fc *FeedCreate) SetNillableCount(i *int) *FeedCreate {
 	return fc
 }
 
+// SetIndexedAt sets the "indexed_at" field.
+func (fc *FeedCreate) SetIndexedAt(t time.Time) *FeedCreate {
+	fc.mutation.SetIndexedAt(t)
+	return fc
+}
+
+// SetNillableIndexedAt sets the "indexed_at" field if the given value is not nil.
+func (fc *FeedCreate) SetNillableIndexedAt(t *time.Time) *FeedCreate {
+	if t != nil {
+		fc.SetIndexedAt(*t)
+	}
+	return fc
+}
+
 // SetSiteID sets the "site" edge to the Site entity by ID.
 func (fc *FeedCreate) SetSiteID(id int) *FeedCreate {
 	fc.mutation.SetSiteID(id)
@@ -251,6 +265,14 @@ func (fc *FeedCreate) createSpec() (*Feed, *sqlgraph.CreateSpec) {
 			Column: feed.FieldCount,
 		})
 		_node.Count = value
+	}
+	if value, ok := fc.mutation.IndexedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: feed.FieldIndexedAt,
+		})
+		_node.IndexedAt = &value
 	}
 	if nodes := fc.mutation.SiteIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

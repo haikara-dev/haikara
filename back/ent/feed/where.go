@@ -109,6 +109,13 @@ func Count(v int) predicate.Feed {
 	})
 }
 
+// IndexedAt applies equality check predicate on the "indexed_at" field. It's identical to IndexedAtEQ.
+func IndexedAt(v time.Time) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIndexedAt), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Feed {
 	return predicate.Feed(func(s *sql.Selector) {
@@ -397,6 +404,84 @@ func CountLT(v int) predicate.Feed {
 func CountLTE(v int) predicate.Feed {
 	return predicate.Feed(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldCount), v))
+	})
+}
+
+// IndexedAtEQ applies the EQ predicate on the "indexed_at" field.
+func IndexedAtEQ(v time.Time) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIndexedAt), v))
+	})
+}
+
+// IndexedAtNEQ applies the NEQ predicate on the "indexed_at" field.
+func IndexedAtNEQ(v time.Time) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldIndexedAt), v))
+	})
+}
+
+// IndexedAtIn applies the In predicate on the "indexed_at" field.
+func IndexedAtIn(vs ...time.Time) predicate.Feed {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldIndexedAt), v...))
+	})
+}
+
+// IndexedAtNotIn applies the NotIn predicate on the "indexed_at" field.
+func IndexedAtNotIn(vs ...time.Time) predicate.Feed {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldIndexedAt), v...))
+	})
+}
+
+// IndexedAtGT applies the GT predicate on the "indexed_at" field.
+func IndexedAtGT(v time.Time) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldIndexedAt), v))
+	})
+}
+
+// IndexedAtGTE applies the GTE predicate on the "indexed_at" field.
+func IndexedAtGTE(v time.Time) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldIndexedAt), v))
+	})
+}
+
+// IndexedAtLT applies the LT predicate on the "indexed_at" field.
+func IndexedAtLT(v time.Time) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldIndexedAt), v))
+	})
+}
+
+// IndexedAtLTE applies the LTE predicate on the "indexed_at" field.
+func IndexedAtLTE(v time.Time) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldIndexedAt), v))
+	})
+}
+
+// IndexedAtIsNil applies the IsNil predicate on the "indexed_at" field.
+func IndexedAtIsNil() predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldIndexedAt)))
+	})
+}
+
+// IndexedAtNotNil applies the NotNil predicate on the "indexed_at" field.
+func IndexedAtNotNil() predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldIndexedAt)))
 	})
 }
 

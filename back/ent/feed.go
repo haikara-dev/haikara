@@ -25,6 +25,8 @@ type Feed struct {
 	Contents string `json:"contents,omitempty"`
 	// Count holds the value of the "count" field.
 	Count int `json:"count,omitempty"`
+	// IndexedAt holds the value of the "indexed_at" field.
+	IndexedAt *time.Time `json:"indexed_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the FeedQuery when eager-loading is set.
 	Edges      FeedEdges `json:"edges"`
@@ -62,7 +64,7 @@ func (*Feed) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case feed.FieldContents:
 			values[i] = new(sql.NullString)
-		case feed.FieldCreatedAt, feed.FieldUpdatedAt:
+		case feed.FieldCreatedAt, feed.FieldUpdatedAt, feed.FieldIndexedAt:
 			values[i] = new(sql.NullTime)
 		case feed.ForeignKeys[0]: // site_feeds
 			values[i] = new(sql.NullInt64)
@@ -110,6 +112,13 @@ func (f *Feed) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field count", values[i])
 			} else if value.Valid {
 				f.Count = int(value.Int64)
+			}
+		case feed.FieldIndexedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field indexed_at", values[i])
+			} else if value.Valid {
+				f.IndexedAt = new(time.Time)
+				*f.IndexedAt = value.Time
 			}
 		case feed.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -162,6 +171,11 @@ func (f *Feed) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("count=")
 	builder.WriteString(fmt.Sprintf("%v", f.Count))
+	builder.WriteString(", ")
+	if v := f.IndexedAt; v != nil {
+		builder.WriteString("indexed_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }
