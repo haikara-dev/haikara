@@ -3,7 +3,6 @@ import Header from "@/components/Header";
 import { Box, Container } from "@mui/material";
 import Footer from "@/components/Footer";
 import React, { FC, ReactNode, useState } from "react";
-import DrawerMenu from "@/components/DrawerMenu";
 import { styled } from "@mui/material/styles";
 
 type DefaultLayoutProps = {
@@ -62,12 +61,13 @@ const DefaultLayout: FC<DefaultLayoutProps> = ({ children }) => {
         <Container
           sx={{
             p: 2,
+            minHeight: "70vh",
           }}
         >
           {children}
         </Container>
+        <Footer />
       </Main>
-      <Footer />
     </Box>
   );
 };

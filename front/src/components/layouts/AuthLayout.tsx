@@ -1,9 +1,10 @@
 import Head from "next/head";
 import Header from "@/components/Header";
-import { Box, Card } from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
 import Footer from "@/components/Footer";
 import React, { FC, ReactNode, useState } from "react";
-import { styled } from "@mui/material/styles";
+import styled from "@mui/material/styles/styled";
 
 type AuthLayoutProps = {
   children: ReactNode;
@@ -14,11 +15,6 @@ const drawerWidth = 0;
 const Main = styled(Box, { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
 }>(({ theme, open }) => ({
-  minHeight: "80vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-
   flexGrow: 1,
   padding: theme.spacing(3),
   transition: theme.transitions.create("margin", {
@@ -61,16 +57,26 @@ const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
       <Header open={open} />
       <Main open={open} as="main">
         <DrawerHeader />
-        <Card
+        <Box
           sx={{
-            width: "min(90vw, 400px)",
-            p: 2,
+            minHeight: "80vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          {children}
-        </Card>
+          <Card
+            sx={{
+              width: "min(90vw, 400px)",
+              p: 2,
+            }}
+          >
+            {children}
+          </Card>
+        </Box>
+
+        <Footer />
       </Main>
-      <Footer />
     </Box>
   );
 };
