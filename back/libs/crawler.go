@@ -12,7 +12,9 @@ import (
 	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/haikara-dev/haikara/utils"
+	"github.com/mmcdole/gofeed"
 	"io"
 	"log"
 	"net/http"
@@ -581,4 +583,73 @@ func GetRSSByHTML(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, client *ent.
 	}
 
 	return contents, nil
+}
+
+func CrawlSite(site *ent.Site, client *ent.Client) (*ent.Feed, error) {
+
+	var contents = ""
+	var err error
+
+	if site.FeedURL != "" {
+		contents, err = GetRSS(site.FeedURL)
+		if err != nil || contents == "" {
+			return nil, err
+		}
+	} else {
+		siteCrawlRule, err := site.QuerySiteCrawlRule().Only(context.Background())
+		if err != nil && !ent.IsNotFound(err) {
+			return nil, err
+		}
+
+		if siteCrawlRule == nil {
+			return nil, err
+		}
+
+		contents, err = GetRSSByHTML(site.URL, siteCrawlRule, client)
+		if err != nil || contents == "" {
+			return nil, err
+		}
+	}
+
+	fp := gofeed.NewParser()
+	feed, err := fp.ParseString(contents)
+
+	if err != nil {
+		return nil, err
+	}
+
+	respFeed, err := client.Feed.
+		Create().
+		SetContents(contents).
+		SetCount(len(feed.Items)).
+		SetSite(site).
+		Save(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	return respFeed, nil
+}
+
+func CrawlAllSite(client *ent.Client) ([]*ent.Site, error) {
+	sites, err := client.Site.
+		Query().
+		Where(site.Active(true)).
+		Order(ent.Desc(site.FieldUpdatedAt)).
+		All(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, site := range sites {
+		feed, err := CrawlSite(site, client)
+		if err != nil {
+			log.Println(err)
+		}
+		fmt.Println(site.URL, feed.Count)
+	}
+
+	return sites, nil
 }
