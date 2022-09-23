@@ -1,35 +1,14 @@
 import Head from "next/head";
-import Header from "@/components/Header";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Footer from "@/components/Footer";
-import React, { FC, ReactNode, useState } from "react";
+import React, { FC, ReactNode } from "react";
 import styled from "@mui/material/styles/styled";
+import DefaultHeader from "@/components/DefaultHeader";
 
 type AuthLayoutProps = {
   children: ReactNode;
 };
-
-const drawerWidth = 0;
-
-const Main = styled(Box, { shouldForwardProp: (prop) => prop !== "open" })<{
-  open?: boolean;
-}>(({ theme, open }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create("margin", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  marginLeft: `-${drawerWidth}px`,
-  ...(open && {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  }),
-}));
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -41,7 +20,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
-  const [open, setOpen] = useState(false);
   return (
     <Box
       sx={{
@@ -54,8 +32,14 @@ const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header open={open} />
-      <Main open={open} as="main">
+      <DefaultHeader />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          padding: 3,
+        }}
+      >
         <DrawerHeader />
         <Box
           sx={{
@@ -76,7 +60,7 @@ const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
         </Box>
 
         <Footer />
-      </Main>
+      </Box>
     </Box>
   );
 };

@@ -10,11 +10,12 @@ import { FC } from "react";
 import Link from "next/link";
 import { styled } from "@mui/material/styles";
 import { useAuthUserContext } from "@/lib/AuthUser";
+import { useRouter } from "next/router";
 
 const drawerWidth = 240;
 
 export type DrawerMenuProps = {
-  open?: boolean;
+  open: boolean;
 };
 
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -27,11 +28,12 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
+  const router = useRouter();
   const { isAdmin, authUser } = useAuthUserContext();
 
   return (
     <Drawer
-      variant="permanent"
+      variant="persistent"
       anchor="left"
       open={open}
       sx={{
@@ -44,14 +46,13 @@ export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
       }}
     >
       <DrawerHeader />
-
       {authUser && (
         <>
           <Divider />
-          <List>
+          <List component="nav">
             <ListItem disablePadding>
               <Link href="/dashboard" passHref>
-                <ListItemButton>
+                <ListItemButton selected={router.pathname === "/dashboard"}>
                   <ListItemText primary="Dashboard" />
                 </ListItemButton>
               </Link>
@@ -62,10 +63,10 @@ export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
       {isAdmin && (
         <>
           <Divider />
-          <List>
+          <List component="nav">
             <ListItem disablePadding>
               <Link href="/article" passHref>
-                <ListItemButton>
+                <ListItemButton selected={router.pathname === "/article"}>
                   <ListItemText primary="Article" />
                 </ListItemButton>
               </Link>
@@ -73,7 +74,7 @@ export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
 
             <ListItem disablePadding>
               <Link href="/site" passHref>
-                <ListItemButton>
+                <ListItemButton selected={router.pathname === "/site"}>
                   <ListItemText primary="Site" />
                 </ListItemButton>
               </Link>
@@ -81,7 +82,7 @@ export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
 
             <ListItem disablePadding>
               <Link href="/feed" passHref>
-                <ListItemButton>
+                <ListItemButton selected={router.pathname === "/feed"}>
                   <ListItemText primary="Feed" />
                 </ListItemButton>
               </Link>
@@ -89,7 +90,7 @@ export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
 
             <ListItem disablePadding>
               <Link href="/user" passHref>
-                <ListItemButton>
+                <ListItemButton selected={router.pathname === "/user"}>
                   <ListItemText primary="User" />
                 </ListItemButton>
               </Link>
@@ -97,7 +98,7 @@ export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
 
             <ListItem disablePadding>
               <Link href="/setting" passHref>
-                <ListItemButton>
+                <ListItemButton selected={router.pathname === "/setting"}>
                   <ListItemText primary="Setting" />
                 </ListItemButton>
               </Link>

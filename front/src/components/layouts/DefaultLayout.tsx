@@ -1,35 +1,14 @@
 import Head from "next/head";
-import Header from "@/components/Header";
-import { Box, Container } from "@mui/material";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
 import Footer from "@/components/Footer";
-import React, { FC, ReactNode, useState } from "react";
-import { styled } from "@mui/material/styles";
+import React, { FC, ReactNode } from "react";
+import styled from "@mui/material/styles/styled";
+import DefaultHeader from "@/components/DefaultHeader";
 
 type DefaultLayoutProps = {
   children: ReactNode;
 };
-
-const drawerWidth = 0;
-
-const Main = styled(Box, { shouldForwardProp: (prop) => prop !== "open" })<{
-  open?: boolean;
-}>(({ theme, open }) => ({
-  minHeight: "100vh",
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create("margin", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  marginLeft: `-${drawerWidth}px`,
-  ...(open && {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  }),
-}));
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -41,7 +20,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 const DefaultLayout: FC<DefaultLayoutProps> = ({ children }) => {
-  const [open, setOpen] = useState(false);
   return (
     <Box
       sx={{
@@ -54,9 +32,16 @@ const DefaultLayout: FC<DefaultLayoutProps> = ({ children }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header open={open} />
+      <DefaultHeader />
 
-      <Main open={open} as="main">
+      <Box
+        component="main"
+        sx={{
+          minHeight: "100vh",
+          flexGrow: 1,
+          padding: 3,
+        }}
+      >
         <DrawerHeader />
         <Container
           sx={{
@@ -67,7 +52,7 @@ const DefaultLayout: FC<DefaultLayoutProps> = ({ children }) => {
           {children}
         </Container>
         <Footer />
-      </Main>
+      </Box>
     </Box>
   );
 };

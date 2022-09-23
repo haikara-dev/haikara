@@ -1,10 +1,11 @@
 import Head from "next/head";
 import Header from "@/components/Header";
-import { Box, Container } from "@mui/material";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
 import Footer from "@/components/Footer";
 import React, { FC, ReactNode, useState } from "react";
 import DrawerMenu from "@/components/DrawerMenu";
-import { styled } from "@mui/material/styles";
+import styled from "@mui/material/styles/styled";
 
 type AdminLayoutProps = {
   children: ReactNode;
@@ -13,7 +14,7 @@ type AdminLayoutProps = {
 const drawerWidth = 240;
 
 const Main = styled(Box, { shouldForwardProp: (prop) => prop !== "open" })<{
-  open?: boolean;
+  open: boolean;
 }>(({ theme, open }) => ({
   minHeight: "100vh",
   flexGrow: 1,
@@ -43,6 +44,9 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
   const [open, setOpen] = useState(true);
+  const handleToggleDrawer = () => {
+    setOpen(!open);
+  };
   return (
     <Box
       sx={{
@@ -55,7 +59,7 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header open={open} />
+      <Header handleToggleDrawer={handleToggleDrawer} />
       <DrawerMenu open={open} />
       <Main open={open} as="main">
         <DrawerHeader />

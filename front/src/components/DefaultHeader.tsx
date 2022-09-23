@@ -2,38 +2,20 @@ import AppBar from "@mui/material/AppBar";
 import Button from "@mui/material/Button";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
 import { useAuthUserContext } from "@/lib/AuthUser";
 
 import { FC } from "react";
 
-export type HeaderProps = {
-  handleToggleDrawer?: () => void;
-};
+export type DefaultHeaderProps = {};
 
-const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
+const DefaultHeader: FC<DefaultHeaderProps> = () => {
   const auth = getAuth();
   const { authUser, logout } = useAuthUserContext();
   return (
-    <AppBar
-      position="fixed"
-      sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
-      }}
-    >
+    <AppBar position="fixed">
       <Toolbar>
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          onClick={handleToggleDrawer}
-          edge="start"
-          sx={{ mr: 2 }}
-        >
-          <MenuIcon />
-        </IconButton>
         <Link href="/" passHref>
           <Typography
             variant="h6"
@@ -54,9 +36,6 @@ const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
               <Button color="inherit">コンソール</Button>
             </Link>
 
-            {/*<Typography variant="h6" component="div">*/}
-            {/*  {currentUser?.email}*/}
-            {/*</Typography>*/}
             <Button
               color="inherit"
               onClick={async () => {
@@ -85,4 +64,4 @@ const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
     </AppBar>
   );
 };
-export default Header;
+export default DefaultHeader;
