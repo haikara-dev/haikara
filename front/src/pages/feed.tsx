@@ -1,7 +1,4 @@
-import type { NextPage } from "next";
-import Head from "next/head";
 import {
-  Container,
   Typography,
   Box,
   Stack,
@@ -10,8 +7,6 @@ import {
   IconButton,
 } from "@mui/material";
 import React, { ReactElement, useEffect, useState } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { NextPageWithLayout } from "@/pages/_app";

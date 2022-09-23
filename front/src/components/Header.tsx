@@ -10,7 +10,7 @@ import { getAuth } from "firebase/auth";
 import { useAuthUserContext } from "@/lib/AuthUser";
 
 import { styled } from "@mui/material/styles";
-import { FC, useState } from "react";
+import { FC } from "react";
 
 const drawerWidth = 240;
 

@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"context"
-	"github.com/haikara-dev/haikara/libs"
 	"github.com/gin-gonic/gin"
+	"github.com/haikara-dev/haikara/libs"
 	"net/http"
 	"strings"
 )

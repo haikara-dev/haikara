@@ -1,9 +1,5 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import { Container, Typography, Box, Stack, Card, Button } from "@mui/material";
+import { Typography, Stack, Card } from "@mui/material";
 import React, { ReactElement, useEffect, useState } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { User, useAuthUserContext } from "@/lib/AuthUser";
 import EditUserRoleFormDialog from "@/components/user/EditUserRoleFormDialog";
 import { NextPageWithLayout } from "@/pages/_app";
