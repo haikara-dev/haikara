@@ -532,7 +532,7 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, clie
 						}
 
 						if err != nil {
-							log.Println(err)
+							log.Println(err, dateStr)
 							return
 						}
 
@@ -647,8 +647,10 @@ func CrawlAllSite(client *ent.Client) ([]*ent.Site, error) {
 		feed, err := CrawlSite(site, client)
 		if err != nil {
 			log.Println(err)
+			// エラーが発生しても続行する
+		} else {
+			fmt.Println(site.URL, feed.Count)
 		}
-		fmt.Println(site.URL, feed.Count)
 	}
 
 	return sites, nil
