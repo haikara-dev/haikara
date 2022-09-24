@@ -195,8 +195,7 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 			rootSelector,
 		)
 
-		title := dom.Find(titleSelector).Text()
-		title = strings.TrimSpace(title)
+		title := utils.GetArticleTitle(titleSelector, dom)
 
 		linkSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
 			siteCrawlRule.LinkSelector,
@@ -352,8 +351,7 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, clie
 			rootSelector,
 		)
 
-		title := e.DOM.Find(titleSelector).Text()
-		title = strings.TrimSpace(title)
+		title := utils.GetArticleTitle(titleSelector, e.DOM)
 
 		linkSelector := utils.CreateSelectorOnChildrenScopeFeatureSupport(
 			siteCrawlRule.LinkSelector,

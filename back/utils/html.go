@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/PuerkitoBio/goquery"
 	"regexp"
 	"strings"
 )
@@ -15,4 +16,27 @@ func CreateSelectorOnChildrenScopeFeatureSupport(selector string, rootSelector s
 	// rootSelectorと先頭のselectorが同じ場合は、selectorには直下のセレクタとみなす仕様があるため
 	returnSelector = strings.Replace(returnSelector, ":scope", rootSelector, -1)
 	return returnSelector
+}
+
+func GetArticleTitle(selector string, selection *goquery.Selection) string {
+	if selector == "" {
+		return ""
+	}
+
+	if selection == nil {
+		return ""
+	}
+
+	titleDom := selection.Find(selector)
+	if titleDom.Length() == 0 {
+		return ""
+	}
+
+	// タイトル　<a>さらに詳しく</a>
+	// のようなaタグを削除する
+	titleDom.Find("a").Remove()
+
+	title := titleDom.Text()
+	title = strings.TrimSpace(title)
+	return title
 }
