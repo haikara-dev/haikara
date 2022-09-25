@@ -53,7 +53,13 @@ const SiteRow: React.FC<SiteRowProps> = ({
   };
 
   return (
-    <Box display="flex" alignItems="center">
+    <Box
+      display="flex"
+      alignItems="center"
+      sx={{
+        backgroundColor: site.cannot_crawl ? "#f5c4c4" : "white",
+      }}
+    >
       <Button onClick={onClickRunHandler}>Run</Button>
       <Button onClick={onClickDryRunHandler}>Dry</Button>
       <Box

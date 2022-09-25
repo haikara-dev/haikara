@@ -70,6 +70,26 @@ func (su *SiteUpdate) SetNillableActive(b *bool) *SiteUpdate {
 	return su
 }
 
+// SetCannotCrawlAt sets the "cannot_crawl_at" field.
+func (su *SiteUpdate) SetCannotCrawlAt(t time.Time) *SiteUpdate {
+	su.mutation.SetCannotCrawlAt(t)
+	return su
+}
+
+// SetNillableCannotCrawlAt sets the "cannot_crawl_at" field if the given value is not nil.
+func (su *SiteUpdate) SetNillableCannotCrawlAt(t *time.Time) *SiteUpdate {
+	if t != nil {
+		su.SetCannotCrawlAt(*t)
+	}
+	return su
+}
+
+// ClearCannotCrawlAt clears the value of the "cannot_crawl_at" field.
+func (su *SiteUpdate) ClearCannotCrawlAt() *SiteUpdate {
+	su.mutation.ClearCannotCrawlAt()
+	return su
+}
+
 // AddArticleIDs adds the "articles" edge to the Article entity by IDs.
 func (su *SiteUpdate) AddArticleIDs(ids ...int) *SiteUpdate {
 	su.mutation.AddArticleIDs(ids...)
@@ -345,6 +365,19 @@ func (su *SiteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: site.FieldActive,
 		})
 	}
+	if value, ok := su.mutation.CannotCrawlAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: site.FieldCannotCrawlAt,
+		})
+	}
+	if su.mutation.CannotCrawlAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: site.FieldCannotCrawlAt,
+		})
+	}
 	if su.mutation.ArticlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -596,6 +629,26 @@ func (suo *SiteUpdateOne) SetNillableActive(b *bool) *SiteUpdateOne {
 	if b != nil {
 		suo.SetActive(*b)
 	}
+	return suo
+}
+
+// SetCannotCrawlAt sets the "cannot_crawl_at" field.
+func (suo *SiteUpdateOne) SetCannotCrawlAt(t time.Time) *SiteUpdateOne {
+	suo.mutation.SetCannotCrawlAt(t)
+	return suo
+}
+
+// SetNillableCannotCrawlAt sets the "cannot_crawl_at" field if the given value is not nil.
+func (suo *SiteUpdateOne) SetNillableCannotCrawlAt(t *time.Time) *SiteUpdateOne {
+	if t != nil {
+		suo.SetCannotCrawlAt(*t)
+	}
+	return suo
+}
+
+// ClearCannotCrawlAt clears the value of the "cannot_crawl_at" field.
+func (suo *SiteUpdateOne) ClearCannotCrawlAt() *SiteUpdateOne {
+	suo.mutation.ClearCannotCrawlAt()
 	return suo
 }
 
@@ -902,6 +955,19 @@ func (suo *SiteUpdateOne) sqlSave(ctx context.Context) (_node *Site, err error) 
 			Type:   field.TypeBool,
 			Value:  value,
 			Column: site.FieldActive,
+		})
+	}
+	if value, ok := suo.mutation.CannotCrawlAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: site.FieldCannotCrawlAt,
+		})
+	}
+	if suo.mutation.CannotCrawlAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: site.FieldCannotCrawlAt,
 		})
 	}
 	if suo.mutation.ArticlesCleared() {

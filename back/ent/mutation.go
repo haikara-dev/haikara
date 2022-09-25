@@ -1299,6 +1299,7 @@ type SiteMutation struct {
 	url                    *string
 	feed_url               *string
 	active                 *bool
+	cannot_crawl_at        *time.Time
 	clearedFields          map[string]struct{}
 	articles               map[int]struct{}
 	removedarticles        map[int]struct{}
@@ -1630,6 +1631,55 @@ func (m *SiteMutation) ResetActive() {
 	m.active = nil
 }
 
+// SetCannotCrawlAt sets the "cannot_crawl_at" field.
+func (m *SiteMutation) SetCannotCrawlAt(t time.Time) {
+	m.cannot_crawl_at = &t
+}
+
+// CannotCrawlAt returns the value of the "cannot_crawl_at" field in the mutation.
+func (m *SiteMutation) CannotCrawlAt() (r time.Time, exists bool) {
+	v := m.cannot_crawl_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCannotCrawlAt returns the old "cannot_crawl_at" field's value of the Site entity.
+// If the Site object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SiteMutation) OldCannotCrawlAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCannotCrawlAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCannotCrawlAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCannotCrawlAt: %w", err)
+	}
+	return oldValue.CannotCrawlAt, nil
+}
+
+// ClearCannotCrawlAt clears the value of the "cannot_crawl_at" field.
+func (m *SiteMutation) ClearCannotCrawlAt() {
+	m.cannot_crawl_at = nil
+	m.clearedFields[site.FieldCannotCrawlAt] = struct{}{}
+}
+
+// CannotCrawlAtCleared returns if the "cannot_crawl_at" field was cleared in this mutation.
+func (m *SiteMutation) CannotCrawlAtCleared() bool {
+	_, ok := m.clearedFields[site.FieldCannotCrawlAt]
+	return ok
+}
+
+// ResetCannotCrawlAt resets all changes to the "cannot_crawl_at" field.
+func (m *SiteMutation) ResetCannotCrawlAt() {
+	m.cannot_crawl_at = nil
+	delete(m.clearedFields, site.FieldCannotCrawlAt)
+}
+
 // AddArticleIDs adds the "articles" edge to the Article entity by ids.
 func (m *SiteMutation) AddArticleIDs(ids ...int) {
 	if m.articles == nil {
@@ -1850,7 +1900,7 @@ func (m *SiteMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SiteMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, site.FieldCreatedAt)
 	}
@@ -1868,6 +1918,9 @@ func (m *SiteMutation) Fields() []string {
 	}
 	if m.active != nil {
 		fields = append(fields, site.FieldActive)
+	}
+	if m.cannot_crawl_at != nil {
+		fields = append(fields, site.FieldCannotCrawlAt)
 	}
 	return fields
 }
@@ -1889,6 +1942,8 @@ func (m *SiteMutation) Field(name string) (ent.Value, bool) {
 		return m.FeedURL()
 	case site.FieldActive:
 		return m.Active()
+	case site.FieldCannotCrawlAt:
+		return m.CannotCrawlAt()
 	}
 	return nil, false
 }
@@ -1910,6 +1965,8 @@ func (m *SiteMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldFeedURL(ctx)
 	case site.FieldActive:
 		return m.OldActive(ctx)
+	case site.FieldCannotCrawlAt:
+		return m.OldCannotCrawlAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Site field %s", name)
 }
@@ -1961,6 +2018,13 @@ func (m *SiteMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetActive(v)
 		return nil
+	case site.FieldCannotCrawlAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCannotCrawlAt(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Site field %s", name)
 }
@@ -1990,7 +2054,11 @@ func (m *SiteMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *SiteMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(site.FieldCannotCrawlAt) {
+		fields = append(fields, site.FieldCannotCrawlAt)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2003,6 +2071,11 @@ func (m *SiteMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *SiteMutation) ClearField(name string) error {
+	switch name {
+	case site.FieldCannotCrawlAt:
+		m.ClearCannotCrawlAt()
+		return nil
+	}
 	return fmt.Errorf("unknown Site nullable field %s", name)
 }
 
@@ -2027,6 +2100,9 @@ func (m *SiteMutation) ResetField(name string) error {
 		return nil
 	case site.FieldActive:
 		m.ResetActive()
+		return nil
+	case site.FieldCannotCrawlAt:
+		m.ResetCannotCrawlAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Site field %s", name)

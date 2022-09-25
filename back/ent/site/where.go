@@ -123,6 +123,13 @@ func Active(v bool) predicate.Site {
 	})
 }
 
+// CannotCrawlAt applies equality check predicate on the "cannot_crawl_at" field. It's identical to CannotCrawlAtEQ.
+func CannotCrawlAt(v time.Time) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCannotCrawlAt), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Site {
 	return predicate.Site(func(s *sql.Selector) {
@@ -559,6 +566,84 @@ func ActiveEQ(v bool) predicate.Site {
 func ActiveNEQ(v bool) predicate.Site {
 	return predicate.Site(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldActive), v))
+	})
+}
+
+// CannotCrawlAtEQ applies the EQ predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtEQ(v time.Time) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCannotCrawlAt), v))
+	})
+}
+
+// CannotCrawlAtNEQ applies the NEQ predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtNEQ(v time.Time) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCannotCrawlAt), v))
+	})
+}
+
+// CannotCrawlAtIn applies the In predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtIn(vs ...time.Time) predicate.Site {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldCannotCrawlAt), v...))
+	})
+}
+
+// CannotCrawlAtNotIn applies the NotIn predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtNotIn(vs ...time.Time) predicate.Site {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldCannotCrawlAt), v...))
+	})
+}
+
+// CannotCrawlAtGT applies the GT predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtGT(v time.Time) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCannotCrawlAt), v))
+	})
+}
+
+// CannotCrawlAtGTE applies the GTE predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtGTE(v time.Time) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCannotCrawlAt), v))
+	})
+}
+
+// CannotCrawlAtLT applies the LT predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtLT(v time.Time) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCannotCrawlAt), v))
+	})
+}
+
+// CannotCrawlAtLTE applies the LTE predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtLTE(v time.Time) predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCannotCrawlAt), v))
+	})
+}
+
+// CannotCrawlAtIsNil applies the IsNil predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtIsNil() predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldCannotCrawlAt)))
+	})
+}
+
+// CannotCrawlAtNotNil applies the NotNil predicate on the "cannot_crawl_at" field.
+func CannotCrawlAtNotNil() predicate.Site {
+	return predicate.Site(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldCannotCrawlAt)))
 	})
 }
 

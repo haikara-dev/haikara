@@ -23,7 +23,7 @@ type FormInput = {
   name: string;
   url: string;
   feed_url: string;
-
+  cannot_crawl: boolean;
   article_selector: string;
   title_selector: string;
   link_selector: string;
@@ -39,6 +39,7 @@ const schema = yup.object({
   name: yup.string().required("必須です"),
   url: yup.string().required("必須です").url("正しいURLを入力してください"),
   feed_url: yup.string().url("正しいURLを入力してください"),
+  cannot_crawl: yup.boolean(),
 
   article_selector: yup.string(),
   title_selector: yup.string(),
@@ -100,6 +101,8 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
         url: trimmedUrl,
         feed_url: trimmedfeed_url,
         active: site.active,
+        cannot_crawl_at: site.cannot_crawl_at,
+        cannot_crawl: data.cannot_crawl,
         site_crawl_rule: {
           article_selector: data.article_selector,
           title_selector: data.title_selector,
@@ -330,6 +333,27 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
                 />
                 {errors.is_spa && (
                   <FormHelperText>{errors.is_spa.message}</FormHelperText>
+                )}
+              </FormControl>
+
+              <FormControl error={errors.cannot_crawl ? true : false}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      defaultChecked={site.cannot_crawl}
+                      {...register("cannot_crawl")}
+                    />
+                  }
+                  label={
+                    site.cannot_crawl
+                      ? `cannot_crawl( ${new Date(
+                          site.cannot_crawl_at
+                        ).toLocaleString()} )`
+                      : "cannot_crawl"
+                  }
+                />
+                {errors.cannot_crawl && (
+                  <FormHelperText>{errors.cannot_crawl.message}</FormHelperText>
                 )}
               </FormControl>
             </Box>

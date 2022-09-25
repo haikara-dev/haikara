@@ -29,6 +29,8 @@ type Site struct {
 	FeedURL string `json:"feed_url,omitempty"`
 	// Active holds the value of the "active" field.
 	Active bool `json:"active"`
+	// CannotCrawlAt holds the value of the "cannot_crawl_at" field.
+	CannotCrawlAt *time.Time `json:"cannot_crawl_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SiteQuery when eager-loading is set.
 	Edges SiteEdges `json:"edges"`
@@ -100,7 +102,7 @@ func (*Site) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case site.FieldName, site.FieldURL, site.FieldFeedURL:
 			values[i] = new(sql.NullString)
-		case site.FieldCreatedAt, site.FieldUpdatedAt:
+		case site.FieldCreatedAt, site.FieldUpdatedAt, site.FieldCannotCrawlAt:
 			values[i] = new(sql.NullTime)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Site", columns[i])
@@ -158,6 +160,13 @@ func (s *Site) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field active", values[i])
 			} else if value.Valid {
 				s.Active = value.Bool
+			}
+		case site.FieldCannotCrawlAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field cannot_crawl_at", values[i])
+			} else if value.Valid {
+				s.CannotCrawlAt = new(time.Time)
+				*s.CannotCrawlAt = value.Time
 			}
 		}
 	}
@@ -224,6 +233,11 @@ func (s *Site) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("active=")
 	builder.WriteString(fmt.Sprintf("%v", s.Active))
+	builder.WriteString(", ")
+	if v := s.CannotCrawlAt; v != nil {
+		builder.WriteString("cannot_crawl_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -84,6 +84,20 @@ func (sc *SiteCreate) SetNillableActive(b *bool) *SiteCreate {
 	return sc
 }
 
+// SetCannotCrawlAt sets the "cannot_crawl_at" field.
+func (sc *SiteCreate) SetCannotCrawlAt(t time.Time) *SiteCreate {
+	sc.mutation.SetCannotCrawlAt(t)
+	return sc
+}
+
+// SetNillableCannotCrawlAt sets the "cannot_crawl_at" field if the given value is not nil.
+func (sc *SiteCreate) SetNillableCannotCrawlAt(t *time.Time) *SiteCreate {
+	if t != nil {
+		sc.SetCannotCrawlAt(*t)
+	}
+	return sc
+}
+
 // AddArticleIDs adds the "articles" edge to the Article entity by IDs.
 func (sc *SiteCreate) AddArticleIDs(ids ...int) *SiteCreate {
 	sc.mutation.AddArticleIDs(ids...)
@@ -343,6 +357,14 @@ func (sc *SiteCreate) createSpec() (*Site, *sqlgraph.CreateSpec) {
 			Column: site.FieldActive,
 		})
 		_node.Active = value
+	}
+	if value, ok := sc.mutation.CannotCrawlAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: site.FieldCannotCrawlAt,
+		})
+		_node.CannotCrawlAt = &value
 	}
 	if nodes := sc.mutation.ArticlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

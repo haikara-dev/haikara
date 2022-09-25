@@ -23,6 +23,8 @@ const (
 	FieldFeedURL = "feed_url"
 	// FieldActive holds the string denoting the active field in the database.
 	FieldActive = "active"
+	// FieldCannotCrawlAt holds the string denoting the cannot_crawl_at field in the database.
+	FieldCannotCrawlAt = "cannot_crawl_at"
 	// EdgeArticles holds the string denoting the articles edge name in mutations.
 	EdgeArticles = "articles"
 	// EdgeFeeds holds the string denoting the feeds edge name in mutations.
@@ -70,6 +72,7 @@ var Columns = []string{
 	FieldURL,
 	FieldFeedURL,
 	FieldActive,
+	FieldCannotCrawlAt,
 }
 
 var (

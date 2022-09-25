@@ -65,6 +65,7 @@ var (
 		{Name: "url", Type: field.TypeString},
 		{Name: "feed_url", Type: field.TypeString},
 		{Name: "active", Type: field.TypeBool, Default: false},
+		{Name: "cannot_crawl_at", Type: field.TypeTime, Nullable: true},
 	}
 	// SitesTable holds the schema information for the "sites" table.
 	SitesTable = &schema.Table{

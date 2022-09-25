@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 type SiteHandler struct {
@@ -126,6 +127,7 @@ func (h *SiteHandler) UpdateSite(c *gin.Context) {
 		URL           string            `json:"url"`
 		FeedURL       string            `json:"feed_url"`
 		Active        bool              `json:"active"`
+		CannotCrawl   bool              `json:"cannot_crawl"`
 		SiteCrawlRule ent.SiteCrawlRule `json:"site_crawl_rule"`
 	}
 
@@ -157,12 +159,37 @@ func (h *SiteHandler) UpdateSite(c *gin.Context) {
 		return
 	}
 
-	resSite, err := existSite.Update().
-		SetName(reqSite.Name).
-		SetURL(reqSite.URL).
-		SetFeedURL(reqSite.FeedURL).
-		SetActive(reqSite.Active).
-		Save(context.Background())
+	var cannotCrawlAt *time.Time = nil
+
+	if reqSite.CannotCrawl {
+		if existSite.CannotCrawlAt == nil {
+			loc, _ := time.LoadLocation("Asia/Tokyo")
+			now := time.Now().In(loc)
+			cannotCrawlAt = &now
+		} else {
+			cannotCrawlAt = existSite.CannotCrawlAt
+		}
+	}
+
+	var resSite *ent.Site
+
+	if cannotCrawlAt == nil {
+		resSite, err = existSite.Update().
+			SetName(reqSite.Name).
+			SetURL(reqSite.URL).
+			SetFeedURL(reqSite.FeedURL).
+			SetActive(reqSite.Active).
+			ClearCannotCrawlAt().
+			Save(context.Background())
+	} else {
+		resSite, err = existSite.Update().
+			SetName(reqSite.Name).
+			SetURL(reqSite.URL).
+			SetFeedURL(reqSite.FeedURL).
+			SetActive(reqSite.Active).
+			SetNillableCannotCrawlAt(cannotCrawlAt).
+			Save(context.Background())
+	}
 
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)

@@ -25,6 +25,9 @@ func (Site) Fields() []ent.Field {
 		field.String("feed_url"),
 		field.Bool("active").Default(false).
 			StructTag(`json:"active"`),
+		field.Time("cannot_crawl_at").
+			Optional().
+			Nillable(),
 	}
 }
 

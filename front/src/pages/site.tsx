@@ -18,6 +18,8 @@ export type Site = {
   url: string;
   feed_url: string;
   active: boolean;
+  cannot_crawl_at: string;
+  cannot_crawl: boolean;
 };
 
 export type SiteCrawlRule = {
@@ -96,6 +98,12 @@ const Sites: NextPageWithLayout = () => {
       });
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
       const json = await res.json();
+
+      for (const site of json) {
+        site.cannot_crawl = site.cannot_crawl_at ? true : false;
+      }
+
+      console.log("json", json);
       setData(json);
     } catch (err) {
       console.log(err);
@@ -117,6 +125,8 @@ const Sites: NextPageWithLayout = () => {
       );
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
       const json = await res.json();
+
+      console.log("cannot_crawl", json.cannot_crawl_at ? true : false);
       if (json.edges.site_crawl_rule) {
         return {
           id: json.id,
@@ -124,6 +134,8 @@ const Sites: NextPageWithLayout = () => {
           url: json.url,
           feed_url: json.feed_url,
           active: json.active,
+          cannot_crawl_at: json.cannot_crawl_at,
+          cannot_crawl: json.cannot_crawl_at ? true : false,
           site_crawl_rule: json.edges.site_crawl_rule,
         };
       } else {
@@ -133,6 +145,8 @@ const Sites: NextPageWithLayout = () => {
           url: json.url,
           feed_url: json.feed_url,
           active: json.active,
+          cannot_crawl_at: json.cannot_crawl_at,
+          cannot_crawl: json.cannot_crawl_at ? true : false,
           site_crawl_rule: {
             article_selector: "",
             title_selector: "",
@@ -247,6 +261,7 @@ const Sites: NextPageWithLayout = () => {
   };
 
   const updateSite = async (site: SiteWithSiteCrawlRule) => {
+    console.log("site", site);
     try {
       const headers = await getRequestHeaders();
       const res = await fetch(
