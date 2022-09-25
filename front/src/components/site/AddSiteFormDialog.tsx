@@ -106,6 +106,8 @@ const AddSiteFormDialog: React.FC<AddSiteFormProps> = ({
         url: trimmedUrl,
         feed_url: trimmedfeed_url,
         active: false,
+        cannot_crawl: false,
+        cannot_crawl_at: "",
         site_crawl_rule: {
           article_selector: data.article_selector,
           title_selector: data.title_selector,
