@@ -25,7 +25,9 @@ import (
 
 func GetRSSUrl(baseUrl string) (string, error) {
 	var rssUrl = ""
-	s := colly.NewCollector()
+	s := colly.NewCollector(
+		colly.UserAgent(config.Config.UserAgent),
+	)
 	s.OnError(func(_ *colly.Response, err error) {
 		log.Println("Something went wrong:", err)
 	})
@@ -56,7 +58,9 @@ func GetRSSUrl(baseUrl string) (string, error) {
 
 func GetRSS(feedUrl string) (string, error) {
 	var contents string
-	s := colly.NewCollector()
+	s := colly.NewCollector(
+		colly.UserAgent(config.Config.UserAgent),
+	)
 	s.OnError(func(_ *colly.Response, err error) {
 		log.Println("Something went wrong:", err)
 	})
@@ -150,6 +154,7 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 		//fmt.Printf("devtoolsWsURL: %v", devtoolsWsURL)
 
 		// create allocator context for use with creating a browser context later
+
 		allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), webSocketDebuggerUrl)
 		defer cancel()
 		chromedpContext = allocatorContext
@@ -324,7 +329,9 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, clie
 	feed.Link = &feeds.Link{Href: siteUrl}
 	feed.Created = now
 
-	s := colly.NewCollector()
+	s := colly.NewCollector(
+		colly.UserAgent(config.Config.UserAgent),
+	)
 	s.OnError(func(_ *colly.Response, err error) {
 		log.Println("Something went wrong:", err)
 	})
@@ -406,7 +413,9 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, clie
 			}
 
 			if existArticle == nil {
-				s2 := colly.NewCollector()
+				s2 := colly.NewCollector(
+					colly.UserAgent(config.Config.UserAgent),
+				)
 				s2.Limit(&colly.LimitRule{
 					RandomDelay: 5 * time.Second,
 				})
