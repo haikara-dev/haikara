@@ -14,7 +14,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "title", Type: field.TypeString},
-		{Name: "url", Type: field.TypeString},
+		{Name: "url", Type: field.TypeString, SchemaType: map[string]string{"mysql": "varchar(2083)"}},
 		{Name: "published_at", Type: field.TypeTime},
 		{Name: "site_articles", Type: field.TypeInt},
 	}
