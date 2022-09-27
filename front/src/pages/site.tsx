@@ -1,4 +1,9 @@
-import { Typography, Stack, Card, Button, Pagination } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import Card from "@mui/material/Card";
+import Button from "@mui/material/Button";
+import Pagination from "@mui/material/Pagination";
+
 import React, { ReactElement, useEffect, useState } from "react";
 import AddSiteFormDialog from "@/components/site/AddSiteFormDialog";
 import SiteRow from "@/components/site/SiteRow";

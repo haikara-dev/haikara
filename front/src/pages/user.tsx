@@ -1,4 +1,8 @@
-import { Typography, Stack, Card, Pagination } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import Card from "@mui/material/Card";
+import Pagination from "@mui/material/Pagination";
+
 import React, { ReactElement, useEffect, useState } from "react";
 import { User, useAuthUserContext } from "@/lib/AuthUser";
 import EditUserRoleFormDialog from "@/components/user/EditUserRoleFormDialog";

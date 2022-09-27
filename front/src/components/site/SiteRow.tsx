@@ -1,6 +1,11 @@
 import React from "react";
 import { Site } from "@/pages/site";
-import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
+
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 export type SiteRowProps = {

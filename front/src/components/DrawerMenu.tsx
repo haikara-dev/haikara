@@ -1,14 +1,12 @@
-import {
-  Divider,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-} from "@mui/material";
+import Divider from "@mui/material/Divider";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
 import { FC } from "react";
 import Link from "next/link";
-import { styled } from "@mui/material/styles";
+import styled from "@mui/material/styles/styled";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import { useRouter } from "next/router";
 

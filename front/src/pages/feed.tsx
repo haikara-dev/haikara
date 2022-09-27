@@ -1,19 +1,17 @@
-import {
-  Typography,
-  Box,
-  Stack,
-  Card,
-  Button,
-  IconButton,
-  Pagination,
-} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Card from "@mui/material/Card";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Pagination from "@mui/material/Pagination";
+
 import React, { ReactElement, useEffect, useState } from "react";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
-import usePagination from "@mui/material/usePagination";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =

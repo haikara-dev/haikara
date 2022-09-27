@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { NextPageWithLayout } from "@/pages/_app";
-import { Typography } from "@mui/material";
+import Typography from "@mui/material/Typography";
 
 const Home: NextPageWithLayout = () => {
   return (

@@ -1,14 +1,14 @@
 import React from "react";
 import Highlight, { defaultProps } from "prism-react-renderer";
-import {
-  Box,
-  Button,
-  DialogTitle,
-  DialogContent,
-  Dialog,
-  DialogContentText,
-  DialogActions,
-} from "@mui/material";
+
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import Dialog from "@mui/material/Dialog";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
+
 import { DryRunResult } from "@/pages/site";
 
 export type AddSiteFormProps = {

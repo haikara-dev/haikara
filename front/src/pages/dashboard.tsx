@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import { Typography } from "@mui/material";
+import Typography from "@mui/material/Typography";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { NextPageWithLayout } from "@/pages/_app";
 

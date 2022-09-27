@@ -1,5 +1,11 @@
 import React, { ReactElement, useCallback, useState } from "react";
-import { Box, Button, Card, Stack, Typography } from "@mui/material";
+
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+
 import { useAuthUserContext } from "@/lib/AuthUser";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import { useDropzone } from "react-dropzone";

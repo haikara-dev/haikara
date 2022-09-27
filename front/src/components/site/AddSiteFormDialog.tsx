@@ -2,20 +2,20 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import React, { useEffect } from "react";
-import {
-  Box,
-  TextField,
-  DialogTitle,
-  DialogContent,
-  Button,
-  Dialog,
-  DialogContentText,
-  DialogActions,
-  FormControl,
-  FormControlLabel,
-  Checkbox,
-  FormHelperText,
-} from "@mui/material";
+
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import Dialog from "@mui/material/Dialog";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import FormHelperText from "@mui/material/FormHelperText";
+import FormControl from "@mui/material/FormControl";
+
 import { SiteWithSiteCrawlRule } from "@/pages/site";
 
 type FormInput = {

@@ -1,12 +1,11 @@
-import {
-  Typography,
-  Box,
-  Stack,
-  Card,
-  Button,
-  IconButton,
-  Pagination,
-} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Card from "@mui/material/Card";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Pagination from "@mui/material/Pagination";
+
 import React, { ReactElement, useEffect, useState } from "react";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import DeleteIcon from "@mui/icons-material/Delete";
