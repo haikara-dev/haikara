@@ -15,8 +15,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
-
-import { Site, SiteWithSiteCrawlRule } from "@/pages/site";
+import { Site, SiteWithSiteCrawlRule } from "@/features/Sites";
 
 type FormInput = {
   name: string;

@@ -5,7 +5,6 @@ import Button from "@mui/material/Button";
 import Pagination from "@mui/material/Pagination";
 
 import React, { ReactElement, useEffect, useState } from "react";
-import AddSiteFormDialog from "@/components/site/AddSiteFormDialog";
 import SiteRow from "@/components/site/SiteRow";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import EditSiteFormDialog from "@/components/site/EditSiteFormDialog";
@@ -13,41 +12,11 @@ import DryRunDialog from "@/components/site/DryRunDialog";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
+import { DryRunResult, Site, SiteWithSiteCrawlRule } from "@/features/Sites";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
-
-export type Index = {
-  id: number;
-  name: string;
-  url: string;
-  feed_url: string;
-  active: boolean;
-  cannot_crawl_at: string;
-  cannot_crawl: boolean;
-};
-
-export type SiteCrawlRule = {
-  article_selector: string;
-  title_selector: string;
-  link_selector: string;
-  description_selector: string;
-  has_data_to_list: boolean;
-  date_selector: string;
-  date_layout: string;
-  is_time_humanize: boolean;
-  is_spa: boolean;
-};
-
-export type SiteWithSiteCrawlRule = Index & {
-  site_crawl_rule: SiteCrawlRule;
-};
-
-export type DryRunResult = {
-  count: number;
-  contents: string;
-};
 
 const Sites: NextPageWithLayout = () => {
   const router = useRouter();
@@ -58,26 +27,21 @@ const Sites: NextPageWithLayout = () => {
   const [totalPage, setTotalPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
-  const [data, setData] = useState<Index[]>([]);
+  const [data, setData] = useState<Site[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { authUser } = useAuthUserContext();
 
-  const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Index | null>(null);
+  const [editTarget, setEditTarget] = useState<Site | null>(null);
 
   const [dryOpen, setDryOpen] = useState(false);
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
 
   const handleAddOpen = () => {
-    setAddOpen(true);
+    router.push("/sites/add");
   };
 
-  const handleAddClose = () => {
-    setAddOpen(false);
-  };
-
-  const handleEditOpen = (site: Index) => {
+  const handleEditOpen = (site: Site) => {
     setEditOpen(true);
     setEditTarget(site);
   };
@@ -180,28 +144,6 @@ const Sites: NextPageWithLayout = () => {
     } catch (err) {
       console.log(err);
       return null;
-    }
-  };
-
-  const addSite = async (site: SiteWithSiteCrawlRule) => {
-    try {
-      const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_ADMIN_API_URL + "/sites", {
-        method: "POST",
-        headers: {
-          ...headers,
-          ...{
-            "Content-Type": "application/json",
-          },
-        },
-        body: JSON.stringify({
-          ...site,
-        }),
-      });
-      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
-      await loadData();
-    } catch (err) {
-      console.log(err);
     }
   };
 
@@ -381,34 +323,6 @@ const Sites: NextPageWithLayout = () => {
     return "";
   };
 
-  const getRssUrlByUrl = async (url: string): Promise<string> => {
-    try {
-      const headers = await getRequestHeaders();
-      const queryParams = new URLSearchParams({ url: url });
-      const res = await fetch(
-        new URL(
-          BACKEND_ADMIN_API_URL + "/sites/get-rss-url-by-url?" + queryParams
-        ),
-        {
-          method: "GET",
-          headers: {
-            ...headers,
-            ...{
-              "Content-Type": "application/json",
-            },
-          },
-        }
-      );
-      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
-
-      const json = await res.json();
-      console.log(json);
-      return json.url;
-    } catch (err) {
-      console.log(err);
-    }
-    return "";
-  };
   const handleChangePagination = (
     e: React.ChangeEvent<unknown>,
     page: number
@@ -471,13 +385,6 @@ const Sites: NextPageWithLayout = () => {
           />
         </Stack>
       )}
-
-      <AddSiteFormDialog
-        open={addOpen}
-        handleClose={handleAddClose}
-        addSite={addSite}
-        getRssUrlByUrl={getRssUrlByUrl}
-      />
 
       {editTarget && (
         <EditSiteFormDialog

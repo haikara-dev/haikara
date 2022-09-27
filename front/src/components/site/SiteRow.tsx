@@ -1,5 +1,4 @@
 import React from "react";
-import { Site } from "@/pages/site";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -8,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 
 import DeleteIcon from "@mui/icons-material/Delete";
+import { Site } from "@/features/Sites";
 export type SiteRowProps = {
   site: Site;
   activeSite: (id: number) => void;
