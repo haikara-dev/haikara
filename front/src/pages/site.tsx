@@ -114,6 +114,10 @@ const Sites: NextPageWithLayout = () => {
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
       const json = await res.json();
 
+      for (const site of json.data) {
+        site.cannot_crawl = site.cannot_crawl_at ? true : false;
+      }
+
       setTotalCount(json.totalCount);
       setTotalPage(json.totalPage);
       setPageSize(json.pageSize);

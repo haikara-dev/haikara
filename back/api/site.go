@@ -66,13 +66,14 @@ func (h *SiteHandler) GetAllSites(c *gin.Context) {
 	}
 
 	type ResponseSite struct {
-		ID        int       `json:"id"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
-		Name      string    `json:"name"`
-		URL       string    `json:"url"`
-		FeedURL   string    `json:"feed_url"`
-		Active    bool      `json:"active"`
+		ID            int        `json:"id"`
+		CreatedAt     time.Time  `json:"created_at"`
+		UpdatedAt     time.Time  `json:"updated_at"`
+		Name          string     `json:"name"`
+		URL           string     `json:"url"`
+		FeedURL       string     `json:"feed_url"`
+		Active        bool       `json:"active"`
+		CannotCrawlAt *time.Time `json:"cannot_crawl_at"`
 	}
 
 	type ResponseJson struct {
@@ -86,13 +87,14 @@ func (h *SiteHandler) GetAllSites(c *gin.Context) {
 
 	for _, site := range sites {
 		resSite = append(resSite, ResponseSite{
-			ID:        site.ID,
-			CreatedAt: site.CreatedAt,
-			UpdatedAt: site.UpdatedAt,
-			Name:      site.Name,
-			URL:       site.URL,
-			FeedURL:   site.FeedURL,
-			Active:    site.Active,
+			ID:            site.ID,
+			CreatedAt:     site.CreatedAt,
+			UpdatedAt:     site.UpdatedAt,
+			Name:          site.Name,
+			URL:           site.URL,
+			FeedURL:       site.FeedURL,
+			Active:        site.Active,
+			CannotCrawlAt: site.CannotCrawlAt,
 		})
 	}
 
@@ -651,6 +653,7 @@ type SiteImportExport struct {
 	URL           string                     `json:"url"`
 	FeedURL       string                     `json:"feed_url"`
 	Active        bool                       `json:"active"`
+	CannotCrawlAt *time.Time                 `json:"cannot_crawl_at"`
 	SiteCrawlRule *SiteCrawlRuleImportExport `json:"site_crawl_rule"`
 }
 
@@ -668,10 +671,11 @@ func (h *SiteHandler) ExportSites(c *gin.Context) {
 	var sites []SiteImportExport
 	for _, loadSite := range loadSites {
 		site := SiteImportExport{
-			Name:    loadSite.Name,
-			URL:     loadSite.URL,
-			FeedURL: loadSite.FeedURL,
-			Active:  loadSite.Active,
+			Name:          loadSite.Name,
+			URL:           loadSite.URL,
+			FeedURL:       loadSite.FeedURL,
+			Active:        loadSite.Active,
+			CannotCrawlAt: loadSite.CannotCrawlAt,
 		}
 
 		if loadSite.Edges.SiteCrawlRule != nil {
@@ -707,13 +711,22 @@ func insertOrUpdateSite(siteImportExport *SiteImportExport, client *ent.Client) 
 	}
 
 	if existSite != nil {
-		_, err = client.Site.
+
+		siteUpdateOne := client.Site.
 			UpdateOne(existSite).
 			SetName(siteImportExport.Name).
 			SetURL(siteImportExport.URL).
 			SetFeedURL(siteImportExport.FeedURL).
-			SetActive(siteImportExport.Active).
-			Save(context.Background())
+			SetActive(siteImportExport.Active)
+
+		if siteImportExport.CannotCrawlAt != nil {
+			siteUpdateOne.SetNillableCannotCrawlAt(siteImportExport.CannotCrawlAt)
+		} else {
+			siteUpdateOne.ClearCannotCrawlAt()
+		}
+
+		_, err = siteUpdateOne.Save(context.Background())
+
 		if err != nil {
 			return nil, err
 		}
@@ -724,6 +737,7 @@ func insertOrUpdateSite(siteImportExport *SiteImportExport, client *ent.Client) 
 			SetURL(siteImportExport.URL).
 			SetFeedURL(siteImportExport.FeedURL).
 			SetActive(siteImportExport.Active).
+			SetNillableCannotCrawlAt(siteImportExport.CannotCrawlAt).
 			Save(context.Background())
 		if err != nil {
 			return nil, err
