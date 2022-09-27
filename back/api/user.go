@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/user"
+	"math"
 	"net/http"
 	"strconv"
 )
@@ -14,8 +16,27 @@ type UserHandler struct {
 }
 
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
+	pageStr := c.Query("page")
+
+	if pageStr == "" {
+		pageStr = "1"
+	}
+
+	page, err := strconv.Atoi(pageStr)
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	pageSize := config.Config.PageSize
+
+	offset := (page - 1) * pageSize
+
 	users, err := h.Client.User.
 		Query().
+		Offset(offset).
+		Limit(pageSize).
 		All(context.Background())
 
 	if err != nil {
@@ -23,7 +44,42 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, users)
+	totalCount, err := h.Client.User.
+		Query().
+		Count(context.Background())
+
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	type ResponseUser struct {
+		ID    int       `json:"id"`
+		Email string    `json:"email"`
+		Role  user.Role `json:"role"`
+	}
+	type ResponseJson struct {
+		TotalCount int            `json:"totalCount"`
+		TotalPage  int            `json:"totalPage"`
+		PageSize   int            `json:"pageSize"`
+		Data       []ResponseUser `json:"data"`
+	}
+
+	var resUsers = make([]ResponseUser, 0)
+
+	for _, user := range users {
+		resUsers = append(resUsers, ResponseUser{
+			ID:    user.ID,
+			Email: user.Email,
+			Role:  user.Role,
+		})
+	}
+	c.JSON(http.StatusOK, ResponseJson{
+		TotalCount: totalCount,
+		TotalPage:  int(math.Ceil(float64(totalCount) / float64(pageSize))),
+		PageSize:   pageSize,
+		Data:       resUsers,
+	})
 }
 
 func (h *UserHandler) GetUser(c *gin.Context) {
