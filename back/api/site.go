@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/feed"
@@ -13,6 +14,7 @@ import (
 	"github.com/haikara-dev/haikara/ent/sitecrawlrule"
 	"github.com/haikara-dev/haikara/libs"
 	"github.com/mmcdole/gofeed"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -25,9 +27,28 @@ type SiteHandler struct {
 }
 
 func (h *SiteHandler) GetAllSites(c *gin.Context) {
+	pageStr := c.Query("page")
+
+	if pageStr == "" {
+		pageStr = "1"
+	}
+
+	page, err := strconv.Atoi(pageStr)
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	pageSize := config.Config.PageSize
+
+	offset := (page - 1) * pageSize
+
 	sites, err := h.Client.Site.
 		Query().
 		Order(ent.Desc(site.FieldUpdatedAt)).
+		Offset(offset).
+		Limit(pageSize).
 		All(context.Background())
 
 	if err != nil {
@@ -35,7 +56,52 @@ func (h *SiteHandler) GetAllSites(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, sites)
+	totalCount, err := h.Client.Site.
+		Query().
+		Count(context.Background())
+
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	type ResponseSite struct {
+		ID        int       `json:"id"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
+		Name      string    `json:"name"`
+		URL       string    `json:"url"`
+		FeedURL   string    `json:"feed_url"`
+		Active    bool      `json:"active"`
+	}
+
+	type ResponseJson struct {
+		TotalCount int            `json:"totalCount"`
+		TotalPage  int            `json:"totalPage"`
+		PageSize   int            `json:"pageSize"`
+		Data       []ResponseSite `json:"data"`
+	}
+
+	var resSite = make([]ResponseSite, 0)
+
+	for _, site := range sites {
+		resSite = append(resSite, ResponseSite{
+			ID:        site.ID,
+			CreatedAt: site.CreatedAt,
+			UpdatedAt: site.UpdatedAt,
+			Name:      site.Name,
+			URL:       site.URL,
+			FeedURL:   site.FeedURL,
+			Active:    site.Active,
+		})
+	}
+
+	c.JSON(http.StatusOK, ResponseJson{
+		TotalCount: totalCount,
+		TotalPage:  int(math.Ceil(float64(totalCount) / float64(pageSize))),
+		PageSize:   pageSize,
+		Data:       resSite,
+	})
 }
 
 func (h *SiteHandler) GetSite(c *gin.Context) {

@@ -1,4 +1,4 @@
-import { Typography, Stack, Card, Button } from "@mui/material";
+import { Typography, Stack, Card, Button, Pagination } from "@mui/material";
 import React, { ReactElement, useEffect, useState } from "react";
 import AddSiteFormDialog from "@/components/site/AddSiteFormDialog";
 import SiteRow from "@/components/site/SiteRow";
@@ -7,6 +7,7 @@ import EditSiteFormDialog from "@/components/site/EditSiteFormDialog";
 import DryRunDialog from "@/components/site/DryRunDialog";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
+import { useRouter } from "next/router";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -44,6 +45,14 @@ export type DryRunResult = {
 };
 
 const Sites: NextPageWithLayout = () => {
+  const router = useRouter();
+  const [page, setPage] = useState<number>(
+    router.query.page ? parseInt(router.query.page.toString()) : 1
+  );
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [totalPage, setTotalPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+
   const [data, setData] = useState<Site[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { authUser } = useAuthUserContext();
@@ -92,19 +101,18 @@ const Sites: NextPageWithLayout = () => {
   const loadData = async () => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_ADMIN_API_URL + "/sites", {
+      const queryParams = new URLSearchParams({ page: page.toString() });
+      const res = await fetch(BACKEND_ADMIN_API_URL + "/sites?" + queryParams, {
         method: "GET",
         headers: headers,
       });
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
       const json = await res.json();
 
-      for (const site of json) {
-        site.cannot_crawl = site.cannot_crawl_at ? true : false;
-      }
-
-      console.log("json", json);
-      setData(json);
+      setTotalCount(json.totalCount);
+      setTotalPage(json.totalPage);
+      setPageSize(json.pageSize);
+      setData(json.data);
     } catch (err) {
       console.log(err);
     }
@@ -392,10 +400,24 @@ const Sites: NextPageWithLayout = () => {
     }
     return "";
   };
+  const handleChangePagination = (
+    e: React.ChangeEvent<unknown>,
+    page: number
+  ) => {
+    router.push({ query: { page: page } });
+  };
+
   useEffect(() => {
     setLoading(true);
-    loadData();
   }, []);
+
+  useEffect(() => {
+    setPage(router.query.page ? parseInt(router.query.page.toString()) : 1);
+  }, [router]);
+
+  useEffect(() => {
+    loadData();
+  }, [page]);
 
   return (
     <div>
@@ -410,23 +432,34 @@ const Sites: NextPageWithLayout = () => {
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <Stack gap={2} mt={2} pr={8}>
-          {data.map((site) => {
-            return (
-              <Card key={site.id}>
-                <SiteRow
-                  key={site.id}
-                  site={site}
-                  activeSite={activeSite}
-                  deActiveSite={deActiveSite}
-                  removeSite={removeSite}
-                  openDialog={handleEditOpen}
-                  runCrawling={runCrawling}
-                  dryRunCrawling={dryRunCrawling}
-                />
-              </Card>
-            );
-          })}
+        <Stack gap={3} alignItems="center">
+          <Stack>
+            {totalCount}件中　{(page - 1) * pageSize + 1} -{" "}
+            {(page - 1) * pageSize + data.length}件
+          </Stack>
+          <Stack gap={2} mt={2} pr={8}>
+            {data.map((site) => {
+              return (
+                <Card key={site.id}>
+                  <SiteRow
+                    key={site.id}
+                    site={site}
+                    activeSite={activeSite}
+                    deActiveSite={deActiveSite}
+                    removeSite={removeSite}
+                    openDialog={handleEditOpen}
+                    runCrawling={runCrawling}
+                    dryRunCrawling={dryRunCrawling}
+                  />
+                </Card>
+              );
+            })}
+          </Stack>
+          <Pagination
+            page={page}
+            count={totalPage}
+            onChange={handleChangePagination}
+          />
         </Stack>
       )}
 
