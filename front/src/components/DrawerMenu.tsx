@@ -71,9 +71,9 @@ export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
             </ListItem>
 
             <ListItem disablePadding>
-              <Link href="/site" passHref>
-                <ListItemButton selected={router.pathname === "/site"}>
-                  <ListItemText primary="Site" />
+              <Link href="/sites" passHref>
+                <ListItemButton selected={router.pathname.startsWith("/sites")}>
+                  <ListItemText primary="Sites" />
                 </ListItemButton>
               </Link>
             </ListItem>

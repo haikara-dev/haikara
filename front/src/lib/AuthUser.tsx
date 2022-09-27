@@ -133,12 +133,18 @@ const AuthUserProvider: React.FC<AuthUserProviderProps> = ({ children }) => {
 
   if (initialize) {
     const adminRoutes: string[] = [
-      "/site",
+      "/sites",
+      "/sites/add",
+      "/sites/[id]",
+      "/sites/[id]/edit",
       "/feed",
       "/user",
       "/setting",
       "/article",
     ];
+
+    console.log("router.pathname", router.pathname);
+
     const authorizedRoutes: string[] = [...adminRoutes, "/dashboard"];
 
     if (authorizedRoutes.includes(router.pathname)) {

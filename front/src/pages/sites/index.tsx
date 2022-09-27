@@ -18,7 +18,7 @@ const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
-export type Site = {
+export type Index = {
   id: number;
   name: string;
   url: string;
@@ -40,7 +40,7 @@ export type SiteCrawlRule = {
   is_spa: boolean;
 };
 
-export type SiteWithSiteCrawlRule = Site & {
+export type SiteWithSiteCrawlRule = Index & {
   site_crawl_rule: SiteCrawlRule;
 };
 
@@ -58,13 +58,13 @@ const Sites: NextPageWithLayout = () => {
   const [totalPage, setTotalPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
-  const [data, setData] = useState<Site[]>([]);
+  const [data, setData] = useState<Index[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { authUser } = useAuthUserContext();
 
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Site | null>(null);
+  const [editTarget, setEditTarget] = useState<Index | null>(null);
 
   const [dryOpen, setDryOpen] = useState(false);
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
@@ -77,7 +77,7 @@ const Sites: NextPageWithLayout = () => {
     setAddOpen(false);
   };
 
-  const handleEditOpen = (site: Site) => {
+  const handleEditOpen = (site: Index) => {
     setEditOpen(true);
     setEditTarget(site);
   };
