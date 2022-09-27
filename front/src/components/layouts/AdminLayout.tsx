@@ -11,7 +11,7 @@ type AdminLayoutProps = {
   children: ReactNode;
 };
 
-const drawerWidth = 240;
+const drawerWidth = 140;
 
 const Main = styled(Box, { shouldForwardProp: (prop) => prop !== "open" })<{
   open: boolean;

@@ -10,7 +10,7 @@ import styled from "@mui/material/styles/styled";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import { useRouter } from "next/router";
 
-const drawerWidth = 240;
+const drawerWidth = 140;
 
 export type DrawerMenuProps = {
   open: boolean;
