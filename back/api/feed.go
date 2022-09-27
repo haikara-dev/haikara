@@ -3,11 +3,13 @@ package api
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/feed"
 	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/mmcdole/gofeed"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -18,6 +20,23 @@ type FeedHandler struct {
 }
 
 func (h *FeedHandler) GetAllFeedsNoneContentsField(c *gin.Context) {
+	pageStr := c.Query("page")
+
+	if pageStr == "" {
+		pageStr = "1"
+	}
+
+	page, err := strconv.Atoi(pageStr)
+
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	pageSize := config.Config.PageSize
+
+	offset := (page - 1) * pageSize
+
 	feeds, err := h.Client.Feed.
 		Query().
 		Select(feed.FieldID, feed.FieldCount, feed.FieldCreatedAt, feed.FieldIndexedAt).
@@ -25,9 +44,20 @@ func (h *FeedHandler) GetAllFeedsNoneContentsField(c *gin.Context) {
 			query.Select(site.FieldName)
 		}).
 		Order(ent.Desc(feed.FieldCreatedAt)).
+		Offset(offset).
+		Limit(pageSize).
 		All(context.Background())
 
 	if err != nil && !ent.IsNotFound(err) {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	totalCount, err := h.Client.Feed.
+		Query().
+		Count(context.Background())
+
+	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -40,6 +70,14 @@ func (h *FeedHandler) GetAllFeedsNoneContentsField(c *gin.Context) {
 		SiteName  string     `json:"site_name"`
 		IndexedAt *time.Time `json:"indexed_at"`
 	}
+
+	type ResponseJson struct {
+		TotalCount int            `json:"totalCount"`
+		TotalPage  int            `json:"totalPage"`
+		PageSize   int            `json:"pageSize"`
+		Data       []ResponseFeed `json:"data"`
+	}
+
 	var resFeeds = make([]ResponseFeed, 0)
 
 	for _, feed := range feeds {
@@ -52,7 +90,12 @@ func (h *FeedHandler) GetAllFeedsNoneContentsField(c *gin.Context) {
 			IndexedAt: feed.IndexedAt,
 		})
 	}
-	c.JSON(http.StatusOK, resFeeds)
+	c.JSON(http.StatusOK, ResponseJson{
+		TotalCount: totalCount,
+		TotalPage:  int(math.Ceil(float64(totalCount) / float64(pageSize))),
+		PageSize:   pageSize,
+		Data:       resFeeds,
+	})
 }
 
 func (h *FeedHandler) GetAllFeeds(c *gin.Context) {

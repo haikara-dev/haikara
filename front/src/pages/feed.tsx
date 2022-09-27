@@ -5,12 +5,15 @@ import {
   Card,
   Button,
   IconButton,
+  Pagination,
 } from "@mui/material";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useAuthUserContext } from "@/lib/AuthUser";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
+import { useRouter } from "next/router";
+import usePagination from "@mui/material/usePagination";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -26,6 +29,14 @@ export type Feed = {
 };
 
 const Feeds: NextPageWithLayout = () => {
+  const router = useRouter();
+  const [page, setPage] = useState<number>(
+    router.query.page ? parseInt(router.query.page.toString()) : 1
+  );
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [totalPage, setTotalPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+
   const [data, setData] = useState<Feed[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { authUser } = useAuthUserContext();
@@ -40,13 +51,20 @@ const Feeds: NextPageWithLayout = () => {
   const loadData = async () => {
     try {
       const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_ADMIN_API_URL + "/feeds/lite", {
-        method: "GET",
-        headers: headers,
-      });
+      const queryParams = new URLSearchParams({ page: page.toString() });
+      const res = await fetch(
+        BACKEND_ADMIN_API_URL + "/feeds/lite?" + queryParams,
+        {
+          method: "GET",
+          headers: headers,
+        }
+      );
       if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
       const json = await res.json();
-      setData(json);
+      setTotalCount(json.totalCount);
+      setTotalPage(json.totalPage);
+      setPageSize(json.pageSize);
+      setData(json.data);
     } catch (err) {
       console.log(err);
     }
@@ -108,10 +126,24 @@ const Feeds: NextPageWithLayout = () => {
     runParse(id);
   };
 
+  const handleChangePagination = (
+    e: React.ChangeEvent<unknown>,
+    page: number
+  ) => {
+    router.push({ query: { page: page } });
+  };
+
   useEffect(() => {
     setLoading(true);
-    loadData();
   }, []);
+
+  useEffect(() => {
+    setPage(router.query.page ? parseInt(router.query.page.toString()) : 1);
+  }, [router]);
+
+  useEffect(() => {
+    loadData();
+  }, [page]);
 
   return (
     <div>
@@ -122,36 +154,47 @@ const Feeds: NextPageWithLayout = () => {
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <Stack gap={2} mt={2} pr={8}>
-          {data.map((feed) => {
-            return (
-              <Card key={feed.id}>
-                <Stack direction="row" gap={3} alignItems="center">
-                  <Button onClick={onClickRunHandler.bind(this, feed.id)}>
-                    Run
-                  </Button>
-                  <div>{new Date(feed.created_at).toLocaleString()}</div>
-                  <Box
-                    sx={{
-                      flexGrow: 1,
-                    }}
-                  >
-                    {feed.site_name}
-                  </Box>
-                  {feed.indexed_at && (
-                    <div>{new Date(feed.indexed_at).toLocaleString()}</div>
-                  )}
-                  <div>{feed.count}</div>
-                  <IconButton
-                    onClick={onClickDeleteHandler.bind(this, feed.id)}
-                    aria-label="remove"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>
-              </Card>
-            );
-          })}
+        <Stack gap={3} alignItems="center">
+          <Stack>
+            {totalCount}件中　{(page - 1) * pageSize + 1} -{" "}
+            {(page - 1) * pageSize + data.length}件
+          </Stack>
+          <Stack gap={2} mt={2} pr={8}>
+            {data.map((feed) => {
+              return (
+                <Card key={feed.id}>
+                  <Stack direction="row" gap={3} alignItems="center">
+                    <Button onClick={onClickRunHandler.bind(this, feed.id)}>
+                      Run
+                    </Button>
+                    <div>{new Date(feed.created_at).toLocaleString()}</div>
+                    <Box
+                      sx={{
+                        flexGrow: 1,
+                      }}
+                    >
+                      {feed.site_name}
+                    </Box>
+                    {feed.indexed_at && (
+                      <div>{new Date(feed.indexed_at).toLocaleString()}</div>
+                    )}
+                    <div>{feed.count}</div>
+                    <IconButton
+                      onClick={onClickDeleteHandler.bind(this, feed.id)}
+                      aria-label="remove"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
+                </Card>
+              );
+            })}
+          </Stack>
+          <Pagination
+            page={page}
+            count={totalPage}
+            onChange={handleChangePagination}
+          />
         </Stack>
       )}
     </div>
