@@ -207,7 +207,8 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 			rootSelector,
 		)
 
-		link, _ := dom.Find(linkSelector).Attr("href")
+		link := utils.GetArticleLink(linkSelector, dom)
+
 		if link != "" {
 			base, err := url.Parse(siteUrl)
 			if err != nil {
@@ -365,7 +366,7 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, clie
 			rootSelector,
 		)
 
-		url, _ := e.DOM.Find(linkSelector).Attr("href")
+		url := utils.GetArticleLink(linkSelector, e.DOM)
 		url = e.Request.AbsoluteURL(url)
 
 		var description string

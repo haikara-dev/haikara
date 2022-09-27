@@ -40,3 +40,24 @@ func GetArticleTitle(selector string, selection *goquery.Selection) string {
 	title = strings.TrimSpace(title)
 	return title
 }
+
+func GetArticleLink(selector string, selection *goquery.Selection) string {
+	if selection == nil {
+		return ""
+	}
+
+	var linkDom *goquery.Selection
+	if selector == "" {
+		// selectionがaタグの場合は、そのまま取得する
+		linkDom = selection
+	} else {
+		linkDom = selection.Find(selector)
+		if linkDom.Length() == 0 {
+			return ""
+		}
+	}
+
+	link, _ := linkDom.Attr("href")
+	link = strings.TrimSpace(link)
+	return link
+}
