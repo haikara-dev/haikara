@@ -16,7 +16,9 @@ const customJestConfig = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   moduleNameMapper: {
     "^@/components/(.*)$": "<rootDir>/src/components/$1",
+    "^@/services/(.*)$": "<rootDir>/src/services/$1",
     "^@/features/(.*)$": "<rootDir>/src/features/$1",
+    "^@/app/(.*)$": "<rootDir>/src/app/$1",
     "^@/fixtures/(.*)$": ["<rootDir>/src/fixtures/$1"],
     "^@/lib/(.*)$": ["<rootDir>/src/lib/$1"],
     "^@/pages/(.*)$": ["<rootDir>/src/pages/$1"],

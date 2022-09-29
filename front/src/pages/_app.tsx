@@ -1,6 +1,8 @@
 import type { AppProps } from "next/app";
 import { CssBaseline } from "@mui/material";
 import AuthUserProvider from "@/lib/AuthUser";
+import { store } from "@/app/store";
+import { Provider } from "react-redux";
 import "../firebaseConfig";
 import { ReactElement, ReactNode } from "react";
 import { NextPage } from "next";
@@ -19,9 +21,11 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <>
       <CssBaseline />
-      <AuthUserProvider>
-        {getLayout(<Component {...pageProps} />)}
-      </AuthUserProvider>
+      <Provider store={store}>
+        <AuthUserProvider>
+          {getLayout(<Component {...pageProps} />)}
+        </AuthUserProvider>
+      </Provider>
     </>
   );
 }
