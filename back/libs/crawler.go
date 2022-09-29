@@ -299,14 +299,15 @@ func GetRSSByHTMLUseChrome(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, cli
 			}
 		}
 
-		item := &feeds.Item{
-			Title:       title,
-			Link:        &feeds.Link{Href: link},
-			Description: description,
-			Created:     date,
+		if title != "" && link != "" && date.IsZero() == false {
+			item := &feeds.Item{
+				Title:       title,
+				Link:        &feeds.Link{Href: link},
+				Description: description,
+				Created:     date,
+			}
+			feed.Add(item)
 		}
-		feed.Add(item)
-
 	})
 	if contents == "" {
 		return "", errors.New("contents is empty")
@@ -443,13 +444,16 @@ func GetRSSByHTMLUseColly(siteUrl string, siteCrawlRule *ent.SiteCrawlRule, clie
 			}
 		}
 
-		item := &feeds.Item{
-			Title:       title,
-			Link:        &feeds.Link{Href: url},
-			Description: description,
-			Created:     date,
+		if title != "" && url != "" && date.IsZero() == false {
+			item := &feeds.Item{
+				Title:       title,
+				Link:        &feeds.Link{Href: url},
+				Description: description,
+				Created:     date,
+			}
+			feed.Add(item)
 		}
-		feed.Add(item)
+
 	})
 
 	s.Visit(siteUrl)
