@@ -14,10 +14,12 @@ import React, { ReactElement, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Link from "next/link";
-import { useAuthUserContext } from "@/lib/AuthUser";
 import { useRouter } from "next/router";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { NextPageWithLayout } from "@/pages/_app";
+import { useAppDispatch } from "@/app/hooks";
+import { login } from "@/features/auth/authSlice";
+import { userApi } from "@/services/userApi";
 
 type FormInput = {
   email: string;
@@ -34,8 +36,9 @@ const schema = yup.object({
 
 const Login: NextPageWithLayout = () => {
   const auth = getAuth();
-  const { authUser, login } = useAuthUserContext();
   const router = useRouter();
+  const dispatch = useAppDispatch();
+
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -53,9 +56,7 @@ const Login: NextPageWithLayout = () => {
         data.email.trim(),
         data.password.trim()
       );
-      login(userCredential.user, () => {
-        router.push("/");
-      });
+      dispatch(login(userCredential.user));
     } catch (err) {
       if (err instanceof Error) {
         setServerError(err.message);

@@ -4,15 +4,21 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
-import { useAuthUserContext } from "@/lib/AuthUser";
 
 import { FC } from "react";
+import { useAppDispatch } from "@/app/hooks";
+import {
+  logout,
+  selectAuthUser,
+  useAuthSelector,
+} from "@/features/auth/authSlice";
 
 export type DefaultHeaderProps = {};
 
 const DefaultHeader: FC<DefaultHeaderProps> = () => {
   const auth = getAuth();
-  const { authUser, logout } = useAuthUserContext();
+  const authUser = useAuthSelector(selectAuthUser);
+  const dispatch = useAppDispatch();
   return (
     <AppBar position="fixed">
       <Toolbar>
@@ -41,7 +47,7 @@ const DefaultHeader: FC<DefaultHeaderProps> = () => {
               onClick={async () => {
                 try {
                   await auth.signOut();
-                  logout(() => {});
+                  dispatch(logout());
                 } catch (error) {
                   console.error(error);
                 }

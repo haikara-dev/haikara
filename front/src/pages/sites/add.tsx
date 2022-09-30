@@ -2,15 +2,15 @@ import React, { ReactElement } from "react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { NextPageWithLayout } from "@/pages/_app";
 import AddSiteForm from "@/components/site/AddSiteForm";
-import { useAuthUserContext } from "@/lib/AuthUser";
 import Typography from "@mui/material/Typography";
 import { SiteWithSiteCrawlRule } from "@/features/Sites";
+import { selectAuthUser, useAuthSelector } from "@/features/auth/authSlice";
 
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
 const SiteAdd: NextPageWithLayout = () => {
-  const { authUser } = useAuthUserContext();
+  const authUser = useAuthSelector(selectAuthUser);
   const getRequestHeaders = async () => {
     const idToken = await authUser?.getIdToken();
     return {

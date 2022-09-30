@@ -6,9 +6,14 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
-import { useAuthUserContext } from "@/lib/AuthUser";
 
 import { FC } from "react";
+import {
+  logout,
+  selectAuthUser,
+  useAuthSelector,
+} from "@/features/auth/authSlice";
+import { useAppDispatch } from "@/app/hooks";
 
 export type HeaderProps = {
   handleToggleDrawer?: () => void;
@@ -16,7 +21,9 @@ export type HeaderProps = {
 
 const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
   const auth = getAuth();
-  const { authUser, logout } = useAuthUserContext();
+
+  const authUser = useAuthSelector(selectAuthUser);
+  const dispatch = useAppDispatch();
   return (
     <AppBar
       position="fixed"
@@ -54,15 +61,12 @@ const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
               <Button color="inherit">コンソール</Button>
             </Link>
 
-            {/*<Typography variant="h6" component="div">*/}
-            {/*  {currentUser?.email}*/}
-            {/*</Typography>*/}
             <Button
               color="inherit"
               onClick={async () => {
                 try {
                   await auth.signOut();
-                  logout(() => {});
+                  dispatch(logout());
                 } catch (error) {
                   console.error(error);
                 }

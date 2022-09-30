@@ -6,13 +6,13 @@ import Pagination from "@mui/material/Pagination";
 
 import React, { ReactElement, useEffect, useState } from "react";
 import SiteRow from "@/components/site/SiteRow";
-import { useAuthUserContext } from "@/lib/AuthUser";
 import EditSiteFormDialog from "@/components/site/EditSiteFormDialog";
 import DryRunDialog from "@/components/site/DryRunDialog";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
 import { DryRunResult, Site, SiteWithSiteCrawlRule } from "@/features/Sites";
+import { selectAuthUser, useAuthSelector } from "@/features/auth/authSlice";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -29,8 +29,7 @@ const Sites: NextPageWithLayout = () => {
 
   const [data, setData] = useState<Site[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const { authUser } = useAuthUserContext();
-
+  const authUser = useAuthSelector(selectAuthUser);
   const [editOpen, setEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Site | null>(null);
 

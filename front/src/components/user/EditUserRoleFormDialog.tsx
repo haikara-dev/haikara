@@ -17,8 +17,8 @@ import {
   FormLabel,
   FormHelperText,
 } from "@mui/material";
+import { User } from "@/features/auth/authSlice";
 
-import { User } from "@/lib/AuthUser";
 type FormInput = {
   role: string;
 };

@@ -7,8 +7,8 @@ import ListItemText from "@mui/material/ListItemText";
 import { FC } from "react";
 import Link from "next/link";
 import styled from "@mui/material/styles/styled";
-import { useAuthUserContext } from "@/lib/AuthUser";
 import { useRouter } from "next/router";
+import { selectIsAdmin, useAuthSelector } from "@/features/auth/authSlice";
 
 const drawerWidth = 140;
 
@@ -27,8 +27,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
   const router = useRouter();
-  const { isAdmin, authUser } = useAuthUserContext();
-
+  const authUser = useAuthSelector(selectIsAdmin);
+  const isAdmin = useAuthSelector(selectIsAdmin);
   return (
     <Drawer
       variant="persistent"

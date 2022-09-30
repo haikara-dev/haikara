@@ -7,11 +7,11 @@ import IconButton from "@mui/material/IconButton";
 import Pagination from "@mui/material/Pagination";
 
 import React, { ReactElement, useEffect, useState } from "react";
-import { useAuthUserContext } from "@/lib/AuthUser";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
+import { selectAuthUser, useAuthSelector } from "@/features/auth/authSlice";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -37,7 +37,7 @@ const Feeds: NextPageWithLayout = () => {
 
   const [data, setData] = useState<Feed[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const { authUser } = useAuthUserContext();
+  const authUser = useAuthSelector(selectAuthUser);
 
   const getRequestHeaders = async () => {
     const idToken = await authUser?.getIdToken();

@@ -6,11 +6,11 @@ import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
-import { useAuthUserContext } from "@/lib/AuthUser";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import { useDropzone } from "react-dropzone";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { NextPageWithLayout } from "@/pages/_app";
+import { selectAuthUser, useAuthSelector } from "@/features/auth/authSlice";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -20,7 +20,7 @@ const Settings: NextPageWithLayout = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [importFile, setImportFile] = useState<File | null>(null);
 
-  const { authUser } = useAuthUserContext();
+  const authUser = useAuthSelector(selectAuthUser);
 
   const onDrop = useCallback((acceptedFiles: any) => {
     // Do something with the files
