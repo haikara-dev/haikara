@@ -10,7 +10,8 @@ import Highlight, { defaultProps } from "prism-react-renderer";
 import { useDropzone } from "react-dropzone";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { NextPageWithLayout } from "@/pages/_app";
-import { selectAuthUser, useAuthSelector } from "@/features/auth/authSlice";
+import { selectAuthUser } from "@/features/auth/authSlice";
+import { useAppSelector } from "@/app/hooks";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -20,7 +21,7 @@ const Settings: NextPageWithLayout = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [importFile, setImportFile] = useState<File | null>(null);
 
-  const authUser = useAuthSelector(selectAuthUser);
+  const authUser = useAppSelector(selectAuthUser);
 
   const onDrop = useCallback((acceptedFiles: any) => {
     // Do something with the files

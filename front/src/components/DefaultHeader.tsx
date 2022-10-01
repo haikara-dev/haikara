@@ -6,18 +6,14 @@ import Link from "next/link";
 import { getAuth } from "firebase/auth";
 
 import { FC } from "react";
-import { useAppDispatch } from "@/app/hooks";
-import {
-  logout,
-  selectAuthUser,
-  useAuthSelector,
-} from "@/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { logout, selectAuthUser } from "@/features/auth/authSlice";
 
 export type DefaultHeaderProps = {};
 
 const DefaultHeader: FC<DefaultHeaderProps> = () => {
   const auth = getAuth();
-  const authUser = useAuthSelector(selectAuthUser);
+  const authUser = useAppSelector(selectAuthUser);
   const dispatch = useAppDispatch();
   return (
     <AppBar position="fixed">

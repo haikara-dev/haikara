@@ -1,6 +1,7 @@
 import { User as AuthUser } from "@firebase/auth";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
+import { RootState } from "@/app/store";
 
 export type User = {
   id: number;
@@ -26,19 +27,18 @@ export const authSlice = createSlice({
   reducers: {
     login: (state, action: PayloadAction<AuthUser>) => {
       state.authUser = action.payload;
-
-      // TODO APP DBにもユーザーを作成する
-      // createUser(authUser);
-
-      // TODO: ページ遷移処理を追加すること
     },
     logout: (state) => {
       state.authUser = null;
-
-      // TODO: ページ遷移処理を追加すること
+    },
+    setCurrentUser: (state, action: PayloadAction<User>) => {
+      state.currentUser = action.payload;
+      state.isAdmin = action.payload.role === "admin";
+      console.log("setCurrentUser", state.isAdmin);
     },
     setAdmin: (state, action: PayloadAction<boolean>) => {
       state.isAdmin = action.payload;
+      console.log("setAdmin", state.isAdmin);
     },
   },
 });
@@ -46,18 +46,14 @@ export const authSlice = createSlice({
 /*
   Actions
  */
-export const { login, logout, setAdmin } = authSlice.actions;
+export const { login, logout, setCurrentUser, setAdmin } = authSlice.actions;
 
 /*
   Selectors
  */
-export const selectCurrentUser = (state: AuthState) => state.currentUser;
-export const selectAuthUser = (state: AuthState) => state.authUser;
-export const selectIsAdmin = (state: AuthState) => state.isAdmin;
 
-/*
- Hooks
- */
-export const useAuthSelector: TypedUseSelectorHook<AuthState> = useSelector;
+export const selectCurrentUser = (state: RootState) => state.auth.currentUser;
+export const selectAuthUser = (state: RootState) => state.auth.authUser;
+export const selectIsAdmin = (state: RootState) => state.auth.isAdmin;
 
 export default authSlice.reducer;

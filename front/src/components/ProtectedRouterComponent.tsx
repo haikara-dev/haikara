@@ -1,11 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "@/services/firebase";
 import { useRouter } from "next/router";
-import {
-  selectAuthUser,
-  selectIsAdmin,
-  useAuthSelector,
-} from "@/features/auth/authSlice";
+import { selectAuthUser, selectIsAdmin } from "@/features/auth/authSlice";
+import { useAppSelector } from "@/app/hooks";
 
 export type ProtectedComponentProps = {
   children: React.ReactNode;
@@ -16,52 +13,53 @@ const ProtectedRouterComponent: React.FC<ProtectedComponentProps> = ({
   // firebase auth
   const { initializedAuth } = useAuth();
   const router = useRouter();
-  const authUser = useAuthSelector(selectAuthUser);
-  const isAdmin = useAuthSelector(selectIsAdmin);
+  const authUser = useAppSelector(selectAuthUser);
+  const isAdmin = useAppSelector(selectIsAdmin);
 
-  if (initializedAuth) {
-    const adminRoutes: string[] = [
-      "/sites",
-      "/sites/add",
-      "/sites/[id]",
-      "/sites/[id]/edit",
-      "/feed",
-      "/user",
-      "/setting",
-      "/article",
-    ];
+  useEffect(() => {
+    if (initializedAuth) {
+      console.log("authUser", authUser);
+      console.log("isAdmin", isAdmin);
+      const adminRoutes: string[] = [
+        "/sites",
+        "/sites/add",
+        "/sites/[id]",
+        "/sites/[id]/edit",
+        "/feed",
+        "/user",
+        "/setting",
+        "/article",
+      ];
 
-    console.log("router.pathname", router.pathname);
+      console.log("router.pathname", router.pathname);
 
-    const authorizedRoutes: string[] = [...adminRoutes, "/dashboard"];
+      const authorizedRoutes: string[] = [...adminRoutes, "/dashboard"];
 
-    if (authorizedRoutes.includes(router.pathname)) {
-      if (!authUser) {
-        router.push("/login");
-        return <></>;
+      if (authorizedRoutes.includes(router.pathname)) {
+        if (!authUser) {
+          router.push("/login");
+        }
+      }
+
+      if (adminRoutes.includes(router.pathname)) {
+        if (!isAdmin) {
+          router.push("/dashboard");
+        }
+      }
+
+      // ログインしていなくても表示するページ
+      // /login /register
+
+      // ログインしていたら、トップページにリダイレクトするページ
+      // /login /register
+
+      if ("/login" === router.pathname || "/register" === router.pathname) {
+        if (authUser) {
+          router.push("/");
+        }
       }
     }
-
-    if (adminRoutes.includes(router.pathname)) {
-      if (!isAdmin) {
-        router.push("/dashboard");
-        return <></>;
-      }
-    }
-
-    // ログインしていなくても表示するページ
-    // /login /register
-
-    // ログインしていたら、トップページにリダイレクトするページ
-    // /login /register
-
-    if ("/login" === router.pathname || "/register" === router.pathname) {
-      if (authUser) {
-        router.push("/");
-        return <></>;
-      }
-    }
-  }
+  }, [initializedAuth]);
 
   return <>{initializedAuth && children}</>;
 };

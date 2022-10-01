@@ -11,7 +11,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/router";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { selectAuthUser, useAuthSelector } from "@/features/auth/authSlice";
+import { selectAuthUser } from "@/features/auth/authSlice";
+import { useAppSelector } from "@/app/hooks";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -34,7 +35,7 @@ const Articles: NextPageWithLayout = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [data, setData] = useState<Article[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const authUser = useAuthSelector(selectAuthUser);
+  const authUser = useAppSelector(selectAuthUser);
 
   const getRequestHeaders = async () => {
     const idToken = await authUser?.getIdToken();

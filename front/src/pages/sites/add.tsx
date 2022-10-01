@@ -4,13 +4,14 @@ import { NextPageWithLayout } from "@/pages/_app";
 import AddSiteForm from "@/components/site/AddSiteForm";
 import Typography from "@mui/material/Typography";
 import { SiteWithSiteCrawlRule } from "@/features/Sites";
-import { selectAuthUser, useAuthSelector } from "@/features/auth/authSlice";
+import { selectAuthUser } from "@/features/auth/authSlice";
+import { useAppSelector } from "@/app/hooks";
 
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
 const SiteAdd: NextPageWithLayout = () => {
-  const authUser = useAuthSelector(selectAuthUser);
+  const authUser = useAppSelector(selectAuthUser);
   const getRequestHeaders = async () => {
     const idToken = await authUser?.getIdToken();
     return {

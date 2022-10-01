@@ -8,11 +8,8 @@ import EditUserRoleFormDialog from "@/components/user/EditUserRoleFormDialog";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
-import {
-  selectAuthUser,
-  useAuthSelector,
-  User,
-} from "@/features/auth/authSlice";
+import { selectAuthUser, User } from "@/features/auth/authSlice";
+import { useAppSelector } from "@/app/hooks";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
@@ -33,7 +30,7 @@ const Users: NextPageWithLayout = () => {
   const [data, setData] = useState<User[]>([]);
 
   const [isLoading, setLoading] = useState(false);
-  const authUser = useAuthSelector(selectAuthUser);
+  const authUser = useAppSelector(selectAuthUser);
 
   const handleEditOpen = (user: User) => {
     setEditOpen(true);

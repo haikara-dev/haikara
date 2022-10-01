@@ -17,8 +17,12 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { NextPageWithLayout } from "@/pages/_app";
-import { useAppDispatch } from "@/app/hooks";
-import { login } from "@/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import {
+  login,
+  selectAuthUser,
+  setCurrentUser,
+} from "@/features/auth/authSlice";
 import { userApi } from "@/services/userApi";
 
 type FormInput = {
@@ -41,6 +45,7 @@ const Login: NextPageWithLayout = () => {
 
   const [serverError, setServerError] = useState<string | null>(null);
 
+  const authUser = useAppSelector(selectAuthUser);
   const {
     register,
     handleSubmit,
@@ -56,7 +61,17 @@ const Login: NextPageWithLayout = () => {
         data.email.trim(),
         data.password.trim()
       );
+
       dispatch(login(userCredential.user));
+
+      const { data: currentUser, isSuccess } = await dispatch(
+        userApi.endpoints.getCurrentUser.initiate(authUser!)
+      );
+
+      if (isSuccess) {
+        dispatch(setCurrentUser(currentUser));
+        await router.push("/dashboard");
+      }
     } catch (err) {
       if (err instanceof Error) {
         setServerError(err.message);

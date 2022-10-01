@@ -8,12 +8,8 @@ import Link from "next/link";
 import { getAuth } from "firebase/auth";
 
 import { FC } from "react";
-import {
-  logout,
-  selectAuthUser,
-  useAuthSelector,
-} from "@/features/auth/authSlice";
-import { useAppDispatch } from "@/app/hooks";
+import { logout, selectAuthUser } from "@/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 
 export type HeaderProps = {
   handleToggleDrawer?: () => void;
@@ -22,7 +18,7 @@ export type HeaderProps = {
 const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
   const auth = getAuth();
 
-  const authUser = useAuthSelector(selectAuthUser);
+  const authUser = useAppSelector(selectAuthUser);
   const dispatch = useAppDispatch();
   return (
     <AppBar
