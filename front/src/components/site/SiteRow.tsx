@@ -13,6 +13,7 @@ import {
   useDeActiveSiteMutation,
   useDeleteSiteMutation,
   useDryRunSiteCrawlingMutation,
+  useLazyGetSiteWithSiteCrawlRuleQuery,
   useRunSiteCrawlingMutation,
 } from "@/services/adminApi";
 
@@ -27,6 +28,13 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDialog }) => {
   const [activeSite] = useActiveSiteMutation();
   const [deActiveSite] = useDeActiveSiteMutation();
   const [deleteSite] = useDeleteSiteMutation();
+
+  const [getSiteWithSiteCrawlRule] = useLazyGetSiteWithSiteCrawlRuleQuery();
+
+  const onClickGetHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    getSiteWithSiteCrawlRule(site.id);
+  };
 
   const onClickRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -75,6 +83,7 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDialog }) => {
         backgroundColor: site.cannot_crawl ? "#f5c4c4" : "white",
       }}
     >
+      <Button onClick={onClickGetHandler}>Get</Button>
       <Button onClick={onClickRunHandler}>Run</Button>
       <Button onClick={onClickDryRunHandler}>Dry</Button>
       <Box

@@ -45,7 +45,13 @@ export type SiteCrawlRule = {
 };
 
 export type SiteWithSiteCrawlRule = Site & {
-  site_crawl_rule: SiteCrawlRule;
+  site_crawl_rule?: SiteCrawlRule;
+};
+
+export type NestedSiteWithSiteCrawlRuleServerResponse = Site & {
+  edges?: {
+    site_crawl_rule: SiteCrawlRule;
+  };
 };
 
 export type DryRunResult = {
@@ -191,12 +197,21 @@ export const adminApi = createApi({
       query: (page = 1) => ({
         url: `/sites?page=${page}`,
       }),
+      transformResponse: (response: ListResponse<Site>) =>
+        addCanCrawlFieldToSiteListResponse(response),
     }),
     getSiteWithSiteCrawlRule: builder.query<SiteWithSiteCrawlRule, number>({
       // TODO: site.cannot_crawl = site.cannot_crawl_at ? true : false;
       query: (id) => ({
         url: `/sites/${id}`,
       }),
+      transformResponse: (
+        response: NestedSiteWithSiteCrawlRuleServerResponse
+      ) => {
+        return addCanCrawlFieldToSite(
+          unNestNestedSiteWithSiteCrawlRuleServerResponse(response)
+        ) as SiteWithSiteCrawlRule;
+      },
     }),
     addSite: builder.mutation<Site, AddSiteArg>({
       query: (queryArg) => ({
@@ -204,6 +219,7 @@ export const adminApi = createApi({
         method: "POST",
         body: queryArg.body,
       }),
+      transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
     }),
     updateSite: builder.mutation<Site, UpdateSiteArg>({
       query: (queryArg) => ({
@@ -211,6 +227,7 @@ export const adminApi = createApi({
         method: "PUT",
         body: queryArg.body,
       }),
+      transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
     }),
     deleteSite: builder.mutation<DeleteResponse, number>({
       query: (id) => ({
@@ -224,6 +241,7 @@ export const adminApi = createApi({
         method: "PATCH",
         body: queryArg.body,
       }),
+      transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
     }),
     deActiveSite: builder.mutation<Site, DeActiveSiteArg>({
       query: (queryArg) => ({
@@ -231,6 +249,7 @@ export const adminApi = createApi({
         method: "PATCH",
         body: queryArg.body,
       }),
+      transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
     }),
     runSiteCrawling: builder.mutation<RunSiteCrawlingResponse, number>({
       query: (id) => ({
@@ -259,6 +278,47 @@ export const adminApi = createApi({
     }),
   }),
 });
+
+/*
+  transformResponse
+ */
+
+/**
+ * Add can_crawl field to SiteListResponse
+ * @param response
+ */
+const addCanCrawlFieldToSiteListResponse = (response: ListResponse<Site>) => {
+  response.data.forEach((site) => {
+    site.cannot_crawl = site.cannot_crawl_at ? true : false;
+  });
+  return response;
+};
+
+/**
+ * Add can_crawl field to Site
+ * @param site
+ */
+const addCanCrawlFieldToSite = (site: Site) => {
+  site.cannot_crawl = site.cannot_crawl_at ? true : false;
+  return site;
+};
+
+/**
+ * UnNest NestedSiteWithSiteCrawlRuleServerResponse
+ *  {edges.site_crawl_rule} -> {site_crawl_rule}
+ * @param response
+ */
+const unNestNestedSiteWithSiteCrawlRuleServerResponse = (
+  response: NestedSiteWithSiteCrawlRuleServerResponse
+) => {
+  const site_crawl_rule = response.edges?.site_crawl_rule;
+  delete response.edges;
+  const parsedResponse = {
+    ...response,
+  } as SiteWithSiteCrawlRule;
+  parsedResponse.site_crawl_rule = site_crawl_rule;
+  return parsedResponse;
+};
 
 /*
   Hooks
