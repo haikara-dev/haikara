@@ -46,4 +46,8 @@ export const userApi = createApi({
 /*
   Hooks
  */
-export const { useGetCurrentUserQuery, useCreateUserMutation } = userApi;
+export const {
+  useGetCurrentUserQuery,
+  useLazyGetCurrentUserQuery,
+  useCreateUserMutation,
+} = userApi;

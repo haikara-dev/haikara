@@ -23,7 +23,7 @@ import {
   selectAuthUser,
   setCurrentUser,
 } from "@/features/auth/authSlice";
-import { userApi } from "@/services/userApi";
+import { useLazyGetCurrentUserQuery, userApi } from "@/services/userApi";
 
 type FormInput = {
   email: string;
@@ -44,6 +44,7 @@ const Login: NextPageWithLayout = () => {
   const dispatch = useAppDispatch();
 
   const [serverError, setServerError] = useState<string | null>(null);
+  const [getCurrentUser] = useLazyGetCurrentUserQuery();
 
   const {
     register,
@@ -63,11 +64,9 @@ const Login: NextPageWithLayout = () => {
 
       dispatch(login(userCredential.user));
 
-      const { data: currentUser, isSuccess } = await dispatch(
-        userApi.endpoints.getCurrentUser.initiate()
-      );
+      const currentUser = await getCurrentUser().unwrap();
 
-      if (isSuccess) {
+      if (currentUser) {
         dispatch(setCurrentUser(currentUser));
         await router.push("/dashboard");
       }

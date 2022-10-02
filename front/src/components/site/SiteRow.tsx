@@ -7,49 +7,59 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Site } from "@/features/Sites";
+import {
+  Site,
+  useActiveSiteMutation,
+  useDeActiveSiteMutation,
+  useDeleteSiteMutation,
+  useDryRunSiteCrawlingMutation,
+  useRunSiteCrawlingMutation,
+} from "@/services/adminApi";
+
 export type SiteRowProps = {
   site: Site;
-  activeSite: (id: number) => void;
-  deActiveSite: (id: number) => void;
-  removeSite: (id: number) => void;
-
   openDialog: (site: Site) => void;
-  runCrawling: (id: number) => void;
-  dryRunCrawling: (id: number) => void;
 };
 
-const SiteRow: React.FC<SiteRowProps> = ({
-  site,
-  activeSite,
-  deActiveSite,
-  removeSite,
-  openDialog,
-  runCrawling,
-  dryRunCrawling,
-}) => {
+const SiteRow: React.FC<SiteRowProps> = ({ site, openDialog }) => {
+  const [runSiteCrawling] = useRunSiteCrawlingMutation();
+  const [dryRunSiteCrawling] = useDryRunSiteCrawlingMutation();
+  const [activeSite] = useActiveSiteMutation();
+  const [deActiveSite] = useDeActiveSiteMutation();
+  const [deleteSite] = useDeleteSiteMutation();
+
   const onClickRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    runCrawling(site.id);
+    runSiteCrawling(site.id);
   };
 
   const onClickDryRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    dryRunCrawling(site.id);
+    dryRunSiteCrawling(site.id);
   };
 
   const onChangeCheckboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (site.active) {
-      deActiveSite(site.id);
+      deActiveSite({
+        id: site.id,
+        body: {
+          active: false,
+        },
+      });
     } else {
-      activeSite(site.id);
+      activeSite({
+        id: site.id,
+        body: {
+          active: true,
+        },
+      });
     }
   };
 
   const onClickRemoveHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    removeSite(site.id);
+    deleteSite(site.id);
   };
 
   const onClickTextHandler = (e: React.MouseEvent<HTMLDivElement>) => {

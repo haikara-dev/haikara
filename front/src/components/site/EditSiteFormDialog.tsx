@@ -15,7 +15,13 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
-import { Site, SiteWithSiteCrawlRule } from "@/features/Sites";
+import {
+  Site,
+  SiteWithSiteCrawlRule,
+  useGetSiteRssUrlMutation,
+  useLazyGetSiteWithSiteCrawlRuleQuery,
+  useUpdateSiteMutation,
+} from "@/services/adminApi";
 
 type FormInput = {
   name: string;
@@ -54,22 +60,14 @@ export type AddSiteFormProps = {
   open: boolean;
   handleClose: () => void;
   site: Site;
-  updateSite: (site: SiteWithSiteCrawlRule) => void;
-  getRssUrl: (id: number) => Promise<string>;
   onEndEdit: () => void;
-  loadSiteWithSiteCrawlRule: (
-    id: number
-  ) => Promise<SiteWithSiteCrawlRule | null>;
 };
 
 const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
   open,
   handleClose,
   site,
-  updateSite,
-  getRssUrl,
   onEndEdit,
-  loadSiteWithSiteCrawlRule,
 }) => {
   const [siteWithSiteCrawlRule, setSiteWithSiteCrawlRule] =
     React.useState<SiteWithSiteCrawlRule | null>(null);
@@ -83,6 +81,10 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
     resolver: yupResolver(schema),
   });
 
+  const [updateSite] = useUpdateSiteMutation();
+  const [getSiteRssUrl] = useGetSiteRssUrlMutation();
+  const [getSiteWithSiteCrawlRule] = useLazyGetSiteWithSiteCrawlRuleQuery();
+
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
     try {
       const trimmedName = data.name.trim();
@@ -95,22 +97,27 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
 
       await updateSite({
         id: site.id,
-        name: trimmedName,
-        url: trimmedUrl,
-        feed_url: trimmedfeed_url,
-        active: site.active,
-        cannot_crawl_at: site.cannot_crawl_at,
-        cannot_crawl: data.cannot_crawl,
-        site_crawl_rule: {
-          article_selector: data.article_selector,
-          title_selector: data.title_selector,
-          link_selector: data.link_selector,
-          description_selector: data.description_selector,
-          has_data_to_list: data.has_data_to_list,
-          date_selector: data.date_selector,
-          date_layout: data.date_layout,
-          is_time_humanize: data.is_time_humanize,
-          is_spa: data.is_spa,
+        body: {
+          site: {
+            id: site.id,
+            name: trimmedName,
+            url: trimmedUrl,
+            feed_url: trimmedfeed_url,
+            active: site.active,
+            cannot_crawl_at: site.cannot_crawl_at,
+            cannot_crawl: data.cannot_crawl,
+            site_crawl_rule: {
+              article_selector: data.article_selector,
+              title_selector: data.title_selector,
+              link_selector: data.link_selector,
+              description_selector: data.description_selector,
+              has_data_to_list: data.has_data_to_list,
+              date_selector: data.date_selector,
+              date_layout: data.date_layout,
+              is_time_humanize: data.is_time_humanize,
+              is_spa: data.is_spa,
+            },
+          },
         },
       });
 
@@ -124,15 +131,17 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    const url = await getRssUrl(site.id);
-    if (url !== "") {
-      setValue("feed_url", url, { shouldValidate: true });
+    const res = await getSiteRssUrl(site.id).unwrap();
+    if (res.url !== "") {
+      setValue("feed_url", res.url, { shouldValidate: true });
     }
   };
 
   useEffect(() => {
     const loadSite = async () => {
-      const siteWithSiteCrawlRule = await loadSiteWithSiteCrawlRule(site.id);
+      const siteWithSiteCrawlRule = await getSiteWithSiteCrawlRule(
+        site.id
+      ).unwrap();
       setSiteWithSiteCrawlRule(siteWithSiteCrawlRule);
     };
     if (site === null) {

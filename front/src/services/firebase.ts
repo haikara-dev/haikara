@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
 import { Auth, getAuth } from "firebase/auth";
 import { login, logout, setCurrentUser } from "@/features/auth/authSlice";
-import { userApi } from "@/services/userApi";
+import { useLazyGetCurrentUserQuery, userApi } from "@/services/userApi";
 
 export const useAuth = () => {
   const auth: Auth = getAuth();
@@ -10,6 +10,8 @@ export const useAuth = () => {
   const [initializedAuth, setInitializedAuth] = useState<boolean>(false);
 
   const [isLogin, setIsLogin] = useState<boolean>(false);
+
+  const [getCurrentUser] = useLazyGetCurrentUserQuery();
 
   useEffect(() => {
     const unSubscribe = auth.onAuthStateChanged(async (_authUser) => {
@@ -30,12 +32,14 @@ export const useAuth = () => {
 
   useEffect(() => {
     const f = async () => {
-      const { data: currentUser, isSuccess } = await dispatch(
-        userApi.endpoints.getCurrentUser.initiate()
-      );
+      try {
+        const currentUser = await getCurrentUser().unwrap();
 
-      if (isSuccess) {
-        dispatch(setCurrentUser(currentUser));
+        if (currentUser) {
+          dispatch(setCurrentUser(currentUser));
+        }
+      } catch (e) {
+        console.log(e);
       }
 
       setInitializedAuth(true);

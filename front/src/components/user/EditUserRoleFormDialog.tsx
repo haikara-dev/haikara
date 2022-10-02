@@ -18,6 +18,7 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { User } from "@/features/auth/authSlice";
+import { useUpdateUserRoleMutation } from "@/services/adminApi";
 
 type FormInput = {
   role: string;
@@ -31,7 +32,6 @@ export type AddSiteFormProps = {
   open: boolean;
   handleClose: () => void;
   user: User;
-  updateUserRole: (id: number, role: string) => void;
   onEndEdit: () => void;
 };
 
@@ -39,7 +39,6 @@ const EditUserRoleFormDialog: React.FC<AddSiteFormProps> = ({
   open,
   handleClose,
   user,
-  updateUserRole,
   onEndEdit,
 }) => {
   const {
@@ -50,12 +49,19 @@ const EditUserRoleFormDialog: React.FC<AddSiteFormProps> = ({
     resolver: yupResolver(schema),
   });
 
+  const [updateUserRole, result] = useUpdateUserRoleMutation();
+
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
     try {
-      const trimmedName = data.role.trim();
-      if (trimmedName.length === 0) return;
+      const trimmedRole = data.role.trim();
+      if (trimmedRole.length === 0) return;
 
-      await updateUserRole(user.id, trimmedName);
+      await updateUserRole({
+        id: user.id,
+        body: {
+          role: trimmedRole,
+        },
+      });
 
       onEndEdit();
     } catch (err) {

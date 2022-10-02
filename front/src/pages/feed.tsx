@@ -11,118 +11,49 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
-import { selectAuthUser } from "@/features/auth/authSlice";
-import { useAppSelector } from "@/app/hooks";
-
-const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
-const BACKEND_ADMIN_API_URL: string =
-  process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
-
-export type Feed = {
-  id: number;
-  count: number;
-  created_at: string;
-  indexed_at: string;
-  site_id: number;
-  site_name: string;
-};
+import {
+  useDeleteFeedMutation,
+  useGetFeedsQuery,
+  useRunParseFeedMutation,
+} from "@/services/adminApi";
 
 const Feeds: NextPageWithLayout = () => {
   const router = useRouter();
   const [page, setPage] = useState<number>(
     router.query.page ? parseInt(router.query.page.toString()) : 1
   );
-  const [totalCount, setTotalCount] = useState<number>(0);
-  const [totalPage, setTotalPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
 
-  const [data, setData] = useState<Feed[]>([]);
-  const [isLoading, setLoading] = useState(false);
-  const authUser = useAppSelector(selectAuthUser);
+  const {
+    data: feeds = {
+      totalCount: 0,
+      totalPage: 1,
+      pageSize: 10,
+      data: [],
+    },
+    isLoading,
+    refetch,
+  } = useGetFeedsQuery(page);
 
-  const getRequestHeaders = async () => {
-    const idToken = await authUser?.getIdToken();
-    return {
-      Authorization: `Bearer ${idToken}`,
-    };
-  };
+  const [deleteFeed, deleteFeedResulte] = useDeleteFeedMutation();
 
-  const loadData = async () => {
-    try {
-      const headers = await getRequestHeaders();
-      const queryParams = new URLSearchParams({ page: page.toString() });
-      const res = await fetch(
-        BACKEND_ADMIN_API_URL + "/feeds/lite?" + queryParams,
-        {
-          method: "GET",
-          headers: headers,
-        }
-      );
-      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
-      const json = await res.json();
-      setTotalCount(json.totalCount);
-      setTotalPage(json.totalPage);
-      setPageSize(json.pageSize);
-      setData(json.data);
-    } catch (err) {
-      console.log(err);
-    }
-    setLoading(false);
-  };
+  const [runParseFeed, runParseFeedResulte] = useRunParseFeedMutation();
 
-  const removeFeed = async (id: number) => {
-    try {
-      const headers = await getRequestHeaders();
-      const res = await fetch(
-        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/feeds/"),
-        {
-          method: "DELETE",
-          headers: {
-            ...headers,
-            ...{
-              "Content-Type": "application/json",
-            },
-          },
-        }
-      );
-      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
-      await loadData();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const runParse = async (id: number) => {
-    try {
-      const headers = await getRequestHeaders();
-      const res = await fetch(
-        new URL(id.toString(), BACKEND_ADMIN_API_URL + "/feeds/parse/"),
-        {
-          method: "GET",
-          headers: headers,
-        }
-      );
-      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
-      await loadData();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const onClickDeleteHandler = (
+  const onClickDeleteHandler = async (
     id: number,
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    removeFeed(id);
+    await deleteFeed(id);
+    refetch();
   };
 
-  const onClickRunHandler = (
+  const onClickRunHandler = async (
     id: number,
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    runParse(id);
+    await runParseFeed(id);
+    refetch();
   };
 
   const handleChangePagination = (
@@ -133,16 +64,8 @@ const Feeds: NextPageWithLayout = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
-  }, []);
-
-  useEffect(() => {
     setPage(router.query.page ? parseInt(router.query.page.toString()) : 1);
   }, [router]);
-
-  useEffect(() => {
-    loadData();
-  }, [page]);
 
   return (
     <div>
@@ -155,11 +78,11 @@ const Feeds: NextPageWithLayout = () => {
       ) : (
         <Stack gap={3} alignItems="center">
           <Stack>
-            {totalCount}件中　{(page - 1) * pageSize + 1} -{" "}
-            {(page - 1) * pageSize + data.length}件
+            {feeds.totalCount}件中　{(page - 1) * feeds.pageSize + 1} -{" "}
+            {(page - 1) * feeds.pageSize + feeds.data.length}件
           </Stack>
           <Stack gap={2} mt={2} pr={8}>
-            {data.map((feed) => {
+            {feeds.data.map((feed) => {
               return (
                 <Card key={feed.id}>
                   <Stack direction="row" gap={3} alignItems="center">
@@ -191,7 +114,7 @@ const Feeds: NextPageWithLayout = () => {
           </Stack>
           <Pagination
             page={page}
-            count={totalPage}
+            count={feeds.totalPage}
             onChange={handleChangePagination}
           />
         </Stack>

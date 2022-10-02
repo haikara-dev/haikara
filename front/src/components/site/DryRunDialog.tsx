@@ -8,7 +8,7 @@ import DialogContent from "@mui/material/DialogContent";
 import Dialog from "@mui/material/Dialog";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
-import { DryRunResult } from "@/features/Sites";
+import { DryRunResult } from "@/services/adminApi";
 
 export type AddSiteFormProps = {
   open: boolean;

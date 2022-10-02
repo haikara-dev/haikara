@@ -13,7 +13,10 @@ import FormControl from "@mui/material/FormControl";
 
 import Stack from "@mui/material/Stack";
 import { useRouter } from "next/router";
-import { SiteWithSiteCrawlRule } from "@/features/Sites";
+import {
+  useAddSiteMutation,
+  useGetSiteRssUrlByUrlMutation,
+} from "@/services/adminApi";
 
 type FormInput = {
   name: string;
@@ -47,15 +50,7 @@ const schema = yup.object({
   is_spa: yup.boolean(),
 });
 
-export type AddSiteFormProps = {
-  addSite: (site: SiteWithSiteCrawlRule) => void;
-  getRssUrlByUrl: (url: string) => Promise<string>;
-};
-
-const AddSiteForm: React.FC<AddSiteFormProps> = ({
-  addSite,
-  getRssUrlByUrl,
-}) => {
+const AddSiteForm = () => {
   const router = useRouter();
 
   const {
@@ -84,6 +79,10 @@ const AddSiteForm: React.FC<AddSiteFormProps> = ({
     resolver: yupResolver(schema),
   });
 
+  const [addSite, addSiteResult] = useAddSiteMutation();
+  const [getSiteRssUrlByUrl, getSiteRssUrlByUrlResult] =
+    useGetSiteRssUrlByUrlMutation();
+
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
     try {
       const trimmedName = data.name.trim();
@@ -92,27 +91,31 @@ const AddSiteForm: React.FC<AddSiteFormProps> = ({
       const trimmedUrl = data.url.trim();
       if (trimmedUrl.length === 0) return;
 
-      const trimmedfeed_url = data.feed_url.trim();
+      const trimmedFeedUrl = data.feed_url.trim();
 
       await addSite({
-        // TODO: ここでidを生成しているが、使わない
-        id: 0,
-        name: trimmedName,
-        url: trimmedUrl,
-        feed_url: trimmedfeed_url,
-        active: false,
-        cannot_crawl: false,
-        cannot_crawl_at: "",
-        site_crawl_rule: {
-          article_selector: data.article_selector,
-          title_selector: data.title_selector,
-          link_selector: data.link_selector,
-          description_selector: data.description_selector,
-          has_data_to_list: data.has_data_to_list,
-          date_selector: data.date_selector,
-          date_layout: data.date_layout,
-          is_time_humanize: data.is_time_humanize,
-          is_spa: data.is_spa,
+        body: {
+          site: {
+            // TODO: ここでidを生成しているが、使わない
+            id: 0,
+            name: trimmedName,
+            url: trimmedUrl,
+            feed_url: trimmedFeedUrl,
+            active: false,
+            cannot_crawl: false,
+            cannot_crawl_at: "",
+            site_crawl_rule: {
+              article_selector: data.article_selector,
+              title_selector: data.title_selector,
+              link_selector: data.link_selector,
+              description_selector: data.description_selector,
+              has_data_to_list: data.has_data_to_list,
+              date_selector: data.date_selector,
+              date_layout: data.date_layout,
+              is_time_humanize: data.is_time_humanize,
+              is_spa: data.is_spa,
+            },
+          },
         },
       });
 
@@ -127,9 +130,11 @@ const AddSiteForm: React.FC<AddSiteFormProps> = ({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    const url = await getRssUrlByUrl(getValues("url"));
-    if (url !== "") {
-      setValue("feed_url", url, { shouldValidate: true });
+    const res = await getSiteRssUrlByUrl(getValues("url")).unwrap();
+    if (res.url !== "") {
+      setValue("feed_url", res.url, {
+        shouldValidate: true,
+      });
     }
   };
   const goListPage = () => {
