@@ -1,6 +1,5 @@
 import { User as AuthUser } from "@firebase/auth";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TypedUseSelectorHook, useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 
 export type User = {
@@ -28,13 +27,10 @@ export const authSlice = createSlice({
     login: (state, action: PayloadAction<AuthUser>) => {
       state.authUser = action.payload;
     },
-    logout: (state) => {
-      state.authUser = null;
-    },
+    logout: () => initialState,
     setCurrentUser: (state, action: PayloadAction<User>) => {
       state.currentUser = action.payload;
       state.isAdmin = action.payload.role === "admin";
-      console.log("setCurrentUser", state.isAdmin);
     },
     setAdmin: (state, action: PayloadAction<boolean>) => {
       state.isAdmin = action.payload;

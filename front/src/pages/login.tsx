@@ -45,7 +45,6 @@ const Login: NextPageWithLayout = () => {
 
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const authUser = useAppSelector(selectAuthUser);
   const {
     register,
     handleSubmit,
@@ -65,7 +64,7 @@ const Login: NextPageWithLayout = () => {
       dispatch(login(userCredential.user));
 
       const { data: currentUser, isSuccess } = await dispatch(
-        userApi.endpoints.getCurrentUser.initiate(authUser!)
+        userApi.endpoints.getCurrentUser.initiate()
       );
 
       if (isSuccess) {

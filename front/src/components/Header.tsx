@@ -10,6 +10,7 @@ import { getAuth } from "firebase/auth";
 import { FC } from "react";
 import { logout, selectAuthUser } from "@/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { useRouter } from "next/router";
 
 export type HeaderProps = {
   handleToggleDrawer?: () => void;
@@ -20,6 +21,9 @@ const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
 
   const authUser = useAppSelector(selectAuthUser);
   const dispatch = useAppDispatch();
+
+  const router = useRouter();
+
   return (
     <AppBar
       position="fixed"
@@ -63,6 +67,7 @@ const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
                 try {
                   await auth.signOut();
                   dispatch(logout());
+                  router.push("/");
                 } catch (error) {
                   console.error(error);
                 }

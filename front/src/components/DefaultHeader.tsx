@@ -8,6 +8,7 @@ import { getAuth } from "firebase/auth";
 import { FC } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { logout, selectAuthUser } from "@/features/auth/authSlice";
+import { useRouter } from "next/router";
 
 export type DefaultHeaderProps = {};
 
@@ -15,6 +16,7 @@ const DefaultHeader: FC<DefaultHeaderProps> = () => {
   const auth = getAuth();
   const authUser = useAppSelector(selectAuthUser);
   const dispatch = useAppDispatch();
+  const router = useRouter();
   return (
     <AppBar position="fixed">
       <Toolbar>
@@ -44,6 +46,7 @@ const DefaultHeader: FC<DefaultHeaderProps> = () => {
                 try {
                   await auth.signOut();
                   dispatch(logout());
+                  router.push("/");
                 } catch (error) {
                   console.error(error);
                 }

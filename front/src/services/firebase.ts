@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { useAppDispatch } from "@/app/hooks";
 import { Auth, getAuth } from "firebase/auth";
-import {
-  login,
-  logout,
-  selectAuthUser,
-  setCurrentUser,
-} from "@/features/auth/authSlice";
+import { login, logout, setCurrentUser } from "@/features/auth/authSlice";
 import { userApi } from "@/services/userApi";
 
 export const useAuth = () => {
@@ -16,12 +11,8 @@ export const useAuth = () => {
 
   const [isLogin, setIsLogin] = useState<boolean>(false);
 
-  const authUser = useAppSelector(selectAuthUser);
-
   useEffect(() => {
     const unSubscribe = auth.onAuthStateChanged(async (_authUser) => {
-      console.log("xxxxxxxxxxx", _authUser);
-
       if (_authUser) {
         dispatch(login(_authUser));
         setIsLogin(true);
@@ -40,18 +31,16 @@ export const useAuth = () => {
   useEffect(() => {
     const f = async () => {
       const { data: currentUser, isSuccess } = await dispatch(
-        userApi.endpoints.getCurrentUser.initiate(authUser!)
+        userApi.endpoints.getCurrentUser.initiate()
       );
 
       if (isSuccess) {
         dispatch(setCurrentUser(currentUser));
       }
 
-      console.log("dddddddddddddddddddddddd 2", isLogin);
       setInitializedAuth(true);
     };
     if (isLogin) {
-      console.log("dddddddddddddddddddddddd 1", isLogin);
       f();
     }
   }, [isLogin]);

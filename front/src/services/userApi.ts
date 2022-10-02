@@ -25,7 +25,7 @@ export const userApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    getCurrentUser: builder.query<User, AuthUser>({
+    getCurrentUser: builder.query<User, void>({
       query: () => ({
         url: `/users/current`,
       }),

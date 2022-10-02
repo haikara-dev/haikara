@@ -18,8 +18,6 @@ const ProtectedRouterComponent: React.FC<ProtectedComponentProps> = ({
 
   useEffect(() => {
     if (initializedAuth) {
-      console.log("authUser", authUser);
-      console.log("isAdmin", isAdmin);
       const adminRoutes: string[] = [
         "/sites",
         "/sites/add",
@@ -30,8 +28,6 @@ const ProtectedRouterComponent: React.FC<ProtectedComponentProps> = ({
         "/setting",
         "/article",
       ];
-
-      console.log("router.pathname", router.pathname);
 
       const authorizedRoutes: string[] = [...adminRoutes, "/dashboard"];
 
