@@ -140,6 +140,7 @@ export const adminApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Sites"],
   endpoints: (builder) => ({
     /*
         Article
@@ -199,6 +200,13 @@ export const adminApi = createApi({
       }),
       transformResponse: (response: ListResponse<Site>) =>
         addCanCrawlFieldToSiteListResponse(response),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: "Sites" as const, id })),
+              { type: "Sites", id: "LIST" },
+            ]
+          : [{ type: "Sites", id: "LIST" }],
     }),
     getSiteWithSiteCrawlRule: builder.query<SiteWithSiteCrawlRule, number>({
       // TODO: site.cannot_crawl = site.cannot_crawl_at ? true : false;
@@ -242,6 +250,7 @@ export const adminApi = createApi({
         body: queryArg.body,
       }),
       transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
+      invalidatesTags: (result, error, arg) => [{ type: "Sites", id: arg.id }],
     }),
     deActiveSite: builder.mutation<Site, DeActiveSiteArg>({
       query: (queryArg) => ({
@@ -250,6 +259,7 @@ export const adminApi = createApi({
         body: queryArg.body,
       }),
       transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
+      invalidatesTags: (result, error, arg) => [{ type: "Sites", id: arg.id }],
     }),
     runSiteCrawling: builder.mutation<RunSiteCrawlingResponse, number>({
       query: (id) => ({
