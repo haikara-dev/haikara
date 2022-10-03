@@ -13,14 +13,19 @@ import {
   useDeActiveSiteMutation,
   useDeleteSiteMutation,
   useDryRunSiteCrawlingMutation,
-  useLazyGetSiteWithSiteCrawlRuleQuery,
   useRunSiteCrawlingMutation,
 } from "@/services/adminApi";
+import styled from "@mui/material/styles/styled";
 
 export type SiteRowProps = {
   site: Site;
   openDialog: (site: Site) => void;
 };
+
+const SiteUrlText = styled("span")`
+  word-break: break-all;
+  font-size: 0.8rem;
+`;
 
 const SiteRow: React.FC<SiteRowProps> = ({ site, openDialog }) => {
   const [runSiteCrawling] = useRunSiteCrawlingMutation();
@@ -28,13 +33,6 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDialog }) => {
   const [activeSite] = useActiveSiteMutation();
   const [deActiveSite] = useDeActiveSiteMutation();
   const [deleteSite] = useDeleteSiteMutation();
-
-  const [getSiteWithSiteCrawlRule] = useLazyGetSiteWithSiteCrawlRuleQuery();
-
-  const onClickGetHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    getSiteWithSiteCrawlRule(site.id);
-  };
 
   const onClickRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -83,7 +81,6 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDialog }) => {
         backgroundColor: site.cannot_crawl ? "#f5c4c4" : "white",
       }}
     >
-      <Button onClick={onClickGetHandler}>Get</Button>
       <Button onClick={onClickRunHandler}>Run</Button>
       <Button onClick={onClickDryRunHandler}>Dry</Button>
       <Box
@@ -94,11 +91,11 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDialog }) => {
       >
         {site.active ? (
           <Typography variant="body1">
-            {site.name} （ {site.url} ）
+            {site.name} <SiteUrlText>( {site.url} )</SiteUrlText>
           </Typography>
         ) : (
           <Typography variant="body1" sx={{ textDecoration: "line-through" }}>
-            {site.name} （ {site.url} ）
+            {site.name} <SiteUrlText>( {site.url} )</SiteUrlText>
           </Typography>
         )}
       </Box>

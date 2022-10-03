@@ -70,7 +70,7 @@ const Articles: NextPageWithLayout = () => {
             {articles.totalCount}件中　{(page - 1) * articles.pageSize + 1} -{" "}
             {(page - 1) * articles.pageSize + articles.data.length}件
           </Stack>
-          <Stack gap={2} mt={2} pr={8}>
+          <Stack gap={2} mt={2} pr={2}>
             {articles.data.map((article) => {
               return (
                 <Card key={article.id}>

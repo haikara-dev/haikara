@@ -79,7 +79,7 @@ const Users: NextPageWithLayout = () => {
             {users.totalCount}件中　{(page - 1) * users.pageSize + 1} -{" "}
             {(page - 1) * users.pageSize + users.data.length}件
           </Stack>
-          <Stack gap={2} mt={2} pr={8}>
+          <Stack gap={2} mt={2} pr={2}>
             {users.data.map((user) => {
               return (
                 <Card key={user.id}>

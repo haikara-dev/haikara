@@ -81,7 +81,7 @@ const Feeds: NextPageWithLayout = () => {
             {feeds.totalCount}件中　{(page - 1) * feeds.pageSize + 1} -{" "}
             {(page - 1) * feeds.pageSize + feeds.data.length}件
           </Stack>
-          <Stack gap={2} mt={2} pr={8}>
+          <Stack gap={2} mt={2} pr={2}>
             {feeds.data.map((feed) => {
               return (
                 <Card key={feed.id}>
