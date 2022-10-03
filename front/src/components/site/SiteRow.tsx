@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
+  DryRunResult,
   Site,
   useActiveSiteMutation,
   useDeActiveSiteMutation,
@@ -20,6 +21,7 @@ import styled from "@mui/material/styles/styled";
 export type SiteRowProps = {
   site: Site;
   openDialog: (site: Site) => void;
+  openDryDialog: (result: DryRunResult) => void;
 };
 
 const SiteUrlText = styled("span")`
@@ -27,7 +29,11 @@ const SiteUrlText = styled("span")`
   font-size: 0.8rem;
 `;
 
-const SiteRow: React.FC<SiteRowProps> = ({ site, openDialog }) => {
+const SiteRow: React.FC<SiteRowProps> = ({
+  site,
+  openDialog,
+  openDryDialog,
+}) => {
   const [runSiteCrawling] = useRunSiteCrawlingMutation();
   const [dryRunSiteCrawling] = useDryRunSiteCrawlingMutation();
   const [activeSite] = useActiveSiteMutation();
@@ -39,9 +45,12 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDialog }) => {
     runSiteCrawling(site.id);
   };
 
-  const onClickDryRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onClickDryRunHandler = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
     e.preventDefault();
-    dryRunSiteCrawling(site.id);
+    const result = await dryRunSiteCrawling(site.id).unwrap();
+    openDryDialog(result);
   };
 
   const onChangeCheckboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => {

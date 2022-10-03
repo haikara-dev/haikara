@@ -96,6 +96,7 @@ const Sites: NextPageWithLayout = () => {
                     key={site.id}
                     site={site}
                     openDialog={handleEditOpen}
+                    openDryDialog={openDryDialog}
                   />
                 </Card>
               );

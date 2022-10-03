@@ -24,11 +24,13 @@ export const userApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["CurrentUser"],
   endpoints: (builder) => ({
     getCurrentUser: builder.query<User, void>({
       query: () => ({
         url: `/users/current`,
       }),
+      providesTags: (result) => [{ type: "CurrentUser" }],
     }),
     createUser: builder.mutation<User, AuthUser>({
       query: (queryArg) => ({
@@ -39,6 +41,7 @@ export const userApi = createApi({
           email: queryArg.email,
         },
       }),
+      invalidatesTags: (result, error, queryArg) => [{ type: "CurrentUser" }],
     }),
   }),
 });

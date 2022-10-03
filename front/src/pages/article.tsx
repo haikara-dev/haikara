@@ -31,7 +31,6 @@ const Articles: NextPageWithLayout = () => {
       data: [],
     },
     isLoading,
-    refetch,
   } = useGetArticlesQuery(page);
 
   const [deleteArticle, result] = useDeleteArticleMutation();
@@ -42,7 +41,6 @@ const Articles: NextPageWithLayout = () => {
   ) => {
     e.preventDefault();
     await deleteArticle(id);
-    refetch();
   };
 
   const handleChangePagination = (

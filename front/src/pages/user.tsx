@@ -25,7 +25,6 @@ const Users: NextPageWithLayout = () => {
       data: [],
     },
     isLoading,
-    refetch,
   } = useGetUsersQuery(page);
 
   const [editOpen, setEditOpen] = useState(false);
@@ -43,7 +42,6 @@ const Users: NextPageWithLayout = () => {
 
   const handleChangedRole = () => {
     handleEditClose();
-    refetch();
   };
 
   const onClickTextHandler = (

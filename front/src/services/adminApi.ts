@@ -45,7 +45,7 @@ export type SiteCrawlRule = {
 };
 
 export type SiteWithSiteCrawlRule = Site & {
-  site_crawl_rule?: SiteCrawlRule;
+  site_crawl_rule: SiteCrawlRule;
 };
 
 export type NestedSiteWithSiteCrawlRuleServerResponse = Site & {
@@ -78,16 +78,12 @@ export type UpdateUserRoleArg = {
 };
 
 export type AddSiteArg = {
-  body: {
-    site: SiteWithSiteCrawlRule;
-  };
+  body: SiteWithSiteCrawlRule;
 };
 
 export type UpdateSiteArg = {
   id: number;
-  body: {
-    site: SiteWithSiteCrawlRule;
-  };
+  body: SiteWithSiteCrawlRule;
 };
 
 export type ActiveSiteArg = {
@@ -140,7 +136,7 @@ export const adminApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Sites"],
+  tagTypes: ["Sites", "Feeds", "Articles", "Users"],
   endpoints: (builder) => ({
     /*
         Article
@@ -149,12 +145,26 @@ export const adminApi = createApi({
       query: (page = 1) => ({
         url: `/articles?page=${page}`,
       }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "Articles" as const,
+                id,
+              })),
+              { type: "Articles", id: "PARTIAL-LIST" },
+            ]
+          : [{ type: "Articles", id: "PARTIAL-LIST" }],
     }),
     deleteArticle: builder.mutation<DeleteResponse, number>({
       query: (id) => ({
         url: `/articles/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Articles", id },
+        { type: "Articles", id: "PARTIAL-LIST" },
+      ],
     }),
     /*
         User
@@ -163,6 +173,16 @@ export const adminApi = createApi({
       query: (page = 1) => ({
         url: `/users?page=${page}`,
       }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "Users" as const,
+                id,
+              })),
+              { type: "Users", id: "PARTIAL-LIST" },
+            ]
+          : [{ type: "Users", id: "PARTIAL-LIST" }],
     }),
     updateUserRole: builder.mutation<User, UpdateUserRoleArg>({
       query: (queryArg) => ({
@@ -170,6 +190,10 @@ export const adminApi = createApi({
         method: "PATCH",
         body: queryArg.body,
       }),
+      invalidatesTags: (result, error, queryArg) => [
+        { type: "Users", id: queryArg.id },
+        { type: "Users", id: "PARTIAL-LIST" },
+      ],
     }),
     /*
        Feed
@@ -178,17 +202,29 @@ export const adminApi = createApi({
       query: (page = 1) => ({
         url: `/feeds/lite?page=${page}`,
       }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: "Feeds" as const, id })),
+              { type: "Feeds", id: "PARTIAL-LIST" },
+            ]
+          : [{ type: "Feeds", id: "PARTIAL-LIST" }],
     }),
     deleteFeed: builder.mutation<DeleteResponse, number>({
       query: (id) => ({
         url: `/feeds/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Feeds", id },
+        { type: "Feeds", id: "PARTIAL-LIST" },
+      ],
     }),
     runParseFeed: builder.mutation<Feed, number>({
       query: (id) => ({
         url: `/feeds/parse/${id}`,
       }),
+      invalidatesTags: (result, error, id) => [{ type: "Articles" }],
     }),
     /*
        Site
@@ -204,9 +240,9 @@ export const adminApi = createApi({
         result
           ? [
               ...result.data.map(({ id }) => ({ type: "Sites" as const, id })),
-              { type: "Sites", id: "LIST" },
+              { type: "Sites", id: "PARTIAL-LIST" },
             ]
-          : [{ type: "Sites", id: "LIST" }],
+          : [{ type: "Sites", id: "PARTIAL-LIST" }],
     }),
     getSiteWithSiteCrawlRule: builder.query<SiteWithSiteCrawlRule, number>({
       // TODO: site.cannot_crawl = site.cannot_crawl_at ? true : false;
@@ -228,6 +264,7 @@ export const adminApi = createApi({
         body: queryArg.body,
       }),
       transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
+      invalidatesTags: (result, error, queryArg) => [{ type: "Sites" }],
     }),
     updateSite: builder.mutation<Site, UpdateSiteArg>({
       query: (queryArg) => ({
@@ -236,12 +273,20 @@ export const adminApi = createApi({
         body: queryArg.body,
       }),
       transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
+      invalidatesTags: (result, error, queryArg) => [
+        { type: "Sites", id: queryArg.id },
+        { type: "Sites", id: "PARTIAL-LIST" },
+      ],
     }),
     deleteSite: builder.mutation<DeleteResponse, number>({
       query: (id) => ({
         url: `/sites/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Sites", id },
+        { type: "Sites", id: "PARTIAL-LIST" },
+      ],
     }),
     activeSite: builder.mutation<Site, ActiveSiteArg>({
       query: (queryArg) => ({
@@ -250,7 +295,10 @@ export const adminApi = createApi({
         body: queryArg.body,
       }),
       transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
-      invalidatesTags: (result, error, arg) => [{ type: "Sites", id: arg.id }],
+      invalidatesTags: (result, error, arg) => [
+        { type: "Sites", id: arg.id },
+        { type: "Sites", id: "PARTIAL-LIST" },
+      ],
     }),
     deActiveSite: builder.mutation<Site, DeActiveSiteArg>({
       query: (queryArg) => ({
@@ -259,13 +307,17 @@ export const adminApi = createApi({
         body: queryArg.body,
       }),
       transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
-      invalidatesTags: (result, error, arg) => [{ type: "Sites", id: arg.id }],
+      invalidatesTags: (result, error, arg) => [
+        { type: "Sites", id: arg.id },
+        { type: "Sites", id: "PARTIAL-LIST" },
+      ],
     }),
     runSiteCrawling: builder.mutation<RunSiteCrawlingResponse, number>({
       query: (id) => ({
         url: `/sites/run-crawling/${id}`,
         method: "GET",
       }),
+      invalidatesTags: (result, error, arg) => [{ type: "Feeds" }],
     }),
     dryRunSiteCrawling: builder.mutation<DryRunSiteCrawlingResponse, number>({
       query: (id) => ({
@@ -326,7 +378,21 @@ const unNestNestedSiteWithSiteCrawlRuleServerResponse = (
   const parsedResponse = {
     ...response,
   } as SiteWithSiteCrawlRule;
-  parsedResponse.site_crawl_rule = site_crawl_rule;
+  if (site_crawl_rule) {
+    parsedResponse.site_crawl_rule = site_crawl_rule;
+  } else {
+    parsedResponse.site_crawl_rule = {
+      article_selector: "",
+      title_selector: "",
+      link_selector: "",
+      description_selector: "",
+      has_data_to_list: true,
+      date_selector: "",
+      date_layout: "",
+      is_time_humanize: false,
+      is_spa: false,
+    };
+  }
   return parsedResponse;
 };
 

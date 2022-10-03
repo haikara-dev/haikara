@@ -98,25 +98,23 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
       await updateSite({
         id: site.id,
         body: {
-          site: {
-            id: site.id,
-            name: trimmedName,
-            url: trimmedUrl,
-            feed_url: trimmedfeed_url,
-            active: site.active,
-            cannot_crawl_at: site.cannot_crawl_at,
-            cannot_crawl: data.cannot_crawl,
-            site_crawl_rule: {
-              article_selector: data.article_selector,
-              title_selector: data.title_selector,
-              link_selector: data.link_selector,
-              description_selector: data.description_selector,
-              has_data_to_list: data.has_data_to_list,
-              date_selector: data.date_selector,
-              date_layout: data.date_layout,
-              is_time_humanize: data.is_time_humanize,
-              is_spa: data.is_spa,
-            },
+          id: site.id,
+          name: trimmedName,
+          url: trimmedUrl,
+          feed_url: trimmedfeed_url,
+          active: site.active,
+          cannot_crawl_at: site.cannot_crawl_at,
+          cannot_crawl: data.cannot_crawl,
+          site_crawl_rule: {
+            article_selector: data.article_selector,
+            title_selector: data.title_selector,
+            link_selector: data.link_selector,
+            description_selector: data.description_selector,
+            has_data_to_list: data.has_data_to_list,
+            date_selector: data.date_selector,
+            date_layout: data.date_layout,
+            is_time_humanize: data.is_time_humanize,
+            is_spa: data.is_spa,
           },
         },
       });
@@ -142,6 +140,7 @@ const EditSiteFormDialog: React.FC<AddSiteFormProps> = ({
       const siteWithSiteCrawlRule = await getSiteWithSiteCrawlRule(
         site.id
       ).unwrap();
+
       setSiteWithSiteCrawlRule(siteWithSiteCrawlRule);
     };
     if (site === null) {

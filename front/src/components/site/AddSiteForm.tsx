@@ -79,9 +79,8 @@ const AddSiteForm = () => {
     resolver: yupResolver(schema),
   });
 
-  const [addSite, addSiteResult] = useAddSiteMutation();
-  const [getSiteRssUrlByUrl, getSiteRssUrlByUrlResult] =
-    useGetSiteRssUrlByUrlMutation();
+  const [addSite] = useAddSiteMutation();
+  const [getSiteRssUrlByUrl] = useGetSiteRssUrlByUrlMutation();
 
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
     try {
@@ -95,26 +94,24 @@ const AddSiteForm = () => {
 
       await addSite({
         body: {
-          site: {
-            // TODO: ここでidを生成しているが、使わない
-            id: 0,
-            name: trimmedName,
-            url: trimmedUrl,
-            feed_url: trimmedFeedUrl,
-            active: false,
-            cannot_crawl: false,
-            cannot_crawl_at: "",
-            site_crawl_rule: {
-              article_selector: data.article_selector,
-              title_selector: data.title_selector,
-              link_selector: data.link_selector,
-              description_selector: data.description_selector,
-              has_data_to_list: data.has_data_to_list,
-              date_selector: data.date_selector,
-              date_layout: data.date_layout,
-              is_time_humanize: data.is_time_humanize,
-              is_spa: data.is_spa,
-            },
+          // TODO: ここでidを生成しているが、使わない
+          id: 0,
+          name: trimmedName,
+          url: trimmedUrl,
+          feed_url: trimmedFeedUrl,
+          active: false,
+          cannot_crawl: false,
+          cannot_crawl_at: "",
+          site_crawl_rule: {
+            article_selector: data.article_selector,
+            title_selector: data.title_selector,
+            link_selector: data.link_selector,
+            description_selector: data.description_selector,
+            has_data_to_list: data.has_data_to_list,
+            date_selector: data.date_selector,
+            date_layout: data.date_layout,
+            is_time_humanize: data.is_time_humanize,
+            is_spa: data.is_spa,
           },
         },
       });
