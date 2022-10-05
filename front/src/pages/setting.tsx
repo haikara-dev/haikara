@@ -10,10 +10,11 @@ import Highlight, { defaultProps } from "prism-react-renderer";
 import { useDropzone } from "react-dropzone";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { NextPageWithLayout } from "@/pages/_app";
-import { selectAuthUser } from "@/features/auth/authSlice";
-import { useAppSelector } from "@/app/hooks";
+import {
+  useExportSiteMutation,
+  useImportSiteMutation,
+} from "@/services/adminApi";
 
-const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
@@ -21,31 +22,24 @@ const Settings: NextPageWithLayout = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [importFile, setImportFile] = useState<File | null>(null);
 
-  const authUser = useAppSelector(selectAuthUser);
-
   const onDrop = useCallback((acceptedFiles: any) => {
     // Do something with the files
     setImportFile(acceptedFiles[0]);
   }, []);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  const getRequestHeaders = async () => {
-    const idToken = await authUser?.getIdToken();
-    return {
-      Authorization: `Bearer ${idToken}`,
-    };
-  };
-  const exportSite = async () => {
+  const [exportSite] = useExportSiteMutation();
+  const [importSite] = useImportSiteMutation();
+
+  const doExportSite = async () => {
     try {
-      const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_ADMIN_API_URL + "/sites/export", {
-        method: "GET",
-        headers: headers,
-      });
-      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      const res = await exportSite().unwrap();
 
       // TO "FORCE DOWNLOAD"
-      const url = window.URL.createObjectURL(await res.blob());
+      const fileData = JSON.stringify(res);
+      const blob = new Blob([fileData], { type: "text/json" });
+      const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = "export-sites.json";
@@ -54,21 +48,11 @@ const Settings: NextPageWithLayout = () => {
       // CLEAN UP
       window.URL.revokeObjectURL(url);
       document.removeChild(a);
-
-      // const json = await res.json();
-      // setLogs([
-      //   ...logs,
-      //   `${new Date().toLocaleString()} :\n\n ${JSON.stringify(
-      //     json,
-      //     null,
-      //     "\t"
-      //   )}`,
-      // ]);
     } catch (err) {
       console.log(err);
     }
   };
-  const importSite = async () => {
+  const doImportSite = async () => {
     try {
       if (importFile == null) {
         return;
@@ -77,18 +61,14 @@ const Settings: NextPageWithLayout = () => {
       const formData = new FormData();
       formData.append("file", importFile);
 
-      const headers = await getRequestHeaders();
-      const res = await fetch(BACKEND_ADMIN_API_URL + "/sites/import", {
-        method: "POST",
-        headers: headers,
-        body: formData,
-      });
-      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
-      const json = await res.json();
+      const res = await importSite({
+        form: formData,
+      }).unwrap();
+
       setLogs([
         ...logs,
         `${new Date().toLocaleString()} :\n\n ${JSON.stringify(
-          json,
+          res,
           null,
           "\t"
         )}`,
@@ -98,11 +78,11 @@ const Settings: NextPageWithLayout = () => {
     }
   };
   const handleExportButtonClick = () => {
-    exportSite();
+    doExportSite();
   };
 
   const handleImportButtonClick = () => {
-    importSite();
+    doImportSite();
   };
 
   return (

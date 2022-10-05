@@ -119,11 +119,43 @@ export type GetSiteRssUrlByUrlResponse = {
   url: string;
 };
 
+export type SiteImportExport = {
+  name: string;
+  url: string;
+  feed_url: string;
+  active: boolean;
+  cannot_crawl_at: string;
+};
+type SiteCrawlRuleImportExport = {
+  article_selector: string;
+  title_selector: string;
+  link_selector: string;
+  description_selector: string;
+  has_data_to_list: boolean;
+  date_selector: string;
+  date_layout: string;
+  is_time_humanize: boolean;
+  is_spa: boolean;
+};
+
+export type SiteWithSiteCrawlRuleImportExport = SiteImportExport & {
+  site_crawl_rule?: SiteCrawlRuleImportExport;
+};
+
+export type ImportSiteArg = {
+  form: FormData;
+};
+
+export type ImportSiteResponse = {
+  count: string;
+  reqSites: SiteWithSiteCrawlRule[];
+};
+
 export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: fetchBaseQuery({
     baseUrl: BACKEND_ADMIN_API_URL,
-    prepareHeaders: async (headers, { getState }) => {
+    prepareHeaders: async (headers, { getState, endpoint }) => {
       const authUser = (getState() as RootState).auth.authUser;
 
       if (authUser) {
@@ -132,7 +164,13 @@ export const adminApi = createApi({
           headers.set("Authorization", `Bearer ${idToken}`);
         }
       }
+
       headers.set("Content-Type", "application/json");
+
+      if (endpoint === "importSite") {
+        headers.delete("Content-Type");
+      }
+
       return headers;
     },
   }),
@@ -345,6 +383,19 @@ export const adminApi = createApi({
         method: "GET",
       }),
     }),
+    exportSite: builder.mutation<SiteWithSiteCrawlRuleImportExport[], void>({
+      query: (queryArg) => ({
+        url: `/sites/export`,
+        method: "GET",
+      }),
+    }),
+    importSite: builder.mutation<ImportSiteResponse, ImportSiteArg>({
+      query: (queryArg) => ({
+        url: `/sites/import`,
+        method: "POST",
+        body: queryArg.form,
+      }),
+    }),
   }),
 });
 
@@ -429,4 +480,6 @@ export const {
   useDryRunSiteCrawlingMutation,
   useGetSiteRssUrlMutation,
   useGetSiteRssUrlByUrlMutation,
+  useExportSiteMutation,
+  useImportSiteMutation,
 } = adminApi;
