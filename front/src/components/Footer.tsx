@@ -3,7 +3,7 @@ import Container from "@mui/material/Container";
 
 const Footer = () => {
   return (
-    <Box component="footer">
+    <Box component="footer" pt={20}>
       <Container
         sx={{
           textAlign: "center",

@@ -6,12 +6,11 @@ import Pagination from "@mui/material/Pagination";
 
 import React, { ReactElement, useEffect, useState } from "react";
 import SiteRow from "@/components/site/SiteRow";
-import EditSiteFormDialog from "@/components/site/EditSiteFormDialog";
 import DryRunDialog from "@/components/site/DryRunDialog";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
-import { DryRunResult, Site, useGetSitesQuery } from "@/services/adminApi";
+import { DryRunResult, useGetSitesQuery } from "@/services/adminApi";
 
 const Sites: NextPageWithLayout = () => {
   const router = useRouter();
@@ -27,27 +26,13 @@ const Sites: NextPageWithLayout = () => {
       data: [],
     },
     isLoading,
-    refetch,
   } = useGetSitesQuery(page);
-
-  const [editOpen, setEditOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Site | null>(null);
 
   const [dryOpen, setDryOpen] = useState(false);
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
 
   const handleAddOpen = () => {
     router.push("/sites/add");
-  };
-
-  const handleEditOpen = (site: Site) => {
-    setEditOpen(true);
-    setEditTarget(site);
-  };
-
-  const handleEditClose = () => {
-    setEditOpen(false);
-    setEditTarget(null);
   };
 
   const openDryDialog = (result: DryRunResult) => {
@@ -95,7 +80,6 @@ const Sites: NextPageWithLayout = () => {
                   <SiteRow
                     key={site.id}
                     site={site}
-                    openDialog={handleEditOpen}
                     openDryDialog={openDryDialog}
                   />
                 </Card>
@@ -108,15 +92,6 @@ const Sites: NextPageWithLayout = () => {
             onChange={handleChangePagination}
           />
         </Stack>
-      )}
-
-      {editTarget && (
-        <EditSiteFormDialog
-          open={editOpen}
-          handleClose={handleEditClose}
-          site={editTarget}
-          onEndEdit={handleEditClose}
-        />
       )}
 
       {dryRunResult && (

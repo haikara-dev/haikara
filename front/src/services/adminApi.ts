@@ -136,7 +136,7 @@ export const adminApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Sites", "Feeds", "Articles", "Users"],
+  tagTypes: ["Sites", "Feeds", "Articles", "Users", "SiteWithSiteCrawlRules"],
   endpoints: (builder) => ({
     /*
         Article
@@ -256,6 +256,9 @@ export const adminApi = createApi({
           unNestNestedSiteWithSiteCrawlRuleServerResponse(response)
         ) as SiteWithSiteCrawlRule;
       },
+      providesTags: (result, error, id) => [
+        { type: "SiteWithSiteCrawlRules", id },
+      ],
     }),
     addSite: builder.mutation<Site, AddSiteArg>({
       query: (queryArg) => ({
@@ -276,6 +279,7 @@ export const adminApi = createApi({
       invalidatesTags: (result, error, queryArg) => [
         { type: "Sites", id: queryArg.id },
         { type: "Sites", id: "PARTIAL-LIST" },
+        { type: "SiteWithSiteCrawlRules", id: queryArg.id },
       ],
     }),
     deleteSite: builder.mutation<DeleteResponse, number>({
@@ -286,6 +290,7 @@ export const adminApi = createApi({
       invalidatesTags: (result, error, id) => [
         { type: "Sites", id },
         { type: "Sites", id: "PARTIAL-LIST" },
+        { type: "SiteWithSiteCrawlRules", id },
       ],
     }),
     activeSite: builder.mutation<Site, ActiveSiteArg>({
@@ -298,6 +303,7 @@ export const adminApi = createApi({
       invalidatesTags: (result, error, arg) => [
         { type: "Sites", id: arg.id },
         { type: "Sites", id: "PARTIAL-LIST" },
+        { type: "SiteWithSiteCrawlRules", id: arg.id },
       ],
     }),
     deActiveSite: builder.mutation<Site, DeActiveSiteArg>({
@@ -310,6 +316,7 @@ export const adminApi = createApi({
       invalidatesTags: (result, error, arg) => [
         { type: "Sites", id: arg.id },
         { type: "Sites", id: "PARTIAL-LIST" },
+        { type: "SiteWithSiteCrawlRules", id: arg.id },
       ],
     }),
     runSiteCrawling: builder.mutation<RunSiteCrawlingResponse, number>({

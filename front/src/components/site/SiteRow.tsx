@@ -17,10 +17,10 @@ import {
   useRunSiteCrawlingMutation,
 } from "@/services/adminApi";
 import styled from "@mui/material/styles/styled";
+import { useRouter } from "next/router";
 
 export type SiteRowProps = {
   site: Site;
-  openDialog: (site: Site) => void;
   openDryDialog: (result: DryRunResult) => void;
 };
 
@@ -29,16 +29,14 @@ const SiteUrlText = styled("span")`
   font-size: 0.8rem;
 `;
 
-const SiteRow: React.FC<SiteRowProps> = ({
-  site,
-  openDialog,
-  openDryDialog,
-}) => {
+const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
   const [runSiteCrawling] = useRunSiteCrawlingMutation();
   const [dryRunSiteCrawling] = useDryRunSiteCrawlingMutation();
   const [activeSite] = useActiveSiteMutation();
   const [deActiveSite] = useDeActiveSiteMutation();
   const [deleteSite] = useDeleteSiteMutation();
+
+  const router = useRouter();
 
   const onClickRunHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -79,7 +77,7 @@ const SiteRow: React.FC<SiteRowProps> = ({
 
   const onClickTextHandler = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
-    openDialog(site);
+    router.push(`/sites/${site.id}/edit`);
   };
 
   return (
