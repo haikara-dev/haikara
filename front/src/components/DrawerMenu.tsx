@@ -8,7 +8,7 @@ import { FC } from "react";
 import Link from "next/link";
 import styled from "@mui/material/styles/styled";
 import { useRouter } from "next/router";
-import { selectIsAdmin } from "@/features/auth/authSlice";
+import { selectAuthUser, selectIsAdmin } from "@/features/auth/authSlice";
 import { useAppSelector } from "@/app/hooks";
 
 const drawerWidth = 140;
@@ -28,7 +28,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 export const DrawerMenu: FC<DrawerMenuProps> = ({ open }) => {
   const router = useRouter();
-  const authUser = useAppSelector(selectIsAdmin);
+  const authUser = useAppSelector(selectAuthUser);
   const isAdmin = useAppSelector(selectIsAdmin);
   return (
     <Drawer
