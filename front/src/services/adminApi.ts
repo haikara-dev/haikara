@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
 
 import { RootState } from "@/app/store";
 import { User } from "@/features/auth/authSlice";
+import { Dashboard } from "@/services/userApi";
 
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
@@ -151,6 +152,12 @@ export type ImportSiteResponse = {
   reqSites: SiteWithSiteCrawlRule[];
 };
 
+export type AdminDashboard = {
+  siteSize: number;
+  articleSize: number;
+  feedSize: number;
+  userSize: number;
+};
 export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: fetchBaseQuery({
@@ -174,7 +181,14 @@ export const adminApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Sites", "Feeds", "Articles", "Users", "SiteWithSiteCrawlRules"],
+  tagTypes: [
+    "Sites",
+    "Feeds",
+    "Articles",
+    "Users",
+    "SiteWithSiteCrawlRules",
+    "AdminDashboard",
+  ],
   endpoints: (builder) => ({
     /*
         Article
@@ -396,6 +410,15 @@ export const adminApi = createApi({
         body: queryArg.form,
       }),
     }),
+    /*
+       AdminDashboard
+     */
+    getAdminDashboard: builder.query<AdminDashboard, void>({
+      query: () => ({
+        url: `/dashboard`,
+      }),
+      providesTags: (result) => [{ type: "AdminDashboard" }],
+    }),
   }),
 });
 
@@ -482,4 +505,5 @@ export const {
   useGetSiteRssUrlByUrlMutation,
   useExportSiteMutation,
   useImportSiteMutation,
+  useGetAdminDashboardQuery,
 } = adminApi;

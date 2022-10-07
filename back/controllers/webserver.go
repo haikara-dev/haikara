@@ -35,6 +35,10 @@ func StartWebserver() {
 		Client: database.Client,
 	}
 
+	apiDashboardHandler := api.DashboardHandler{
+		Client: database.Client,
+	}
+
 	r := gin.Default()
 
 	config := cors.DefaultConfig()
@@ -54,6 +58,7 @@ func StartWebserver() {
 		authorized.POST("/users/create", apiUserHandler.CreateUserByUUIDAndEmail)
 		authorized.GET("/users/current", apiUserHandler.GetCurrentUser)
 
+		authorized.GET("/dashboard", apiDashboardHandler.GetDashboard)
 	}
 
 	admin := r.Group("/admin/api")
@@ -93,6 +98,8 @@ func StartWebserver() {
 		admin.GET("/articles/:id", apiArticleHandler.GetArticle)
 		admin.PUT("/articles/:id", apiArticleHandler.UpdateArticle)
 		admin.DELETE("/articles/:id", apiArticleHandler.DeleteArticle)
+
+		admin.GET("/dashboard", apiDashboardHandler.GetAdminDashboard)
 	}
 
 	r.Run(":" + todoConfig.Config.Port)

@@ -6,6 +6,11 @@ import { User } from "@/features/auth/authSlice";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
 
+export type Dashboard = {
+  siteSize: number;
+  articleSize: number;
+};
+
 // Define a service using a base URL and expected endpoints
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -24,7 +29,7 @@ export const userApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["CurrentUser"],
+  tagTypes: ["CurrentUser", "Dashboard"],
   endpoints: (builder) => ({
     getCurrentUser: builder.query<User, void>({
       query: () => ({
@@ -43,6 +48,12 @@ export const userApi = createApi({
       }),
       invalidatesTags: (result, error, queryArg) => [{ type: "CurrentUser" }],
     }),
+    getDashboard: builder.query<Dashboard, void>({
+      query: () => ({
+        url: `/dashboard`,
+      }),
+      providesTags: (result) => [{ type: "Dashboard" }],
+    }),
   }),
 });
 
@@ -53,4 +64,5 @@ export const {
   useGetCurrentUserQuery,
   useLazyGetCurrentUserQuery,
   useCreateUserMutation,
+  useGetDashboardQuery,
 } = userApi;
