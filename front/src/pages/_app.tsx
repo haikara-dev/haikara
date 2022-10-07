@@ -6,6 +6,7 @@ import "../firebaseConfig";
 import { ReactElement, ReactNode } from "react";
 import { NextPage } from "next";
 import ProtectedRouterComponent from "@/components/ProtectedRouterComponent";
+import Head from "next/head";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -20,6 +21,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
   return (
     <>
+      <Head>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+      </Head>
       <CssBaseline />
       <Provider store={store}>
         <ProtectedRouterComponent>
