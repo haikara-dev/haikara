@@ -3,3 +3,5 @@
 google-application-credentials.json
 *.log
 /tmp
+
+/uploads
