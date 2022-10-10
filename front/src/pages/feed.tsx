@@ -16,6 +16,7 @@ import {
   useGetFeedsQuery,
   useRunParseFeedMutation,
 } from "@/services/adminApi";
+import PaginationHeader from "@/components/PaginationHeader";
 
 const Feeds: NextPageWithLayout = () => {
   const router = useRouter();
@@ -77,10 +78,12 @@ const Feeds: NextPageWithLayout = () => {
         <div>Loading...</div>
       ) : (
         <Stack gap={3} alignItems="center">
-          <Stack>
-            {feeds.totalCount}件中　{(page - 1) * feeds.pageSize + 1} -{" "}
-            {(page - 1) * feeds.pageSize + feeds.data.length}件
-          </Stack>
+          <PaginationHeader
+            totalCount={feeds.totalCount}
+            page={page}
+            pageSize={feeds.pageSize}
+            dataSize={feeds.data.length}
+          />
           <Stack gap={2} mt={2} pr={2}>
             {feeds.data.map((feed) => {
               return (

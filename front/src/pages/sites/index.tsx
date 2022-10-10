@@ -11,6 +11,7 @@ import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
 import { DryRunResult, useGetSitesQuery } from "@/services/adminApi";
+import PaginationHeader from "@/components/PaginationHeader";
 
 const Sites: NextPageWithLayout = () => {
   const router = useRouter();
@@ -69,10 +70,12 @@ const Sites: NextPageWithLayout = () => {
         <div>Loading...</div>
       ) : (
         <Stack gap={3} alignItems="center">
-          <Stack>
-            {sites.totalCount}件中　{(page - 1) * sites.pageSize + 1} -{" "}
-            {(page - 1) * sites.pageSize + sites.data.length}件
-          </Stack>
+          <PaginationHeader
+            totalCount={sites.totalCount}
+            page={page}
+            pageSize={sites.pageSize}
+            dataSize={sites.data.length}
+          />
           <Stack gap={2} mt={2} pr={2}>
             {sites.data.map((site) => {
               return (

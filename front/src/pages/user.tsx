@@ -10,6 +10,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
 import { useGetUsersQuery } from "@/services/adminApi";
 import { User } from "@/features/auth/authSlice";
+import PaginationHeader from "@/components/PaginationHeader";
 
 const Users: NextPageWithLayout = () => {
   const router = useRouter();
@@ -73,10 +74,12 @@ const Users: NextPageWithLayout = () => {
         <div>Loading...</div>
       ) : (
         <Stack gap={3} alignItems="center">
-          <Stack>
-            {users.totalCount}件中　{(page - 1) * users.pageSize + 1} -{" "}
-            {(page - 1) * users.pageSize + users.data.length}件
-          </Stack>
+          <PaginationHeader
+            totalCount={users.totalCount}
+            page={page}
+            pageSize={users.pageSize}
+            dataSize={users.data.length}
+          />
           <Stack gap={2} mt={2} pr={2}>
             {users.data.map((user) => {
               return (

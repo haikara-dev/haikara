@@ -16,6 +16,7 @@ import {
   useDeleteArticleMutation,
   useGetArticlesQuery,
 } from "@/services/adminApi";
+import PaginationHeader from "@/components/PaginationHeader";
 
 const Articles: NextPageWithLayout = () => {
   const router = useRouter();
@@ -43,6 +44,13 @@ const Articles: NextPageWithLayout = () => {
     await deleteArticle(id);
   };
 
+  const onClickGetOGPImageHandler = async (
+    id: number,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+  };
+
   const handleChangePagination = (
     e: React.ChangeEvent<unknown>,
     page: number
@@ -64,15 +72,23 @@ const Articles: NextPageWithLayout = () => {
         <div>Loading...</div>
       ) : (
         <Stack gap={3} alignItems="center">
-          <Stack>
-            {articles.totalCount}件中　{(page - 1) * articles.pageSize + 1} -{" "}
-            {(page - 1) * articles.pageSize + articles.data.length}件
-          </Stack>
+          <PaginationHeader
+            totalCount={articles.totalCount}
+            page={page}
+            pageSize={articles.pageSize}
+            dataSize={articles.data.length}
+          />
+
           <Stack gap={2} mt={2} pr={2}>
             {articles.data.map((article) => {
               return (
                 <Card key={article.id}>
                   <Stack direction="row" gap={3} alignItems="center">
+                    <Button
+                      onClick={onClickGetOGPImageHandler.bind(this, article.id)}
+                    >
+                      OGP
+                    </Button>
                     <div>
                       {new Date(article.published_at).toLocaleDateString()}
                     </div>
