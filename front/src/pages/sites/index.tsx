@@ -11,7 +11,7 @@ import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
 import { DryRunResult, useGetSitesQuery } from "@/services/adminApi";
-import PaginationHeader from "@/components/PaginationHeader";
+import PaginationHeader from "@/components/ui/PaginationHeader";
 
 const Sites: NextPageWithLayout = () => {
   const router = useRouter();

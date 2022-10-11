@@ -6,6 +6,7 @@ import (
 	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/site"
 	"math"
 	"net/http"
 	"strconv"
@@ -30,24 +31,43 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 		return
 	}
 
+	var siteId int
+	siteIdStr := c.Query("site_id")
+
+	if siteIdStr != "" {
+		siteId, err = strconv.Atoi(siteIdStr)
+
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+	}
 	pageSize := config.Config.PageSize
 
 	offset := (page - 1) * pageSize
 
-	articles, err := h.Client.Article.
-		Query().
+	createArticleQuery := func() *ent.ArticleQuery {
+		articleQuery := h.Client.Article.
+			Query()
+
+		if siteId != 0 {
+			articleQuery = articleQuery.Where(article.HasSiteWith(site.ID(siteId)))
+		}
+		return articleQuery
+	}
+
+	articles, err := createArticleQuery().
 		Order(ent.Desc(article.FieldPublishedAt)).
 		Offset(offset).
 		Limit(pageSize).
 		All(context.Background())
 
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		c.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 
-	totalCount, err := h.Client.Article.
-		Query().
+	totalCount, err := createArticleQuery().
 		Count(context.Background())
 
 	if err != nil {

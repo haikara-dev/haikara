@@ -13,16 +13,24 @@ import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 
 import {
+  GetArticlesArg,
   useDeleteArticleMutation,
   useGetArticlesQuery,
 } from "@/services/adminApi";
-import PaginationHeader from "@/components/PaginationHeader";
+import PaginationHeader from "@/components/ui/PaginationHeader";
 
 const Articles: NextPageWithLayout = () => {
+  const buildQuery = (): GetArticlesArg => {
+    const state: GetArticlesArg = {
+      page: router.query.page ? parseInt(router.query.page.toString()) : 1,
+    };
+    if (router.query.site_id) {
+      state.site_id = parseInt(router.query.site_id.toString());
+    }
+    return state;
+  };
   const router = useRouter();
-  const [page, setPage] = useState<number>(
-    router.query.page ? parseInt(router.query.page.toString()) : 1
-  );
+  const [query, setQuery] = useState<GetArticlesArg>(buildQuery());
 
   const {
     data: articles = {
@@ -32,7 +40,7 @@ const Articles: NextPageWithLayout = () => {
       data: [],
     },
     isLoading,
-  } = useGetArticlesQuery(page);
+  } = useGetArticlesQuery(query);
 
   const [deleteArticle, result] = useDeleteArticleMutation();
 
@@ -55,17 +63,17 @@ const Articles: NextPageWithLayout = () => {
     e: React.ChangeEvent<unknown>,
     page: number
   ) => {
-    router.push({ query: { page: page } });
+    router.push({ query: { ...query, page } });
   };
 
   useEffect(() => {
-    setPage(router.query.page ? parseInt(router.query.page.toString()) : 1);
+    setQuery(buildQuery());
   }, [router]);
 
   return (
     <div>
       <Typography variant="h3" component="h1">
-        Articles
+        Articles {query.site_id && <b> ( {query.site_id} ) </b>}
       </Typography>
 
       {isLoading ? (
@@ -74,7 +82,7 @@ const Articles: NextPageWithLayout = () => {
         <Stack gap={3} alignItems="center">
           <PaginationHeader
             totalCount={articles.totalCount}
-            page={page}
+            page={query.page!}
             pageSize={articles.pageSize}
             dataSize={articles.data.length}
           />
@@ -119,7 +127,7 @@ const Articles: NextPageWithLayout = () => {
             })}
           </Stack>
           <Pagination
-            page={page}
+            page={query.page}
             count={articles.totalPage}
             onChange={handleChangePagination}
           />

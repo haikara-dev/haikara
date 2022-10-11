@@ -16,7 +16,7 @@ import {
   useGetFeedsQuery,
   useRunParseFeedMutation,
 } from "@/services/adminApi";
-import PaginationHeader from "@/components/PaginationHeader";
+import PaginationHeader from "@/components/ui/PaginationHeader";
 
 const Feeds: NextPageWithLayout = () => {
   const router = useRouter();

@@ -10,7 +10,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import { useRouter } from "next/router";
 import { useGetUsersQuery } from "@/services/adminApi";
 import { User } from "@/features/auth/authSlice";
-import PaginationHeader from "@/components/PaginationHeader";
+import PaginationHeader from "@/components/ui/PaginationHeader";
 
 const Users: NextPageWithLayout = () => {
   const router = useRouter();

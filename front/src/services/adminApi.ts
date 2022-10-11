@@ -2,7 +2,6 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
 
 import { RootState } from "@/app/store";
 import { User } from "@/features/auth/authSlice";
-import { Dashboard } from "@/services/userApi";
 
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
@@ -69,6 +68,11 @@ export type ListResponse<T> = {
 
 export type DeleteResponse = {
   massage: string;
+};
+
+export type GetArticlesArg = {
+  page?: number;
+  site_id?: number;
 };
 
 export type UpdateUserRoleArg = {
@@ -193,10 +197,15 @@ export const adminApi = createApi({
     /*
         Article
      */
-    getArticles: builder.query<ListResponse<Article>, number | void>({
-      query: (page = 1) => ({
-        url: `/articles?page=${page}`,
-      }),
+    getArticles: builder.query<ListResponse<Article>, GetArticlesArg>({
+      query: (queryArg) => {
+        const page = queryArg.page ? queryArg.page : 1;
+
+        return {
+          url: `/articles`,
+          params: { ...queryArg, page },
+        };
+      },
       providesTags: (result) =>
         result
           ? [
@@ -498,6 +507,7 @@ export const {
   useUpdateSiteMutation,
   useDeleteSiteMutation,
   useActiveSiteMutation,
+  useLazyGetArticlesQuery,
   useDeActiveSiteMutation,
   useRunSiteCrawlingMutation,
   useDryRunSiteCrawlingMutation,
