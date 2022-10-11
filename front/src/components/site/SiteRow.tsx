@@ -77,6 +77,11 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
 
   const onClickTextHandler = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
+    router.push(`/sites/${site.id}`);
+  };
+
+  const onClickEditHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     router.push(`/sites/${site.id}/edit`);
   };
 
@@ -109,6 +114,7 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
 
       <div>{site.feed_url ? "RSS" : "-"}</div>
 
+      <Button onClick={onClickEditHandler}>Edit</Button>
       <Checkbox checked={site.active} onChange={onChangeCheckboxHandler} />
 
       <IconButton onClick={onClickRemoveHandler} aria-label="remove">
