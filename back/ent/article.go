@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/image"
 	"github.com/haikara-dev/haikara/ent/site"
 )
 
@@ -29,23 +30,39 @@ type Article struct {
 	PublishedAt time.Time `json:"published_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ArticleQuery when eager-loading is set.
-	Edges         ArticleEdges `json:"edges"`
-	site_articles *int
+	Edges             ArticleEdges `json:"edges"`
+	article_ogp_image *int
+	site_articles     *int
 }
 
 // ArticleEdges holds the relations/edges for other nodes in the graph.
 type ArticleEdges struct {
+	// OgpImage holds the value of the ogp_image edge.
+	OgpImage *Image `json:"ogp_image,omitempty"`
 	// Site holds the value of the site edge.
 	Site *Site `json:"site,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
+}
+
+// OgpImageOrErr returns the OgpImage value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ArticleEdges) OgpImageOrErr() (*Image, error) {
+	if e.loadedTypes[0] {
+		if e.OgpImage == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: image.Label}
+		}
+		return e.OgpImage, nil
+	}
+	return nil, &NotLoadedError{edge: "ogp_image"}
 }
 
 // SiteOrErr returns the Site value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ArticleEdges) SiteOrErr() (*Site, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		if e.Site == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: site.Label}
@@ -66,7 +83,9 @@ func (*Article) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullString)
 		case article.FieldCreatedAt, article.FieldUpdatedAt, article.FieldPublishedAt:
 			values[i] = new(sql.NullTime)
-		case article.ForeignKeys[0]: // site_articles
+		case article.ForeignKeys[0]: // article_ogp_image
+			values[i] = new(sql.NullInt64)
+		case article.ForeignKeys[1]: // site_articles
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Article", columns[i])
@@ -121,6 +140,13 @@ func (a *Article) assignValues(columns []string, values []interface{}) error {
 			}
 		case article.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field article_ogp_image", value)
+			} else if value.Valid {
+				a.article_ogp_image = new(int)
+				*a.article_ogp_image = int(value.Int64)
+			}
+		case article.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field site_articles", value)
 			} else if value.Valid {
 				a.site_articles = new(int)
@@ -129,6 +155,11 @@ func (a *Article) assignValues(columns []string, values []interface{}) error {
 		}
 	}
 	return nil
+}
+
+// QueryOgpImage queries the "ogp_image" edge of the Article entity.
+func (a *Article) QueryOgpImage() *ImageQuery {
+	return (&ArticleClient{config: a.config}).QueryOgpImage(a)
 }
 
 // QuerySite queries the "site" edge of the Article entity.

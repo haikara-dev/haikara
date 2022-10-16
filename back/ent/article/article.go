@@ -21,10 +21,19 @@ const (
 	FieldURL = "url"
 	// FieldPublishedAt holds the string denoting the published_at field in the database.
 	FieldPublishedAt = "published_at"
+	// EdgeOgpImage holds the string denoting the ogp_image edge name in mutations.
+	EdgeOgpImage = "ogp_image"
 	// EdgeSite holds the string denoting the site edge name in mutations.
 	EdgeSite = "site"
 	// Table holds the table name of the article in the database.
 	Table = "articles"
+	// OgpImageTable is the table that holds the ogp_image relation/edge.
+	OgpImageTable = "articles"
+	// OgpImageInverseTable is the table name for the Image entity.
+	// It exists in this package in order to avoid circular dependency with the "image" package.
+	OgpImageInverseTable = "images"
+	// OgpImageColumn is the table column denoting the ogp_image relation/edge.
+	OgpImageColumn = "article_ogp_image"
 	// SiteTable is the table that holds the site relation/edge.
 	SiteTable = "articles"
 	// SiteInverseTable is the table name for the Site entity.
@@ -47,6 +56,7 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "articles"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
+	"article_ogp_image",
 	"site_articles",
 }
 

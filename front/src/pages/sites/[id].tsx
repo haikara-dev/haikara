@@ -4,6 +4,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import Typography from "@mui/material/Typography";
 import { useRouter } from "next/router";
 import {
+  useRunGetOGPImageOfArticleMutation,
   useLazyGetArticlesQuery,
   useLazyGetSiteWithSiteCrawlRuleQuery,
 } from "@/services/adminApi";
@@ -11,6 +12,7 @@ import Stack from "@mui/material/Stack";
 import LabeledText from "@/components/ui/LabeledText";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import Link from "next/link";
+import Button from "@mui/material/Button";
 
 const Site: NextPageWithLayout = () => {
   const router = useRouter();
@@ -19,12 +21,24 @@ const Site: NextPageWithLayout = () => {
     useLazyGetSiteWithSiteCrawlRuleQuery();
 
   const [getArticles, { data: articles }] = useLazyGetArticlesQuery();
+
+  const [runGetOGPImageOfArticle] = useRunGetOGPImageOfArticleMutation();
+
   useEffect(() => {
     if (id) {
       getSiteWithSiteCrawlRule(Number(id));
       getArticles({ site_id: Number(id) });
     }
   }, [id]);
+
+  const onClickOGPHandler = (
+    id: number,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    runGetOGPImageOfArticle(id);
+  };
+
   return (
     <div>
       <Typography variant="h3" component="h1">
@@ -89,6 +103,10 @@ const Site: NextPageWithLayout = () => {
           <ul>
             {articles.data.map((article) => (
               <li key={article.id}>
+                <Button onClick={onClickOGPHandler.bind(this, article.id)}>
+                  OGP
+                </Button>
+
                 <a href={article.url} target="_blank" rel="noopener noreferrer">
                   {article.title}
                 </a>

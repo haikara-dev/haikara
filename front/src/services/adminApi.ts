@@ -75,6 +75,10 @@ export type GetArticlesArg = {
   site_id?: number;
 };
 
+export type RunGetOGPImageOfArticleResponse = {
+  massage: string;
+};
+
 export type UpdateUserRoleArg = {
   id: number;
   body: {
@@ -226,6 +230,15 @@ export const adminApi = createApi({
         { type: "Articles", id },
         { type: "Articles", id: "PARTIAL-LIST" },
       ],
+    }),
+    runGetOGPImageOfArticle: builder.mutation<
+      RunGetOGPImageOfArticleResponse,
+      number
+    >({
+      query: (id) => ({
+        url: `/articles/run-get-ogp-image/${id}`,
+        method: "GET",
+      }),
     }),
     /*
         User
@@ -489,7 +502,11 @@ const unNestNestedSiteWithSiteCrawlRuleServerResponse = (
 /*
   Hooks
  */
-export const { useGetArticlesQuery, useDeleteArticleMutation } = adminApi;
+export const {
+  useGetArticlesQuery,
+  useDeleteArticleMutation,
+  useRunGetOGPImageOfArticleMutation,
+} = adminApi;
 
 export const { useGetUsersQuery, useUpdateUserRoleMutation } = adminApi;
 

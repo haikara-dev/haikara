@@ -16,6 +16,8 @@ type Tx struct {
 	Article *ArticleClient
 	// Feed is the client for interacting with the Feed builders.
 	Feed *FeedClient
+	// Image is the client for interacting with the Image builders.
+	Image *ImageClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
 	// SiteCategory is the client for interacting with the SiteCategory builders.
@@ -161,6 +163,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Article = NewArticleClient(tx.config)
 	tx.Feed = NewFeedClient(tx.config)
+	tx.Image = NewImageClient(tx.config)
 	tx.Site = NewSiteClient(tx.config)
 	tx.SiteCategory = NewSiteCategoryClient(tx.config)
 	tx.SiteCrawlRule = NewSiteCrawlRuleClient(tx.config)

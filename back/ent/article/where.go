@@ -506,6 +506,34 @@ func PublishedAtLTE(v time.Time) predicate.Article {
 	})
 }
 
+// HasOgpImage applies the HasEdge predicate on the "ogp_image" edge.
+func HasOgpImage() predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(OgpImageTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, OgpImageTable, OgpImageColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOgpImageWith applies the HasEdge predicate on the "ogp_image" edge with a given conditions (other predicates).
+func HasOgpImageWith(preds ...predicate.Image) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(OgpImageInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, OgpImageTable, OgpImageColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasSite applies the HasEdge predicate on the "site" edge.
 func HasSite() predicate.Article {
 	return predicate.Article(func(s *sql.Selector) {

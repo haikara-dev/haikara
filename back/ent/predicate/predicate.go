@@ -12,6 +12,9 @@ type Article func(*sql.Selector)
 // Feed is the predicate function for feed builders.
 type Feed func(*sql.Selector)
 
+// Image is the predicate function for image builders.
+type Image func(*sql.Selector)
+
 // Site is the predicate function for site builders.
 type Site func(*sql.Selector)
 

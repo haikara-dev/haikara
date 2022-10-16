@@ -12,6 +12,7 @@ import (
 
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/feed"
+	"github.com/haikara-dev/haikara/ent/image"
 	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/haikara-dev/haikara/ent/sitecategory"
 	"github.com/haikara-dev/haikara/ent/sitecrawlrule"
@@ -31,6 +32,8 @@ type Client struct {
 	Article *ArticleClient
 	// Feed is the client for interacting with the Feed builders.
 	Feed *FeedClient
+	// Image is the client for interacting with the Image builders.
+	Image *ImageClient
 	// Site is the client for interacting with the Site builders.
 	Site *SiteClient
 	// SiteCategory is the client for interacting with the SiteCategory builders.
@@ -54,6 +57,7 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Article = NewArticleClient(c.config)
 	c.Feed = NewFeedClient(c.config)
+	c.Image = NewImageClient(c.config)
 	c.Site = NewSiteClient(c.config)
 	c.SiteCategory = NewSiteCategoryClient(c.config)
 	c.SiteCrawlRule = NewSiteCrawlRuleClient(c.config)
@@ -93,6 +97,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:        cfg,
 		Article:       NewArticleClient(cfg),
 		Feed:          NewFeedClient(cfg),
+		Image:         NewImageClient(cfg),
 		Site:          NewSiteClient(cfg),
 		SiteCategory:  NewSiteCategoryClient(cfg),
 		SiteCrawlRule: NewSiteCrawlRuleClient(cfg),
@@ -118,6 +123,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:        cfg,
 		Article:       NewArticleClient(cfg),
 		Feed:          NewFeedClient(cfg),
+		Image:         NewImageClient(cfg),
 		Site:          NewSiteClient(cfg),
 		SiteCategory:  NewSiteCategoryClient(cfg),
 		SiteCrawlRule: NewSiteCrawlRuleClient(cfg),
@@ -152,6 +158,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	c.Article.Use(hooks...)
 	c.Feed.Use(hooks...)
+	c.Image.Use(hooks...)
 	c.Site.Use(hooks...)
 	c.SiteCategory.Use(hooks...)
 	c.SiteCrawlRule.Use(hooks...)
@@ -241,6 +248,22 @@ func (c *ArticleClient) GetX(ctx context.Context, id int) *Article {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryOgpImage queries the ogp_image edge of a Article.
+func (c *ArticleClient) QueryOgpImage(a *Article) *ImageQuery {
+	query := &ImageQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(article.Table, article.FieldID, id),
+			sqlgraph.To(image.Table, image.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, article.OgpImageTable, article.OgpImageColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QuerySite queries the site edge of a Article.
@@ -368,6 +391,112 @@ func (c *FeedClient) QuerySite(f *Feed) *SiteQuery {
 // Hooks returns the client hooks.
 func (c *FeedClient) Hooks() []Hook {
 	return c.hooks.Feed
+}
+
+// ImageClient is a client for the Image schema.
+type ImageClient struct {
+	config
+}
+
+// NewImageClient returns a client for the Image from the given config.
+func NewImageClient(c config) *ImageClient {
+	return &ImageClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `image.Hooks(f(g(h())))`.
+func (c *ImageClient) Use(hooks ...Hook) {
+	c.hooks.Image = append(c.hooks.Image, hooks...)
+}
+
+// Create returns a builder for creating a Image entity.
+func (c *ImageClient) Create() *ImageCreate {
+	mutation := newImageMutation(c.config, OpCreate)
+	return &ImageCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Image entities.
+func (c *ImageClient) CreateBulk(builders ...*ImageCreate) *ImageCreateBulk {
+	return &ImageCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Image.
+func (c *ImageClient) Update() *ImageUpdate {
+	mutation := newImageMutation(c.config, OpUpdate)
+	return &ImageUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ImageClient) UpdateOne(i *Image) *ImageUpdateOne {
+	mutation := newImageMutation(c.config, OpUpdateOne, withImage(i))
+	return &ImageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ImageClient) UpdateOneID(id int) *ImageUpdateOne {
+	mutation := newImageMutation(c.config, OpUpdateOne, withImageID(id))
+	return &ImageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Image.
+func (c *ImageClient) Delete() *ImageDelete {
+	mutation := newImageMutation(c.config, OpDelete)
+	return &ImageDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ImageClient) DeleteOne(i *Image) *ImageDeleteOne {
+	return c.DeleteOneID(i.ID)
+}
+
+// DeleteOne returns a builder for deleting the given entity by its id.
+func (c *ImageClient) DeleteOneID(id int) *ImageDeleteOne {
+	builder := c.Delete().Where(image.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ImageDeleteOne{builder}
+}
+
+// Query returns a query builder for Image.
+func (c *ImageClient) Query() *ImageQuery {
+	return &ImageQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Image entity by its id.
+func (c *ImageClient) Get(ctx context.Context, id int) (*Image, error) {
+	return c.Query().Where(image.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ImageClient) GetX(ctx context.Context, id int) *Image {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryArticle queries the article edge of a Image.
+func (c *ImageClient) QueryArticle(i *Image) *ArticleQuery {
+	query := &ArticleQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := i.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(image.Table, image.FieldID, id),
+			sqlgraph.To(article.Table, article.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, image.ArticleTable, image.ArticleColumn),
+		)
+		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ImageClient) Hooks() []Hook {
+	return c.hooks.Image
 }
 
 // SiteClient is a client for the Site schema.

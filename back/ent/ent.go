@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/feed"
+	"github.com/haikara-dev/haikara/ent/image"
 	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/haikara-dev/haikara/ent/sitecategory"
 	"github.com/haikara-dev/haikara/ent/sitecrawlrule"
@@ -38,6 +39,7 @@ func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
 		article.Table:       article.ValidColumn,
 		feed.Table:          feed.ValidColumn,
+		image.Table:         image.ValidColumn,
 		site.Table:          site.ValidColumn,
 		sitecategory.Table:  sitecategory.ValidColumn,
 		sitecrawlrule.Table: sitecrawlrule.ValidColumn,

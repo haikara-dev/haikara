@@ -19,6 +19,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -556,4 +557,69 @@ func CrawlAllSite(client *ent.Client) ([]*ent.Site, error) {
 	}
 
 	return sites, nil
+}
+
+func GetOGPImageUrl(articleUrl string) (string, error) {
+	var ogpUrl = ""
+	s := colly.NewCollector(
+		colly.UserAgent(config.Config.UserAgent),
+	)
+	s.OnError(func(_ *colly.Response, err error) {
+		log.Println("Something went wrong:", err)
+	})
+	s.OnRequest(func(r *colly.Request) {
+		fmt.Println("visiting", r.URL)
+	})
+	s.OnHTML("meta[property=\"og:image\"]", func(e *colly.HTMLElement) {
+		ogpUrl = e.Attr("content")
+	})
+	s.Visit(articleUrl)
+
+	if ogpUrl != "" {
+		base, err := url.Parse(articleUrl)
+		if err != nil {
+			return "", err
+		}
+		ref, err := url.Parse(ogpUrl)
+		if err != nil {
+			return "", err
+		}
+		ogpUrl = base.ResolveReference(ref).String()
+	}
+
+	return ogpUrl, nil
+}
+
+func SaveOGPImage(ogpImageUrl string, savePath string) (bool, error) {
+	var done bool
+	var err error
+
+	if ogpImageUrl == "" {
+		return false, errors.New("ogpImageUrl is empty")
+	}
+
+	if savePath == "" {
+		return false, errors.New("savePath is empty")
+	}
+
+	s := colly.NewCollector(
+		colly.UserAgent(config.Config.UserAgent),
+	)
+	s.OnError(func(_ *colly.Response, err error) {
+		log.Println("Something went wrong:", err)
+	})
+	s.OnRequest(func(r *colly.Request) {
+		fmt.Println("visiting", r.URL)
+	})
+	s.OnResponse(func(r *colly.Response) {
+		os.MkdirAll(savePath, os.ModePerm)
+		err = r.Save(savePath + r.FileName())
+		if err == nil {
+			done = true
+		}
+	})
+
+	s.Visit(ogpImageUrl)
+
+	return done, err
 }

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/image"
 	"github.com/haikara-dev/haikara/ent/predicate"
 	"github.com/haikara-dev/haikara/ent/site"
 )
@@ -18,14 +19,15 @@ import (
 // ArticleQuery is the builder for querying Article entities.
 type ArticleQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
-	predicates []predicate.Article
-	withSite   *SiteQuery
-	withFKs    bool
+	limit        *int
+	offset       *int
+	unique       *bool
+	order        []OrderFunc
+	fields       []string
+	predicates   []predicate.Article
+	withOgpImage *ImageQuery
+	withSite     *SiteQuery
+	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -60,6 +62,28 @@ func (aq *ArticleQuery) Unique(unique bool) *ArticleQuery {
 func (aq *ArticleQuery) Order(o ...OrderFunc) *ArticleQuery {
 	aq.order = append(aq.order, o...)
 	return aq
+}
+
+// QueryOgpImage chains the current query on the "ogp_image" edge.
+func (aq *ArticleQuery) QueryOgpImage() *ImageQuery {
+	query := &ImageQuery{config: aq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := aq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := aq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(article.Table, article.FieldID, selector),
+			sqlgraph.To(image.Table, image.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, article.OgpImageTable, article.OgpImageColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QuerySite chains the current query on the "site" edge.
@@ -260,17 +284,29 @@ func (aq *ArticleQuery) Clone() *ArticleQuery {
 		return nil
 	}
 	return &ArticleQuery{
-		config:     aq.config,
-		limit:      aq.limit,
-		offset:     aq.offset,
-		order:      append([]OrderFunc{}, aq.order...),
-		predicates: append([]predicate.Article{}, aq.predicates...),
-		withSite:   aq.withSite.Clone(),
+		config:       aq.config,
+		limit:        aq.limit,
+		offset:       aq.offset,
+		order:        append([]OrderFunc{}, aq.order...),
+		predicates:   append([]predicate.Article{}, aq.predicates...),
+		withOgpImage: aq.withOgpImage.Clone(),
+		withSite:     aq.withSite.Clone(),
 		// clone intermediate query.
 		sql:    aq.sql.Clone(),
 		path:   aq.path,
 		unique: aq.unique,
 	}
+}
+
+// WithOgpImage tells the query-builder to eager-load the nodes that are connected to
+// the "ogp_image" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *ArticleQuery) WithOgpImage(opts ...func(*ImageQuery)) *ArticleQuery {
+	query := &ImageQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	aq.withOgpImage = query
+	return aq
 }
 
 // WithSite tells the query-builder to eager-load the nodes that are connected to
@@ -353,11 +389,12 @@ func (aq *ArticleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Arti
 		nodes       = []*Article{}
 		withFKs     = aq.withFKs
 		_spec       = aq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
+			aq.withOgpImage != nil,
 			aq.withSite != nil,
 		}
 	)
-	if aq.withSite != nil {
+	if aq.withOgpImage != nil || aq.withSite != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -381,6 +418,12 @@ func (aq *ArticleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Arti
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := aq.withOgpImage; query != nil {
+		if err := aq.loadOgpImage(ctx, query, nodes, nil,
+			func(n *Article, e *Image) { n.Edges.OgpImage = e }); err != nil {
+			return nil, err
+		}
+	}
 	if query := aq.withSite; query != nil {
 		if err := aq.loadSite(ctx, query, nodes, nil,
 			func(n *Article, e *Site) { n.Edges.Site = e }); err != nil {
@@ -390,6 +433,35 @@ func (aq *ArticleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Arti
 	return nodes, nil
 }
 
+func (aq *ArticleQuery) loadOgpImage(ctx context.Context, query *ImageQuery, nodes []*Article, init func(*Article), assign func(*Article, *Image)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Article)
+	for i := range nodes {
+		if nodes[i].article_ogp_image == nil {
+			continue
+		}
+		fk := *nodes[i].article_ogp_image
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	query.Where(image.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "article_ogp_image" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (aq *ArticleQuery) loadSite(ctx context.Context, query *SiteQuery, nodes []*Article, init func(*Article), assign func(*Article, *Site)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Article)

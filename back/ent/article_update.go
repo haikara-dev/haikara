@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/image"
 	"github.com/haikara-dev/haikara/ent/predicate"
 	"github.com/haikara-dev/haikara/ent/site"
 )
@@ -53,6 +54,25 @@ func (au *ArticleUpdate) SetPublishedAt(t time.Time) *ArticleUpdate {
 	return au
 }
 
+// SetOgpImageID sets the "ogp_image" edge to the Image entity by ID.
+func (au *ArticleUpdate) SetOgpImageID(id int) *ArticleUpdate {
+	au.mutation.SetOgpImageID(id)
+	return au
+}
+
+// SetNillableOgpImageID sets the "ogp_image" edge to the Image entity by ID if the given value is not nil.
+func (au *ArticleUpdate) SetNillableOgpImageID(id *int) *ArticleUpdate {
+	if id != nil {
+		au = au.SetOgpImageID(*id)
+	}
+	return au
+}
+
+// SetOgpImage sets the "ogp_image" edge to the Image entity.
+func (au *ArticleUpdate) SetOgpImage(i *Image) *ArticleUpdate {
+	return au.SetOgpImageID(i.ID)
+}
+
 // SetSiteID sets the "site" edge to the Site entity by ID.
 func (au *ArticleUpdate) SetSiteID(id int) *ArticleUpdate {
 	au.mutation.SetSiteID(id)
@@ -67,6 +87,12 @@ func (au *ArticleUpdate) SetSite(s *Site) *ArticleUpdate {
 // Mutation returns the ArticleMutation object of the builder.
 func (au *ArticleUpdate) Mutation() *ArticleMutation {
 	return au.mutation
+}
+
+// ClearOgpImage clears the "ogp_image" edge to the Image entity.
+func (au *ArticleUpdate) ClearOgpImage() *ArticleUpdate {
+	au.mutation.ClearOgpImage()
+	return au
 }
 
 // ClearSite clears the "site" edge to the Site entity.
@@ -208,6 +234,41 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: article.FieldPublishedAt,
 		})
 	}
+	if au.mutation.OgpImageCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   article.OgpImageTable,
+			Columns: []string{article.OgpImageColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.OgpImageIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   article.OgpImageTable,
+			Columns: []string{article.OgpImageColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if au.mutation.SiteCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -286,6 +347,25 @@ func (auo *ArticleUpdateOne) SetPublishedAt(t time.Time) *ArticleUpdateOne {
 	return auo
 }
 
+// SetOgpImageID sets the "ogp_image" edge to the Image entity by ID.
+func (auo *ArticleUpdateOne) SetOgpImageID(id int) *ArticleUpdateOne {
+	auo.mutation.SetOgpImageID(id)
+	return auo
+}
+
+// SetNillableOgpImageID sets the "ogp_image" edge to the Image entity by ID if the given value is not nil.
+func (auo *ArticleUpdateOne) SetNillableOgpImageID(id *int) *ArticleUpdateOne {
+	if id != nil {
+		auo = auo.SetOgpImageID(*id)
+	}
+	return auo
+}
+
+// SetOgpImage sets the "ogp_image" edge to the Image entity.
+func (auo *ArticleUpdateOne) SetOgpImage(i *Image) *ArticleUpdateOne {
+	return auo.SetOgpImageID(i.ID)
+}
+
 // SetSiteID sets the "site" edge to the Site entity by ID.
 func (auo *ArticleUpdateOne) SetSiteID(id int) *ArticleUpdateOne {
 	auo.mutation.SetSiteID(id)
@@ -300,6 +380,12 @@ func (auo *ArticleUpdateOne) SetSite(s *Site) *ArticleUpdateOne {
 // Mutation returns the ArticleMutation object of the builder.
 func (auo *ArticleUpdateOne) Mutation() *ArticleMutation {
 	return auo.mutation
+}
+
+// ClearOgpImage clears the "ogp_image" edge to the Image entity.
+func (auo *ArticleUpdateOne) ClearOgpImage() *ArticleUpdateOne {
+	auo.mutation.ClearOgpImage()
+	return auo
 }
 
 // ClearSite clears the "site" edge to the Site entity.
@@ -470,6 +556,41 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 			Value:  value,
 			Column: article.FieldPublishedAt,
 		})
+	}
+	if auo.mutation.OgpImageCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   article.OgpImageTable,
+			Columns: []string{article.OgpImageColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.OgpImageIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   article.OgpImageTable,
+			Columns: []string{article.OgpImageColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if auo.mutation.SiteCleared() {
 		edge := &sqlgraph.EdgeSpec{

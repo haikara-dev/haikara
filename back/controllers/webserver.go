@@ -98,6 +98,7 @@ func StartWebserver() {
 		admin.GET("/articles/:id", apiArticleHandler.GetArticle)
 		admin.PUT("/articles/:id", apiArticleHandler.UpdateArticle)
 		admin.DELETE("/articles/:id", apiArticleHandler.DeleteArticle)
+		admin.GET("/articles/run-get-ogp-image/:id", apiArticleHandler.RunGetOGPImageOfArticle)
 
 		admin.GET("/dashboard", apiDashboardHandler.GetAdminDashboard)
 	}

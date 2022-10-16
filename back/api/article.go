@@ -2,11 +2,13 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/site"
+	"github.com/haikara-dev/haikara/libs"
 	"math"
 	"net/http"
 	"strconv"
@@ -219,4 +221,46 @@ func (h *ArticleHandler) DeleteArticle(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "deleted"})
+}
+
+func (h *ArticleHandler) RunGetOGPImageOfArticle(c *gin.Context) {
+	strId := c.Param("id")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	existArticle, err := h.Client.Article.
+		Query().
+		Where(article.ID(id)).
+		Only(context.Background())
+
+	if err != nil && !ent.IsNotFound(err) {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if existArticle == nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	// TODO: SPAのサイトはchromeを使うようにすること (site.Edges.SiteCrawlRule.IsSpa)
+	ogpImageURL, err := libs.GetOGPImageUrl(existArticle.URL)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if ogpImageURL != "" {
+		isSaveImage, err := libs.SaveOGPImage(ogpImageURL, "./uploads/ogp_images/")
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		fmt.Printf("isSaveImage: %v", isSaveImage)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": ogpImageURL})
 }
