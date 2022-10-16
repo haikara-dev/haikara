@@ -28,10 +28,10 @@ const (
 	// Table holds the table name of the article in the database.
 	Table = "articles"
 	// OgpImageTable is the table that holds the ogp_image relation/edge.
-	OgpImageTable = "articles"
-	// OgpImageInverseTable is the table name for the Image entity.
-	// It exists in this package in order to avoid circular dependency with the "image" package.
-	OgpImageInverseTable = "images"
+	OgpImageTable = "ogp_images"
+	// OgpImageInverseTable is the table name for the OGPImage entity.
+	// It exists in this package in order to avoid circular dependency with the "ogpimage" package.
+	OgpImageInverseTable = "ogp_images"
 	// OgpImageColumn is the table column denoting the ogp_image relation/edge.
 	OgpImageColumn = "article_ogp_image"
 	// SiteTable is the table that holds the site relation/edge.
@@ -56,7 +56,6 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "articles"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"article_ogp_image",
 	"site_articles",
 }
 

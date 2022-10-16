@@ -26,7 +26,7 @@ type config struct {
 type hooks struct {
 	Article       []ent.Hook
 	Feed          []ent.Hook
-	Image         []ent.Hook
+	OGPImage      []ent.Hook
 	Site          []ent.Hook
 	SiteCategory  []ent.Hook
 	SiteCrawlRule []ent.Hook

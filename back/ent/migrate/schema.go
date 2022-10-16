@@ -16,7 +16,6 @@ var (
 		{Name: "title", Type: field.TypeString},
 		{Name: "url", Type: field.TypeString, SchemaType: map[string]string{"mysql": "varchar(2083)"}},
 		{Name: "published_at", Type: field.TypeTime},
-		{Name: "article_ogp_image", Type: field.TypeInt, Nullable: true},
 		{Name: "site_articles", Type: field.TypeInt},
 	}
 	// ArticlesTable holds the schema information for the "articles" table.
@@ -26,14 +25,8 @@ var (
 		PrimaryKey: []*schema.Column{ArticlesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "articles_images_ogp_image",
-				Columns:    []*schema.Column{ArticlesColumns[6]},
-				RefColumns: []*schema.Column{ImagesColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
 				Symbol:     "articles_sites_articles",
-				Columns:    []*schema.Column{ArticlesColumns[7]},
+				Columns:    []*schema.Column{ArticlesColumns[6]},
 				RefColumns: []*schema.Column{SitesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -63,20 +56,29 @@ var (
 			},
 		},
 	}
-	// ImagesColumns holds the columns for the "images" table.
-	ImagesColumns = []*schema.Column{
+	// OgpImagesColumns holds the columns for the "ogp_images" table.
+	OgpImagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "name", Type: field.TypeString},
 		{Name: "file_name", Type: field.TypeString},
 		{Name: "file_path", Type: field.TypeString},
+		{Name: "origin_url", Type: field.TypeString, SchemaType: map[string]string{"mysql": "varchar(2083)"}},
+		{Name: "article_ogp_image", Type: field.TypeInt, Unique: true},
 	}
-	// ImagesTable holds the schema information for the "images" table.
-	ImagesTable = &schema.Table{
-		Name:       "images",
-		Columns:    ImagesColumns,
-		PrimaryKey: []*schema.Column{ImagesColumns[0]},
+	// OgpImagesTable holds the schema information for the "ogp_images" table.
+	OgpImagesTable = &schema.Table{
+		Name:       "ogp_images",
+		Columns:    OgpImagesColumns,
+		PrimaryKey: []*schema.Column{OgpImagesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "ogp_images_articles_ogp_image",
+				Columns:    []*schema.Column{OgpImagesColumns[6]},
+				RefColumns: []*schema.Column{ArticlesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// SitesColumns holds the columns for the "sites" table.
 	SitesColumns = []*schema.Column{
@@ -182,7 +184,7 @@ var (
 	Tables = []*schema.Table{
 		ArticlesTable,
 		FeedsTable,
-		ImagesTable,
+		OgpImagesTable,
 		SitesTable,
 		SiteCategoriesTable,
 		SiteCrawlRulesTable,
@@ -192,9 +194,9 @@ var (
 )
 
 func init() {
-	ArticlesTable.ForeignKeys[0].RefTable = ImagesTable
-	ArticlesTable.ForeignKeys[1].RefTable = SitesTable
+	ArticlesTable.ForeignKeys[0].RefTable = SitesTable
 	FeedsTable.ForeignKeys[0].RefTable = SitesTable
+	OgpImagesTable.ForeignKeys[0].RefTable = ArticlesTable
 	SiteCrawlRulesTable.ForeignKeys[0].RefTable = SitesTable
 	SiteCategorySitesTable.ForeignKeys[0].RefTable = SiteCategoriesTable
 	SiteCategorySitesTable.ForeignKeys[1].RefTable = SitesTable

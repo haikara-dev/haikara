@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
+	"github.com/haikara-dev/haikara/ent/migrate"
 	"log"
 	"time"
 )
@@ -27,7 +28,10 @@ func dbConnect(dsn string, retryCount uint) (err error) {
 
 func dbMigration(retryCount uint) (err error) {
 	for retryCount > 1 {
-		if err = Client.Schema.Create(context.Background()); err != nil {
+		if err = Client.Schema.Create(context.Background(),
+			migrate.WithDropIndex(true),
+			migrate.WithDropColumn(true),
+		); err != nil {
 			time.Sleep(time.Second * 2)
 			retryCount--
 			log.Printf("retry... count:%v\n", retryCount)

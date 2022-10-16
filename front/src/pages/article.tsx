@@ -16,6 +16,7 @@ import {
   GetArticlesArg,
   useDeleteArticleMutation,
   useGetArticlesQuery,
+  useRunGetOGPImageOfArticleMutation,
 } from "@/services/adminApi";
 import PaginationHeader from "@/components/ui/PaginationHeader";
 
@@ -42,7 +43,9 @@ const Articles: NextPageWithLayout = () => {
     isLoading,
   } = useGetArticlesQuery(query);
 
-  const [deleteArticle, result] = useDeleteArticleMutation();
+  const [deleteArticle] = useDeleteArticleMutation();
+
+  const [runGetOGPImageOfArticle] = useRunGetOGPImageOfArticleMutation();
 
   const onClickDeleteHandler = async (
     id: number,
@@ -57,6 +60,7 @@ const Articles: NextPageWithLayout = () => {
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
+    runGetOGPImageOfArticle(id);
   };
 
   const handleChangePagination = (

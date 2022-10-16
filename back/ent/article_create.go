@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/haikara-dev/haikara/ent/article"
-	"github.com/haikara-dev/haikara/ent/image"
+	"github.com/haikara-dev/haikara/ent/ogpimage"
 	"github.com/haikara-dev/haikara/ent/site"
 )
 
@@ -68,13 +68,13 @@ func (ac *ArticleCreate) SetPublishedAt(t time.Time) *ArticleCreate {
 	return ac
 }
 
-// SetOgpImageID sets the "ogp_image" edge to the Image entity by ID.
+// SetOgpImageID sets the "ogp_image" edge to the OGPImage entity by ID.
 func (ac *ArticleCreate) SetOgpImageID(id int) *ArticleCreate {
 	ac.mutation.SetOgpImageID(id)
 	return ac
 }
 
-// SetNillableOgpImageID sets the "ogp_image" edge to the Image entity by ID if the given value is not nil.
+// SetNillableOgpImageID sets the "ogp_image" edge to the OGPImage entity by ID if the given value is not nil.
 func (ac *ArticleCreate) SetNillableOgpImageID(id *int) *ArticleCreate {
 	if id != nil {
 		ac = ac.SetOgpImageID(*id)
@@ -82,9 +82,9 @@ func (ac *ArticleCreate) SetNillableOgpImageID(id *int) *ArticleCreate {
 	return ac
 }
 
-// SetOgpImage sets the "ogp_image" edge to the Image entity.
-func (ac *ArticleCreate) SetOgpImage(i *Image) *ArticleCreate {
-	return ac.SetOgpImageID(i.ID)
+// SetOgpImage sets the "ogp_image" edge to the OGPImage entity.
+func (ac *ArticleCreate) SetOgpImage(o *OGPImage) *ArticleCreate {
+	return ac.SetOgpImageID(o.ID)
 }
 
 // SetSiteID sets the "site" edge to the Site entity by ID.
@@ -284,7 +284,7 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	}
 	if nodes := ac.mutation.OgpImageIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   article.OgpImageTable,
 			Columns: []string{article.OgpImageColumn},
@@ -292,14 +292,13 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: image.FieldID,
+					Column: ogpimage.FieldID,
 				},
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.article_ogp_image = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := ac.mutation.SiteIDs(); len(nodes) > 0 {

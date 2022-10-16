@@ -34,7 +34,8 @@ func (Article) Fields() []ent.Field {
 // Edges of the Article.
 func (Article) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("ogp_image", Image.Type).Unique(),
+		edge.To("ogp_image", OGPImage.Type).
+			Unique(),
 		edge.From("site", Site.Type).
 			Ref("articles").
 			Unique().

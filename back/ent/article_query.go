@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,7 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/haikara-dev/haikara/ent/article"
-	"github.com/haikara-dev/haikara/ent/image"
+	"github.com/haikara-dev/haikara/ent/ogpimage"
 	"github.com/haikara-dev/haikara/ent/predicate"
 	"github.com/haikara-dev/haikara/ent/site"
 )
@@ -25,7 +26,7 @@ type ArticleQuery struct {
 	order        []OrderFunc
 	fields       []string
 	predicates   []predicate.Article
-	withOgpImage *ImageQuery
+	withOgpImage *OGPImageQuery
 	withSite     *SiteQuery
 	withFKs      bool
 	// intermediate query (i.e. traversal path).
@@ -65,8 +66,8 @@ func (aq *ArticleQuery) Order(o ...OrderFunc) *ArticleQuery {
 }
 
 // QueryOgpImage chains the current query on the "ogp_image" edge.
-func (aq *ArticleQuery) QueryOgpImage() *ImageQuery {
-	query := &ImageQuery{config: aq.config}
+func (aq *ArticleQuery) QueryOgpImage() *OGPImageQuery {
+	query := &OGPImageQuery{config: aq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := aq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -77,8 +78,8 @@ func (aq *ArticleQuery) QueryOgpImage() *ImageQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(article.Table, article.FieldID, selector),
-			sqlgraph.To(image.Table, image.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, article.OgpImageTable, article.OgpImageColumn),
+			sqlgraph.To(ogpimage.Table, ogpimage.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, article.OgpImageTable, article.OgpImageColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
 		return fromU, nil
@@ -300,8 +301,8 @@ func (aq *ArticleQuery) Clone() *ArticleQuery {
 
 // WithOgpImage tells the query-builder to eager-load the nodes that are connected to
 // the "ogp_image" edge. The optional arguments are used to configure the query builder of the edge.
-func (aq *ArticleQuery) WithOgpImage(opts ...func(*ImageQuery)) *ArticleQuery {
-	query := &ImageQuery{config: aq.config}
+func (aq *ArticleQuery) WithOgpImage(opts ...func(*OGPImageQuery)) *ArticleQuery {
+	query := &OGPImageQuery{config: aq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -394,7 +395,7 @@ func (aq *ArticleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Arti
 			aq.withSite != nil,
 		}
 	)
-	if aq.withOgpImage != nil || aq.withSite != nil {
+	if aq.withSite != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -420,7 +421,7 @@ func (aq *ArticleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Arti
 	}
 	if query := aq.withOgpImage; query != nil {
 		if err := aq.loadOgpImage(ctx, query, nodes, nil,
-			func(n *Article, e *Image) { n.Edges.OgpImage = e }); err != nil {
+			func(n *Article, e *OGPImage) { n.Edges.OgpImage = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -433,32 +434,31 @@ func (aq *ArticleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Arti
 	return nodes, nil
 }
 
-func (aq *ArticleQuery) loadOgpImage(ctx context.Context, query *ImageQuery, nodes []*Article, init func(*Article), assign func(*Article, *Image)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Article)
+func (aq *ArticleQuery) loadOgpImage(ctx context.Context, query *OGPImageQuery, nodes []*Article, init func(*Article), assign func(*Article, *OGPImage)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Article)
 	for i := range nodes {
-		if nodes[i].article_ogp_image == nil {
-			continue
-		}
-		fk := *nodes[i].article_ogp_image
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
 	}
-	query.Where(image.IDIn(ids...))
+	query.withFKs = true
+	query.Where(predicate.OGPImage(func(s *sql.Selector) {
+		s.Where(sql.InValues(article.OgpImageColumn, fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.article_ogp_image
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "article_ogp_image" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "article_ogp_image" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "article_ogp_image" returned %v for node %v`, *fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }

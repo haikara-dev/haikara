@@ -512,19 +512,19 @@ func HasOgpImage() predicate.Article {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(OgpImageTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, OgpImageTable, OgpImageColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, OgpImageTable, OgpImageColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
 // HasOgpImageWith applies the HasEdge predicate on the "ogp_image" edge with a given conditions (other predicates).
-func HasOgpImageWith(preds ...predicate.Image) predicate.Article {
+func HasOgpImageWith(preds ...predicate.OGPImage) predicate.Article {
 	return predicate.Article(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(OgpImageInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, OgpImageTable, OgpImageColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, OgpImageTable, OgpImageColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

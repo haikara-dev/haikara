@@ -35,15 +35,15 @@ func (f FeedFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return f(ctx, mv)
 }
 
-// The ImageFunc type is an adapter to allow the use of ordinary
-// function as Image mutator.
-type ImageFunc func(context.Context, *ent.ImageMutation) (ent.Value, error)
+// The OGPImageFunc type is an adapter to allow the use of ordinary
+// function as OGPImage mutator.
+type OGPImageFunc func(context.Context, *ent.OGPImageMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f ImageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.ImageMutation)
+func (f OGPImageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.OGPImageMutation)
 	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ImageMutation", m)
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OGPImageMutation", m)
 	}
 	return f(ctx, mv)
 }

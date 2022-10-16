@@ -7,7 +7,7 @@ import (
 
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/feed"
-	"github.com/haikara-dev/haikara/ent/image"
+	"github.com/haikara-dev/haikara/ent/ogpimage"
 	"github.com/haikara-dev/haikara/ent/schema"
 	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/haikara-dev/haikara/ent/sitecategory"
@@ -65,33 +65,21 @@ func init() {
 	feedDescCount := feedFields[1].Descriptor()
 	// feed.DefaultCount holds the default value on creation for the count field.
 	feed.DefaultCount = feedDescCount.Default.(int)
-	imageMixin := schema.Image{}.Mixin()
-	imageMixinFields0 := imageMixin[0].Fields()
-	_ = imageMixinFields0
-	imageFields := schema.Image{}.Fields()
-	_ = imageFields
-	// imageDescCreatedAt is the schema descriptor for created_at field.
-	imageDescCreatedAt := imageMixinFields0[0].Descriptor()
-	// image.DefaultCreatedAt holds the default value on creation for the created_at field.
-	image.DefaultCreatedAt = imageDescCreatedAt.Default.(func() time.Time)
-	// imageDescUpdatedAt is the schema descriptor for updated_at field.
-	imageDescUpdatedAt := imageMixinFields0[1].Descriptor()
-	// image.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	image.DefaultUpdatedAt = imageDescUpdatedAt.Default.(func() time.Time)
-	// image.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	image.UpdateDefaultUpdatedAt = imageDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// imageDescName is the schema descriptor for name field.
-	imageDescName := imageFields[0].Descriptor()
-	// image.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	image.NameValidator = imageDescName.Validators[0].(func(string) error)
-	// imageDescFileName is the schema descriptor for file_name field.
-	imageDescFileName := imageFields[1].Descriptor()
-	// image.FileNameValidator is a validator for the "file_name" field. It is called by the builders before save.
-	image.FileNameValidator = imageDescFileName.Validators[0].(func(string) error)
-	// imageDescFilePath is the schema descriptor for file_path field.
-	imageDescFilePath := imageFields[2].Descriptor()
-	// image.FilePathValidator is a validator for the "file_path" field. It is called by the builders before save.
-	image.FilePathValidator = imageDescFilePath.Validators[0].(func(string) error)
+	ogpimageMixin := schema.OGPImage{}.Mixin()
+	ogpimageMixinFields0 := ogpimageMixin[0].Fields()
+	_ = ogpimageMixinFields0
+	ogpimageFields := schema.OGPImage{}.Fields()
+	_ = ogpimageFields
+	// ogpimageDescCreatedAt is the schema descriptor for created_at field.
+	ogpimageDescCreatedAt := ogpimageMixinFields0[0].Descriptor()
+	// ogpimage.DefaultCreatedAt holds the default value on creation for the created_at field.
+	ogpimage.DefaultCreatedAt = ogpimageDescCreatedAt.Default.(func() time.Time)
+	// ogpimageDescUpdatedAt is the schema descriptor for updated_at field.
+	ogpimageDescUpdatedAt := ogpimageMixinFields0[1].Descriptor()
+	// ogpimage.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	ogpimage.DefaultUpdatedAt = ogpimageDescUpdatedAt.Default.(func() time.Time)
+	// ogpimage.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	ogpimage.UpdateDefaultUpdatedAt = ogpimageDescUpdatedAt.UpdateDefault.(func() time.Time)
 	siteMixin := schema.Site{}.Mixin()
 	siteMixinFields0 := siteMixin[0].Fields()
 	_ = siteMixinFields0
