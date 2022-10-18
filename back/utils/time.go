@@ -58,3 +58,7 @@ func HumanizeParseTime(str string, now time.Time) (time.Time, error) {
 
 	return time.Time{}, errors.New("not supported")
 }
+
+func DirectoryNameFromTime(t time.Time) string {
+	return t.Format("2006/01/02/")
+}

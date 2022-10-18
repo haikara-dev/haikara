@@ -12,6 +12,8 @@ import Stack from "@mui/material/Stack";
 import LabeledText from "@/components/ui/LabeledText";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import Link from "next/link";
+import Image from "next/image";
+
 import Button from "@mui/material/Button";
 
 const Site: NextPageWithLayout = () => {
@@ -106,7 +108,23 @@ const Site: NextPageWithLayout = () => {
                 <Button onClick={onClickOGPHandler.bind(this, article.id)}>
                   OGP
                 </Button>
-
+                {article.ogp_image_url && (
+                  <div
+                    style={{
+                      display: "inline-block",
+                      width: "200px",
+                      height: "105px",
+                      position: "relative",
+                    }}
+                  >
+                    <Image
+                      src={article.ogp_image_url}
+                      width={200 * 2}
+                      height={105 * 2}
+                      objectFit="contain"
+                    />
+                  </div>
+                )}
                 <a href={article.url} target="_blank" rel="noopener noreferrer">
                   {article.title}
                 </a>

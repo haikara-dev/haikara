@@ -11,6 +11,7 @@ export type Article = {
   title: string;
   url: string;
   published_at: string;
+  ogp_image_url: string;
 };
 
 export type Feed = {

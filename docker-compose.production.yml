@@ -40,6 +40,7 @@ services:
       - LETSENCRYPT_TEST=${LETSENCRYPT_TEST}
     volumes:
       - ./back:/app/back
+      - uploads-data:/app/uploads
     networks:
       - front_bridge
       - back_bridge
@@ -70,6 +71,26 @@ services:
       - "3306:3306"
     networks:
       - back_bridge
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: nginx_container
+    volumes:
+      - ./docker/nginx/html:/usr/share/nginx/html
+      - uploads-data:/usr/share/nginx/html/uploads
+    ports:
+      - "8086:80"
+    tty: true
+    environment:
+      - VIRTUAL_HOST=${ASSETS_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${ASSETS_LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - LETSENCRYPT_TEST=${LETSENCRYPT_TEST}
+    networks:
+      - front_bridge
+
 
   nginx-proxy:
     image: jwilder/nginx-proxy
@@ -112,5 +133,6 @@ networks:
 
 volumes:
   mysql-data:
+  uploads-data:
   nginx-proxy-data:
   acme:

@@ -2,13 +2,14 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
+	"github.com/haikara-dev/haikara/ent/ogpimage"
 	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/haikara-dev/haikara/libs"
+	"github.com/haikara-dev/haikara/utils"
 	"math"
 	"net/http"
 	"strconv"
@@ -59,6 +60,7 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 	}
 
 	articles, err := createArticleQuery().
+		WithOgpImage().
 		Order(ent.Desc(article.FieldPublishedAt)).
 		Offset(offset).
 		Limit(pageSize).
@@ -82,6 +84,7 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 		Title       string    `json:"title"`
 		URL         string    `json:"url"`
 		PublishedAt time.Time `json:"published_at"`
+		OGPImageURL string    `json:"ogp_image_url"`
 	}
 
 	type ResponseJson struct {
@@ -94,11 +97,18 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 	var resFeeds = make([]ResponseArticle, 0)
 
 	for _, article := range articles {
+
+		ogpImageURL := ""
+		if article.Edges.OgpImage != nil {
+			ogpImageURL = config.Config.AssetsUrl + "/" + article.Edges.OgpImage.FilePath
+		}
+
 		resFeeds = append(resFeeds, ResponseArticle{
 			ID:          article.ID,
 			Title:       article.Title,
 			URL:         article.URL,
 			PublishedAt: article.PublishedAt,
+			OGPImageURL: ogpImageURL,
 		})
 	}
 
@@ -245,21 +255,65 @@ func (h *ArticleHandler) RunGetOGPImageOfArticle(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	// TODO: SPAのサイトはchromeを使うようにすること (site.Edges.SiteCrawlRule.IsSpa)
-	ogpImageURL, err := libs.GetOGPImageUrl(existArticle.URL)
+
+	var ogpImageURL = ""
+	var fileName = ""
+	var filePath = ""
+
+	ogpImageURL, err = libs.GetOGPImageUrl(existArticle.URL)
 	if err != nil {
+		// 何もしない
+	}
+
+	if ogpImageURL != "" {
+		saveDir := "uploads/ogp_images/" + utils.DirectoryNameFromTime(existArticle.PublishedAt)
+		saveOGPImageResponse, err := libs.SaveOGPImage(ogpImageURL, saveDir, existArticle.ID)
+		if err != nil {
+			// 何もしない
+		}
+
+		if saveOGPImageResponse != nil {
+			fileName = saveOGPImageResponse.FileName
+			filePath = saveOGPImageResponse.FilePath
+		}
+
+	}
+
+	ogpImage, err := h.Client.OGPImage.
+		Query().
+		Where(ogpimage.HasArticleWith(article.ID(id))).
+		Only(context.Background())
+
+	if err != nil && !ent.IsNotFound(err) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	if ogpImageURL != "" {
-		isSaveImage, err := libs.SaveOGPImage(ogpImageURL, "./uploads/ogp_images/")
+	if ogpImage == nil {
+		ogpImage, err = h.Client.OGPImage.
+			Create().
+			SetArticleID(existArticle.ID).
+			SetOriginURL(ogpImageURL).
+			SetFileName(fileName).
+			SetFilePath(filePath).
+			Save(context.Background())
+
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
+	} else {
+		ogpImage, err = ogpImage.Update().
+			SetArticleID(existArticle.ID).
+			SetOriginURL(ogpImageURL).
+			SetFileName(fileName).
+			SetFilePath(filePath).
+			Save(context.Background())
 
-		fmt.Printf("isSaveImage: %v", isSaveImage)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": ogpImageURL})

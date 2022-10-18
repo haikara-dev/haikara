@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-}
+  images: {
+    domains: ["assets.haikara.dev", "localhost"],
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

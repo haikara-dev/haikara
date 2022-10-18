@@ -24,6 +24,8 @@ type ConfigList struct {
 	ChromeDevToolsHostAndPort string
 
 	UserAgent string
+
+	AssetsUrl string
 }
 
 var Config ConfigList
@@ -55,5 +57,6 @@ func init() {
 		PageSize:                  pageSize,
 		ChromeDevToolsHostAndPort: os.Getenv("CHROME_DEVTOOLS_HOST_AND_PORT"),
 		UserAgent:                 os.Getenv("USER_AGENT"),
+		AssetsUrl:                 os.Getenv("ASSETS_URL"),
 	}
 }

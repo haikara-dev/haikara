@@ -14,12 +14,15 @@ import (
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/haikara-dev/haikara/utils"
+	"github.com/kennygrant/sanitize"
 	"github.com/mmcdole/gofeed"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -590,16 +593,25 @@ func GetOGPImageUrl(articleUrl string) (string, error) {
 	return ogpUrl, nil
 }
 
-func SaveOGPImage(ogpImageUrl string, savePath string) (bool, error) {
-	var done bool
+type SaveOGPImageResponse struct {
+	FileName string
+	FilePath string
+}
+
+func SaveOGPImage(ogpImageUrl string, saveDir string, articleID int) (*SaveOGPImageResponse, error) {
+	var res *SaveOGPImageResponse
 	var err error
 
 	if ogpImageUrl == "" {
-		return false, errors.New("ogpImageUrl is empty")
+		return nil, errors.New("ogpImageUrl is empty")
 	}
 
-	if savePath == "" {
-		return false, errors.New("savePath is empty")
+	if saveDir == "" {
+		return nil, errors.New("savePath is empty")
+	}
+
+	if articleID == 0 {
+		return nil, errors.New("articleID is empty")
 	}
 
 	s := colly.NewCollector(
@@ -612,14 +624,24 @@ func SaveOGPImage(ogpImageUrl string, savePath string) (bool, error) {
 		fmt.Println("visiting", r.URL)
 	})
 	s.OnResponse(func(r *colly.Response) {
-		os.MkdirAll(savePath, os.ModePerm)
-		err = r.Save(savePath + r.FileName())
+		os.MkdirAll(saveDir, os.ModePerm)
+
+		filename := strconv.Itoa(articleID)
+		ext := filepath.Ext(r.Request.URL.String())
+		cleanExt := sanitize.BaseName(ext)
+		fileName := fmt.Sprintf("%s.%s", filename, cleanExt[1:])
+		filePath := saveDir + fileName
+
+		err = r.Save(filePath)
 		if err == nil {
-			done = true
+			res = &SaveOGPImageResponse{
+				fileName,
+				filePath,
+			}
 		}
 	})
 
 	s.Visit(ogpImageUrl)
 
-	return done, err
+	return res, err
 }

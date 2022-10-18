@@ -15,5 +15,17 @@ services:
     ports:
       - "3306:3306"
 
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: nginx_container
+    volumes:
+      - ./docker/nginx/html:/usr/share/nginx/html
+      - ./back/uploads:/usr/share/nginx/html/uploads
+    ports:
+      - "8086:80"
+    tty: true
+
 volumes:
   mysql-data:
