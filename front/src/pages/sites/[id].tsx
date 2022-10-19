@@ -12,9 +12,9 @@ import Stack from "@mui/material/Stack";
 import LabeledText from "@/components/ui/LabeledText";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import Link from "next/link";
-import Image from "next/image";
 
 import Button from "@mui/material/Button";
+import ImgproxyImage from "@/components/ImgproxyImage";
 
 const Site: NextPageWithLayout = () => {
   const router = useRouter();
@@ -117,7 +117,7 @@ const Site: NextPageWithLayout = () => {
                       position: "relative",
                     }}
                   >
-                    <Image
+                    <ImgproxyImage
                       src={article.ogp_image_url}
                       width={200 * 2}
                       height={105 * 2}

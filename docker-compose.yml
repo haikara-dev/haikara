@@ -27,5 +27,13 @@ services:
       - "8086:80"
     tty: true
 
+  imgproxy:
+    image: darthsim/imgproxy:latest
+    container_name: imgproxy_container
+    environment:
+      - IMGPROXY_ENABLE_WEBP_DETECTION=true
+    ports:
+      - "8087:8080"
+
 volumes:
   mysql-data:

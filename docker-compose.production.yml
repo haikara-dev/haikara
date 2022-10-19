@@ -91,6 +91,20 @@ services:
     networks:
       - front_bridge
 
+  imgproxy:
+    image: darthsim/imgproxy:latest
+    container_name: imgproxy_container
+    environment:
+      - IMGPROXY_ENABLE_WEBP_DETECTION=true
+      - IMGPROXY_ALLOWED_SOURCES=${IMGPROXY_ALLOWED_SOURCES}
+      - VIRTUAL_HOST=${IMAGEPROXY_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${IMAGEPROXY_LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - LETSENCRYPT_TEST=${LETSENCRYPT_TEST}
+    ports:
+      - "8087:8080"
+    networks:
+      - front_bridge
 
   nginx-proxy:
     image: jwilder/nginx-proxy

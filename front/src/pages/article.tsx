@@ -9,7 +9,6 @@ import Pagination from "@mui/material/Pagination";
 import React, { ReactElement, useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/router";
-import Image from "next/image";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 
@@ -20,6 +19,7 @@ import {
   useRunGetOGPImageOfArticleMutation,
 } from "@/services/adminApi";
 import PaginationHeader from "@/components/ui/PaginationHeader";
+import ImgproxyImage from "@/components/ImgproxyImage";
 
 const Articles: NextPageWithLayout = () => {
   const buildQuery = (): GetArticlesArg => {
@@ -111,7 +111,7 @@ const Articles: NextPageWithLayout = () => {
                           position: "relative",
                         }}
                       >
-                        <Image
+                        <ImgproxyImage
                           src={article.ogp_image_url}
                           width={200 * 2}
                           height={105 * 2}
