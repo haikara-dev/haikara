@@ -17,11 +17,11 @@ type Dashboard struct {
 }
 
 type AdminDashboard struct {
-	SiteSize    int `json:"siteSize"`
-	ArticleSize int `json:"articleSize"`
-
-	FeedSize int `json:"feedSize"`
-	UserSize int `json:"userSize"`
+	SiteSize     int `json:"siteSize"`
+	ArticleSize  int `json:"articleSize"`
+	OGPImageSize int `json:"ogpImageSize"`
+	FeedSize     int `json:"feedSize"`
+	UserSize     int `json:"userSize"`
 }
 
 func (h *DashboardHandler) GetDashboard(c *gin.Context) {
@@ -58,6 +58,14 @@ func (h *DashboardHandler) GetAdminDashboard(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+	opgImageTotalCount, err := h.Client.OGPImage.
+		Query().
+		Count(context.Background())
+
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
 
 	siteTotalCount, err := h.Client.Site.
 		Query().
@@ -85,10 +93,12 @@ func (h *DashboardHandler) GetAdminDashboard(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, AdminDashboard{
-		SiteSize:    siteTotalCount,
-		FeedSize:    feedTotalCount,
-		ArticleSize: articleTotalCount,
-		UserSize:    userTotalCount,
+		SiteSize:     siteTotalCount,
+		FeedSize:     feedTotalCount,
+		ArticleSize:  articleTotalCount,
+		OGPImageSize: opgImageTotalCount,
+		UserSize:     userTotalCount,
 	})
 }

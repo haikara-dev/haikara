@@ -166,6 +166,7 @@ export type AdminDashboard = {
   articleSize: number;
   feedSize: number;
   userSize: number;
+  ogpImageSize: number;
 };
 export const adminApi = createApi({
   reducerPath: "adminApi",

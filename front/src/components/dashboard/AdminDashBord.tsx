@@ -12,6 +12,7 @@ const AdminDashBord = () => {
           <div>Site: {dashboard.siteSize}</div>
           <div>Feed: {dashboard.feedSize}</div>
           <div>Article: {dashboard.articleSize}</div>
+          <div>OGP Image: {dashboard.ogpImageSize}</div>
           <div>User: {dashboard.userSize}</div>
         </div>
       )}
