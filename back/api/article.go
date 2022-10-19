@@ -97,7 +97,7 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 	for _, article := range articles {
 
 		ogpImageURL := ""
-		if article.Edges.OgpImage != nil {
+		if article.Edges.OgpImage != nil && article.Edges.OgpImage.FilePath != "" {
 			ogpImageURL = config.Config.AssetsUrl + "/" + article.Edges.OgpImage.FilePath
 		}
 
