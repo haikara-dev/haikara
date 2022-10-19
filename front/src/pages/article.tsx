@@ -9,6 +9,7 @@ import Pagination from "@mui/material/Pagination";
 import React, { ReactElement, useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import { NextPageWithLayout } from "@/pages/_app";
 import AdminLayout from "@/components/layouts/AdminLayout";
 
@@ -101,6 +102,23 @@ const Articles: NextPageWithLayout = () => {
                     >
                       OGP
                     </Button>
+                    {article.ogp_image_url && (
+                      <div
+                        style={{
+                          display: "inline-block",
+                          width: "200px",
+                          height: "105px",
+                          position: "relative",
+                        }}
+                      >
+                        <Image
+                          src={article.ogp_image_url}
+                          width={200 * 2}
+                          height={105 * 2}
+                          objectFit="contain"
+                        />
+                      </div>
+                    )}
                     <div>
                       {new Date(article.published_at).toLocaleDateString()}
                     </div>

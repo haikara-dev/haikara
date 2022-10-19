@@ -6,10 +6,8 @@ import (
 	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
 	"github.com/haikara-dev/haikara/ent/article"
-	"github.com/haikara-dev/haikara/ent/ogpimage"
 	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/haikara-dev/haikara/libs"
-	"github.com/haikara-dev/haikara/utils"
 	"math"
 	"net/http"
 	"strconv"
@@ -256,65 +254,12 @@ func (h *ArticleHandler) RunGetOGPImageOfArticle(c *gin.Context) {
 		return
 	}
 
-	var ogpImageURL = ""
-	var fileName = ""
-	var filePath = ""
+	ogpImage, err := libs.SaveOGPImage(existArticle, h.Client)
 
-	ogpImageURL, err = libs.GetOGPImageUrl(existArticle.URL)
 	if err != nil {
-		// 何もしない
-	}
-
-	if ogpImageURL != "" {
-		saveDir := "uploads/ogp_images/" + utils.DirectoryNameFromTime(existArticle.PublishedAt)
-		saveOGPImageResponse, err := libs.SaveOGPImage(ogpImageURL, saveDir, existArticle.ID)
-		if err != nil {
-			// 何もしない
-		}
-
-		if saveOGPImageResponse != nil {
-			fileName = saveOGPImageResponse.FileName
-			filePath = saveOGPImageResponse.FilePath
-		}
-
-	}
-
-	ogpImage, err := h.Client.OGPImage.
-		Query().
-		Where(ogpimage.HasArticleWith(article.ID(id))).
-		Only(context.Background())
-
-	if err != nil && !ent.IsNotFound(err) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	if ogpImage == nil {
-		ogpImage, err = h.Client.OGPImage.
-			Create().
-			SetArticleID(existArticle.ID).
-			SetOriginURL(ogpImageURL).
-			SetFileName(fileName).
-			SetFilePath(filePath).
-			Save(context.Background())
-
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
-	} else {
-		ogpImage, err = ogpImage.Update().
-			SetArticleID(existArticle.ID).
-			SetOriginURL(ogpImageURL).
-			SetFileName(fileName).
-			SetFilePath(filePath).
-			Save(context.Background())
-
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": ogpImageURL})
+	c.JSON(http.StatusOK, gin.H{"message": ogpImage.OriginURL})
 }

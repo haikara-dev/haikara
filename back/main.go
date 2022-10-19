@@ -10,6 +10,14 @@ import (
 	"time"
 )
 
+func ogp_image() {
+	fmt.Println("OGP Image...")
+	for {
+		time.Sleep(10 * time.Minute) // 時間	10分休む
+		// ここでなにかを行う
+		libs.CrawlOGPImage(100, database.Client)
+	}
+}
 func index() {
 	fmt.Println("Indexing...")
 	for {
@@ -33,6 +41,7 @@ func main() {
 
 	go crawl()
 	go index()
+	go ogp_image()
 
 	controllers.StartWebserver()
 

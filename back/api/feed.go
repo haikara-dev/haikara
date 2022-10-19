@@ -8,6 +8,7 @@ import (
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/feed"
 	"github.com/haikara-dev/haikara/ent/site"
+	"github.com/haikara-dev/haikara/utils"
 	"github.com/mmcdole/gofeed"
 	"math"
 	"net/http"
@@ -165,9 +166,10 @@ func (h *FeedHandler) ParseFeed(c *gin.Context) {
 	}
 
 	for _, item := range feed.Items {
+		link := utils.AddSchemeIfNotExists(item.Link)
 		existArticle, err := h.Client.Article.
 			Query().
-			Where(article.URL(item.Link)).
+			Where(article.URL(link)).
 			Only(context.Background())
 
 		if err != nil && !ent.IsNotFound(err) {
@@ -178,7 +180,7 @@ func (h *FeedHandler) ParseFeed(c *gin.Context) {
 			_, err := h.Client.Article.
 				Create().
 				SetTitle(item.Title).
-				SetURL(item.Link).
+				SetURL(link).
 				SetPublishedAt(*item.PublishedParsed).
 				SetSiteID(existFeed.Edges.Site.ID).
 				Save(context.Background())
@@ -190,7 +192,7 @@ func (h *FeedHandler) ParseFeed(c *gin.Context) {
 			_, err := h.Client.Article.
 				UpdateOne(existArticle).
 				SetTitle(item.Title).
-				SetURL(item.Link).
+				SetURL(link).
 				SetPublishedAt(*item.PublishedParsed).
 				SetSiteID(existFeed.Edges.Site.ID).
 				Save(context.Background())

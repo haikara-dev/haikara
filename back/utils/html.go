@@ -61,3 +61,21 @@ func GetArticleLink(selector string, selection *goquery.Selection) string {
 	link = strings.TrimSpace(link)
 	return link
 }
+
+func AddSchemeIfNotExists(url string) string {
+	if url == "" {
+		return ""
+	}
+
+	reg := regexp.MustCompile(`^https?://`)
+	if reg.MatchString(url) {
+		return url
+	}
+
+	reg = regexp.MustCompile(`^//`)
+	if reg.MatchString(url) {
+		return "https:" + url
+	}
+
+	return "https://" + url
+}

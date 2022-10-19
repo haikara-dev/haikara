@@ -14,15 +14,11 @@ import (
 	"github.com/haikara-dev/haikara/ent/article"
 	"github.com/haikara-dev/haikara/ent/site"
 	"github.com/haikara-dev/haikara/utils"
-	"github.com/kennygrant/sanitize"
 	"github.com/mmcdole/gofeed"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -560,88 +556,4 @@ func CrawlAllSite(client *ent.Client) ([]*ent.Site, error) {
 	}
 
 	return sites, nil
-}
-
-func GetOGPImageUrl(articleUrl string) (string, error) {
-	var ogpUrl = ""
-	s := colly.NewCollector(
-		colly.UserAgent(config.Config.UserAgent),
-	)
-	s.OnError(func(_ *colly.Response, err error) {
-		log.Println("Something went wrong:", err)
-	})
-	s.OnRequest(func(r *colly.Request) {
-		fmt.Println("visiting", r.URL)
-	})
-	s.OnHTML("meta[property=\"og:image\"]", func(e *colly.HTMLElement) {
-		ogpUrl = e.Attr("content")
-	})
-	s.Visit(articleUrl)
-
-	if ogpUrl != "" {
-		base, err := url.Parse(articleUrl)
-		if err != nil {
-			return "", err
-		}
-		ref, err := url.Parse(ogpUrl)
-		if err != nil {
-			return "", err
-		}
-		ogpUrl = base.ResolveReference(ref).String()
-	}
-
-	return ogpUrl, nil
-}
-
-type SaveOGPImageResponse struct {
-	FileName string
-	FilePath string
-}
-
-func SaveOGPImage(ogpImageUrl string, saveDir string, articleID int) (*SaveOGPImageResponse, error) {
-	var res *SaveOGPImageResponse
-	var err error
-
-	if ogpImageUrl == "" {
-		return nil, errors.New("ogpImageUrl is empty")
-	}
-
-	if saveDir == "" {
-		return nil, errors.New("savePath is empty")
-	}
-
-	if articleID == 0 {
-		return nil, errors.New("articleID is empty")
-	}
-
-	s := colly.NewCollector(
-		colly.UserAgent(config.Config.UserAgent),
-	)
-	s.OnError(func(_ *colly.Response, err error) {
-		log.Println("Something went wrong:", err)
-	})
-	s.OnRequest(func(r *colly.Request) {
-		fmt.Println("visiting", r.URL)
-	})
-	s.OnResponse(func(r *colly.Response) {
-		os.MkdirAll(saveDir, os.ModePerm)
-
-		filename := strconv.Itoa(articleID)
-		ext := filepath.Ext(r.Request.URL.String())
-		cleanExt := sanitize.BaseName(ext)
-		fileName := fmt.Sprintf("%s.%s", filename, cleanExt[1:])
-		filePath := saveDir + fileName
-
-		err = r.Save(filePath)
-		if err == nil {
-			res = &SaveOGPImageResponse{
-				fileName,
-				filePath,
-			}
-		}
-	})
-
-	s.Visit(ogpImageUrl)
-
-	return res, err
 }

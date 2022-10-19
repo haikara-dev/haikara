@@ -44,3 +44,36 @@ func TestCreateSelectorOnChildrenScopeFeatureSupport(t *testing.T) {
 		t.Errorf("want %v, got %v", want, got)
 	}
 }
+
+func TestAddSchemeIfNotExists(t *testing.T) {
+	var want string
+	var got string
+
+	url := "https://example.com"
+	want = "https://example.com"
+	got = AddSchemeIfNotExists(url)
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+
+	url = "http://example.com"
+	want = "http://example.com"
+	got = AddSchemeIfNotExists(url)
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+
+	url = "example.com"
+	want = "https://example.com"
+	got = AddSchemeIfNotExists(url)
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+
+	url = "//example.com"
+	want = "https://example.com"
+	got = AddSchemeIfNotExists(url)
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+}
