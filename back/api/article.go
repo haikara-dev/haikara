@@ -210,7 +210,6 @@ func (h *ArticleHandler) UpdateArticle(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &resArticle)
 }
-
 func (h *ArticleHandler) DeleteArticle(ctx *gin.Context) {
 	strId := ctx.Param("id")
 	id, err := strconv.Atoi(strId)
@@ -219,8 +218,28 @@ func (h *ArticleHandler) DeleteArticle(ctx *gin.Context) {
 		return
 	}
 
+	existArticle, err := h.Client.Article.
+		Get(context.Background(), id)
+
+	if err != nil && !ent.IsNotFound(err) {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if existArticle == nil {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	err = libs.DeleteOGPImage(existArticle, h.Client)
+
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
 	err = h.Client.Article.
-		DeleteOneID(id).
+		DeleteOne(existArticle).
 		Exec(context.Background())
 
 	if err != nil {

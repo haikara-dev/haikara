@@ -13,6 +13,7 @@ import {
   useRunGetOGPImageOfArticleMutation,
   useLazyGetArticlesQuery,
   useLazyGetSiteWithSiteCrawlRuleQuery,
+  useDeleteArticleMutation,
 } from "@/services/adminApi";
 import Stack from "@mui/material/Stack";
 import LabeledText from "@/components/ui/LabeledText";
@@ -21,6 +22,8 @@ import Link from "next/link";
 
 import Button from "@mui/material/Button";
 import ImgproxyImage from "@/components/ImgproxyImage";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const Site: NextPageWithLayout = () => {
   const router = useRouter();
@@ -32,12 +35,22 @@ const Site: NextPageWithLayout = () => {
 
   const [runGetOGPImageOfArticle] = useRunGetOGPImageOfArticleMutation();
 
+  const [deleteArticle] = useDeleteArticleMutation();
+
   useEffect(() => {
     if (id) {
       getSiteWithSiteCrawlRule(Number(id));
       getArticles({ site_id: Number(id) });
     }
   }, [id]);
+
+  const onClickDeleteHandler = async (
+    id: number,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    await deleteArticle(id);
+  };
 
   const onClickGetOGPImageHandler = (
     id: number,
@@ -117,6 +130,7 @@ const Site: NextPageWithLayout = () => {
                   <TableCell>Published</TableCell>
                   <TableCell>Article Title</TableCell>
                   <TableCell></TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -165,6 +179,14 @@ const Site: NextPageWithLayout = () => {
                         >
                           Read
                         </Button>
+                      </TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={onClickDeleteHandler.bind(this, article.id)}
+                          aria-label="remove"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   );

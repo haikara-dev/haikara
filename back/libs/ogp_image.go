@@ -103,6 +103,14 @@ func saveOGPImageFile(ogpImageUrl string, saveDir string, articleID int) (*SaveO
 	return res, err
 }
 
+func deleteOGPImageFile(filePath string) error {
+	err := os.Remove(filePath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func SaveOGPImage(targetArticle *ent.Article, client *ent.Client) (*ent.OGPImage, error) {
 	var err error
 	var ogpImageURL = ""
@@ -162,6 +170,40 @@ func SaveOGPImage(targetArticle *ent.Article, client *ent.Client) (*ent.OGPImage
 		}
 	}
 	return ogpImage, nil
+}
+
+func DeleteOGPImage(targetArticle *ent.Article, client *ent.Client) error {
+	ogpImage, err := client.OGPImage.
+		Query().
+		Where(ogpimage.HasArticleWith(article.ID(targetArticle.ID))).
+		Only(context.Background())
+
+	if err != nil && !ent.IsNotFound(err) {
+		return err
+	}
+
+	if ogpImage == nil {
+		return nil
+	}
+
+	if ogpImage.FileName == "" {
+		return nil
+	}
+
+	err = deleteOGPImageFile(ogpImage.FilePath)
+
+	if err != nil {
+		return err
+	}
+
+	err = client.OGPImage.
+		DeleteOne(ogpImage).
+		Exec(context.Background())
+
+	if err != nil && !ent.IsNotFound(err) {
+		return err
+	}
+	return nil
 }
 
 func CrawlOGPImage(limit int, client *ent.Client) ([]*ent.Article, error) {

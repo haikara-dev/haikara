@@ -364,10 +364,34 @@ func (h *SiteHandler) DeleteSite(ctx *gin.Context) {
 		return
 	}
 
-	_, err = h.Client.Article.
-		Delete().
+	articles, err := h.Client.Article.
+		Query().
 		Where(article.HasSiteWith(site.ID(id))).
-		Exec(context.Background())
+		All(context.Background())
+
+	if err != nil && !ent.IsNotFound(err) {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	for _, article := range articles {
+
+		err = libs.DeleteOGPImage(article, h.Client)
+
+		if err != nil {
+			ctx.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		err = h.Client.Article.
+			DeleteOne(article).
+			Exec(context.Background())
+
+		if err != nil {
+			ctx.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+	}
 
 	if err != nil && !ent.IsNotFound(err) {
 		ctx.AbortWithError(http.StatusBadRequest, err)
