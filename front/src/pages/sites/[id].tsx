@@ -2,6 +2,12 @@ import { NextPageWithLayout } from "@/pages/_app";
 import React, { ReactElement, useEffect } from "react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import Typography from "@mui/material/Typography";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import { useRouter } from "next/router";
 import {
   useRunGetOGPImageOfArticleMutation,
@@ -33,7 +39,7 @@ const Site: NextPageWithLayout = () => {
     }
   }, [id]);
 
-  const onClickOGPHandler = (
+  const onClickGetOGPImageHandler = (
     id: number,
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -102,35 +108,70 @@ const Site: NextPageWithLayout = () => {
       {articles && articles.data ? (
         <>
           <div>{articles.totalCount}件</div>
-          <ul>
-            {articles.data.map((article) => (
-              <li key={article.id}>
-                <Button onClick={onClickOGPHandler.bind(this, article.id)}>
-                  OGP
-                </Button>
-                {article.ogp_image_url && (
-                  <div
-                    style={{
-                      display: "inline-block",
-                      width: "200px",
-                      height: "105px",
-                      position: "relative",
-                    }}
-                  >
-                    <ImgproxyImage
-                      src={article.ogp_image_url}
-                      width={200 * 2}
-                      height={105 * 2}
-                      objectFit="contain"
-                    />
-                  </div>
-                )}
-                <a href={article.url} target="_blank" rel="noopener noreferrer">
-                  {article.title}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>OGP</TableCell>
+                  <TableCell>OGP Image</TableCell>
+                  <TableCell>Published</TableCell>
+                  <TableCell>Article Title</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {articles.data.map((article) => {
+                  return (
+                    <TableRow key={article.id}>
+                      <TableCell>
+                        <Button
+                          onClick={onClickGetOGPImageHandler.bind(
+                            this,
+                            article.id
+                          )}
+                        >
+                          OGP
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        {article.ogp_image_url && (
+                          <div
+                            style={{
+                              display: "inline-block",
+                              width: "200px",
+                              height: "105px",
+                              position: "relative",
+                            }}
+                          >
+                            <ImgproxyImage
+                              src={article.ogp_image_url}
+                              width={200 * 2}
+                              height={105 * 2}
+                              objectFit="contain"
+                            />
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(article.published_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>{article.title}</TableCell>
+                      <TableCell>
+                        <Button
+                          component="a"
+                          href={article.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Read
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
           {articles.totalCount > articles.data.length && (
             <div>
               <Link href={`/article?site_id=${id}`}>more...</Link>

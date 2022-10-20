@@ -1,6 +1,5 @@
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
-import Card from "@mui/material/Card";
 import Pagination from "@mui/material/Pagination";
 
 import React, { ReactElement, useEffect, useState } from "react";
@@ -11,6 +10,13 @@ import { useRouter } from "next/router";
 import { useGetUsersQuery } from "@/services/adminApi";
 import { User } from "@/features/auth/authSlice";
 import PaginationHeader from "@/components/ui/PaginationHeader";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Button from "@mui/material/Button";
 
 const Users: NextPageWithLayout = () => {
   const router = useRouter();
@@ -45,9 +51,9 @@ const Users: NextPageWithLayout = () => {
     handleEditClose();
   };
 
-  const onClickTextHandler = (
+  const onClickEditButtonHandler = (
     user: User,
-    e: React.MouseEvent<HTMLDivElement>
+    e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
     handleEditOpen(user);
@@ -80,21 +86,37 @@ const Users: NextPageWithLayout = () => {
             pageSize={users.pageSize}
             dataSize={users.data.length}
           />
-          <Stack gap={2} mt={2} pr={2}>
-            {users.data.map((user) => {
-              return (
-                <Card key={user.id}>
-                  <Stack direction="row" gap={3} alignItems="center">
-                    <div>{user.id}</div>
-                    <div onClick={onClickTextHandler.bind(this, user)}>
-                      {user.email}
-                    </div>
-                    <div>{user.role}</div>
-                  </Stack>
-                </Card>
-              );
-            })}
-          </Stack>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Role</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users.data.map((user) => {
+                  return (
+                    <TableRow key={user.id}>
+                      <TableCell>{user.id}</TableCell>
+                      <TableCell width={"100%"}>{user.email}</TableCell>
+                      <TableCell>{user.role}</TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={onClickEditButtonHandler.bind(this, user)}
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
           <Pagination
             page={page}
             count={users.totalPage}

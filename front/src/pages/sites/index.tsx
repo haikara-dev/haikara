@@ -1,7 +1,12 @@
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
-import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import Pagination from "@mui/material/Pagination";
 
 import React, { ReactElement, useEffect, useState } from "react";
@@ -76,19 +81,33 @@ const Sites: NextPageWithLayout = () => {
             pageSize={sites.pageSize}
             dataSize={sites.data.length}
           />
-          <Stack gap={2} mt={2} pr={2}>
-            {sites.data.map((site) => {
-              return (
-                <Card key={site.id}>
-                  <SiteRow
-                    key={site.id}
-                    site={site}
-                    openDryDialog={openDryDialog}
-                  />
-                </Card>
-              );
-            })}
-          </Stack>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Crawl</TableCell>
+                  <TableCell>Dry</TableCell>
+                  <TableCell>Site Name</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sites.data.map((site) => {
+                  return (
+                    <SiteRow
+                      key={site.id}
+                      site={site}
+                      openDryDialog={openDryDialog}
+                    />
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
           <Pagination
             page={page}
             count={sites.totalPage}

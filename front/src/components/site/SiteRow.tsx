@@ -5,6 +5,8 @@ import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
+import TableRow from "@mui/material/TableRow";
+import TableCell from "@mui/material/TableCell";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -86,41 +88,48 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
   };
 
   return (
-    <Box
-      display="flex"
-      alignItems="center"
+    <TableRow
       sx={{
         backgroundColor: site.cannot_crawl ? "#f5c4c4" : "white",
       }}
     >
-      <Button onClick={onClickRunHandler}>Run</Button>
-      <Button onClick={onClickDryRunHandler}>Dry</Button>
-      <Box
-        onClick={onClickTextHandler}
-        sx={{
-          flexGrow: 1,
-        }}
-      >
-        {site.active ? (
-          <Typography variant="body1">
-            {site.name} <SiteUrlText>( {site.url} )</SiteUrlText>
-          </Typography>
-        ) : (
-          <Typography variant="body1" sx={{ textDecoration: "line-through" }}>
-            {site.name} <SiteUrlText>( {site.url} )</SiteUrlText>
-          </Typography>
-        )}
-      </Box>
-
-      <div>{site.feed_url ? "RSS" : "-"}</div>
-
-      <Button onClick={onClickEditHandler}>Edit</Button>
-      <Checkbox checked={site.active} onChange={onChangeCheckboxHandler} />
-
-      <IconButton onClick={onClickRemoveHandler} aria-label="remove">
-        <DeleteIcon />
-      </IconButton>
-    </Box>
+      <TableCell>
+        <Button onClick={onClickRunHandler}>Run</Button>
+      </TableCell>
+      <TableCell>
+        <Button onClick={onClickDryRunHandler}>Dry</Button>
+      </TableCell>
+      <TableCell>
+        <Box
+          onClick={onClickTextHandler}
+          sx={{
+            flexGrow: 1,
+          }}
+        >
+          {site.active ? (
+            <Typography variant="body1">
+              {site.name} <SiteUrlText>( {site.url} )</SiteUrlText>
+            </Typography>
+          ) : (
+            <Typography variant="body1" sx={{ textDecoration: "line-through" }}>
+              {site.name} <SiteUrlText>( {site.url} )</SiteUrlText>
+            </Typography>
+          )}
+        </Box>
+      </TableCell>
+      <TableCell>{site.feed_url ? "RSS" : "-"}</TableCell>
+      <TableCell>
+        <Button onClick={onClickEditHandler}>Edit</Button>
+      </TableCell>
+      <TableCell>
+        <Checkbox checked={site.active} onChange={onChangeCheckboxHandler} />
+      </TableCell>
+      <TableCell>
+        <IconButton onClick={onClickRemoveHandler} aria-label="remove">
+          <DeleteIcon />
+        </IconButton>
+      </TableCell>
+    </TableRow>
   );
 };
 

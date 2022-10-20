@@ -3,6 +3,12 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import IconButton from "@mui/material/IconButton";
 import Pagination from "@mui/material/Pagination";
 
@@ -92,62 +98,80 @@ const Articles: NextPageWithLayout = () => {
             dataSize={articles.data.length}
           />
 
-          <Stack gap={2} mt={2} pr={2}>
-            {articles.data.map((article) => {
-              return (
-                <Card key={article.id}>
-                  <Stack direction="row" gap={3} alignItems="center">
-                    <Button
-                      onClick={onClickGetOGPImageHandler.bind(this, article.id)}
-                    >
-                      OGP
-                    </Button>
-                    {article.ogp_image_url && (
-                      <div
-                        style={{
-                          display: "inline-block",
-                          width: "200px",
-                          height: "105px",
-                          position: "relative",
-                        }}
-                      >
-                        <ImgproxyImage
-                          src={article.ogp_image_url}
-                          width={200 * 2}
-                          height={105 * 2}
-                          objectFit="contain"
-                        />
-                      </div>
-                    )}
-                    <div>
-                      {new Date(article.published_at).toLocaleDateString()}
-                    </div>
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                      }}
-                    >
-                      {article.title}
-                    </Box>
-                    <Button
-                      component="a"
-                      href={article.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Read
-                    </Button>
-                    <IconButton
-                      onClick={onClickDeleteHandler.bind(this, article.id)}
-                      aria-label="remove"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Stack>
-                </Card>
-              );
-            })}
-          </Stack>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>OGP</TableCell>
+                  <TableCell>OGP Image</TableCell>
+                  <TableCell>Published</TableCell>
+                  <TableCell>Article Title</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {articles.data.map((article) => {
+                  return (
+                    <TableRow key={article.id}>
+                      <TableCell>
+                        <Button
+                          onClick={onClickGetOGPImageHandler.bind(
+                            this,
+                            article.id
+                          )}
+                        >
+                          OGP
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        {article.ogp_image_url && (
+                          <div
+                            style={{
+                              display: "inline-block",
+                              width: "200px",
+                              height: "105px",
+                              position: "relative",
+                            }}
+                          >
+                            <ImgproxyImage
+                              src={article.ogp_image_url}
+                              width={200 * 2}
+                              height={105 * 2}
+                              objectFit="contain"
+                            />
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(article.published_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>{article.title}</TableCell>
+                      <TableCell>
+                        <Button
+                          component="a"
+                          href={article.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Read
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={onClickDeleteHandler.bind(this, article.id)}
+                          aria-label="remove"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
           <Pagination
             page={query.page}
             count={articles.totalPage}

@@ -3,6 +3,12 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import IconButton from "@mui/material/IconButton";
 import Pagination from "@mui/material/Pagination";
 
@@ -84,37 +90,51 @@ const Feeds: NextPageWithLayout = () => {
             pageSize={feeds.pageSize}
             dataSize={feeds.data.length}
           />
-          <Stack gap={2} mt={2} pr={2}>
-            {feeds.data.map((feed) => {
-              return (
-                <Card key={feed.id}>
-                  <Stack direction="row" gap={3} alignItems="center">
-                    <Button onClick={onClickRunHandler.bind(this, feed.id)}>
-                      Run
-                    </Button>
-                    <div>{new Date(feed.created_at).toLocaleString()}</div>
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                      }}
-                    >
-                      {feed.site_name}
-                    </Box>
-                    {feed.indexed_at && (
-                      <div>{new Date(feed.indexed_at).toLocaleString()}</div>
-                    )}
-                    <div>{feed.count}</div>
-                    <IconButton
-                      onClick={onClickDeleteHandler.bind(this, feed.id)}
-                      aria-label="remove"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Stack>
-                </Card>
-              );
-            })}
-          </Stack>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Index</TableCell>
+                  <TableCell>Create at</TableCell>
+                  <TableCell>Site Name</TableCell>
+                  <TableCell>Index at</TableCell>
+                  <TableCell align="right">Article Count</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {feeds.data.map((feed) => {
+                  return (
+                    <TableRow key={feed.id}>
+                      <TableCell>
+                        <Button onClick={onClickRunHandler.bind(this, feed.id)}>
+                          Run
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(feed.created_at).toLocaleString()}
+                      </TableCell>
+                      <TableCell>{feed.site_name}</TableCell>
+                      <TableCell>
+                        {feed.indexed_at &&
+                          new Date(feed.indexed_at).toLocaleString()}
+                      </TableCell>
+                      <TableCell align="right">{feed.count}</TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={onClickDeleteHandler.bind(this, feed.id)}
+                          aria-label="remove"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
           <Pagination
             page={page}
             count={feeds.totalPage}
