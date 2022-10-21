@@ -506,6 +506,7 @@ const unNestNestedSiteWithSiteCrawlRuleServerResponse = (
  */
 export const {
   useGetArticlesQuery,
+  useLazyGetArticlesQuery,
   useDeleteArticleMutation,
   useRunGetOGPImageOfArticleMutation,
 } = adminApi;
@@ -526,7 +527,6 @@ export const {
   useUpdateSiteMutation,
   useDeleteSiteMutation,
   useActiveSiteMutation,
-  useLazyGetArticlesQuery,
   useDeActiveSiteMutation,
   useRunSiteCrawlingMutation,
   useDryRunSiteCrawlingMutation,
@@ -534,5 +534,6 @@ export const {
   useGetSiteRssUrlByUrlMutation,
   useExportSiteMutation,
   useImportSiteMutation,
-  useGetAdminDashboardQuery,
 } = adminApi;
+
+export const { useGetAdminDashboardQuery } = adminApi;
