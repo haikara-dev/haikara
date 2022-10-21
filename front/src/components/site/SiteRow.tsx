@@ -20,6 +20,7 @@ import {
 } from "@/services/adminApi";
 import styled from "@mui/material/styles/styled";
 import { useRouter } from "next/router";
+import StyledSiteName from "@/components/site/StyledSiteName";
 
 export type SiteRowProps = {
   site: Site;
@@ -27,8 +28,10 @@ export type SiteRowProps = {
 };
 
 const SiteUrlText = styled("span")`
+  display: block;
   word-break: break-all;
   font-size: 0.8rem;
+  color: #999999;
 `;
 
 const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
@@ -108,11 +111,13 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
         >
           {site.active ? (
             <Typography variant="body1">
-              {site.name} <SiteUrlText>( {site.url} )</SiteUrlText>
+              <StyledSiteName>{site.name}</StyledSiteName>
+              <SiteUrlText>{site.url}</SiteUrlText>
             </Typography>
           ) : (
             <Typography variant="body1" sx={{ textDecoration: "line-through" }}>
-              {site.name} <SiteUrlText>( {site.url} )</SiteUrlText>
+              <StyledSiteName>{site.name}</StyledSiteName>
+              <SiteUrlText>{site.url}</SiteUrlText>
             </Typography>
           )}
         </Box>
