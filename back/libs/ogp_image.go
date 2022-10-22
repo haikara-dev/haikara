@@ -186,14 +186,12 @@ func DeleteOGPImage(targetArticle *ent.Article, client *ent.Client) error {
 		return nil
 	}
 
-	if ogpImage.FileName == "" {
-		return nil
-	}
+	if ogpImage.FileName != "" {
+		err = deleteOGPImageFile(ogpImage.FilePath)
 
-	err = deleteOGPImageFile(ogpImage.FilePath)
-
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	err = client.OGPImage.
