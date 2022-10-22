@@ -115,7 +115,12 @@ const Register: NextPageWithLayout = () => {
           variant="outlined"
         />
 
-        <Button type="submit" aria-label="register" variant="contained">
+        <Button
+          type="submit"
+          aria-label="register"
+          variant="contained"
+          disabled={true}
+        >
           Register
         </Button>
         <Link href="/login" passHref>
