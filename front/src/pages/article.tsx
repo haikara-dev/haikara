@@ -106,6 +106,7 @@ const Articles: NextPageWithLayout = () => {
                   <TableCell>OGP Image</TableCell>
                   <TableCell>Published</TableCell>
                   <TableCell>Article Title</TableCell>
+                  <TableCell>Site</TableCell>
                   <TableCell></TableCell>
                   <TableCell></TableCell>
                 </TableRow>
@@ -144,9 +145,10 @@ const Articles: NextPageWithLayout = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        {new Date(article.published_at).toLocaleDateString()}
+                        {new Date(article.published_at).toLocaleString()}
                       </TableCell>
                       <TableCell>{article.title}</TableCell>
+                      <TableCell>{article.site.name}</TableCell>
                       <TableCell>
                         <Button
                           component="a"

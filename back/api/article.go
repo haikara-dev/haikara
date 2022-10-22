@@ -59,6 +59,7 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 
 	articles, err := createArticleQuery().
 		WithOgpImage().
+		WithSite().
 		Order(ent.Desc(article.FieldPublishedAt)).
 		Offset(offset).
 		Limit(pageSize).
@@ -77,12 +78,19 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 		return
 	}
 
+	type ResponseArticleSite struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	}
+
 	type ResponseArticle struct {
-		ID          int       `json:"id"`
-		Title       string    `json:"title"`
-		URL         string    `json:"url"`
-		PublishedAt time.Time `json:"published_at"`
-		OGPImageURL string    `json:"ogp_image_url"`
+		ID          int                 `json:"id"`
+		Title       string              `json:"title"`
+		URL         string              `json:"url"`
+		PublishedAt time.Time           `json:"published_at"`
+		OGPImageURL string              `json:"ogp_image_url"`
+		Site        ResponseArticleSite `json:"site"`
 	}
 
 	type ResponseJson struct {
@@ -101,12 +109,19 @@ func (h *ArticleHandler) GetAllArticles(c *gin.Context) {
 			ogpImageURL = config.Config.AssetsUrl + "/" + article.Edges.OgpImage.FilePath
 		}
 
+		site := article.Edges.Site
+
 		resFeeds = append(resFeeds, ResponseArticle{
 			ID:          article.ID,
 			Title:       article.Title,
 			URL:         article.URL,
 			PublishedAt: article.PublishedAt,
 			OGPImageURL: ogpImageURL,
+			Site: ResponseArticleSite{
+				ID:   site.ID,
+				Name: site.Name,
+				URL:  site.URL,
+			},
 		})
 	}
 

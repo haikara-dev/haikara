@@ -16,6 +16,7 @@ import ImgproxyImage from "@/components/ImgproxyImage";
 import Pagination from "@mui/material/Pagination";
 import { GetArticlesArg, useLazyGetArticlesQuery } from "@/services/adminApi";
 import { useRouter } from "next/router";
+import StyledSiteName from "@/components/site/StyledSiteName";
 
 const Home: NextPageWithLayout = () => {
   const authUser = useAppSelector(selectAuthUser);
@@ -107,6 +108,16 @@ const Home: NextPageWithLayout = () => {
                     </Typography>
                     <div>
                       {new Date(article.published_at).toLocaleDateString()}
+                    </div>
+                    <div>
+                      <Button
+                        component="a"
+                        href={article.site.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        @ <StyledSiteName>{article.site.name}</StyledSiteName>
+                      </Button>
                     </div>
                   </CardContent>
 

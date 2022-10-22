@@ -6,12 +6,19 @@ import { User } from "@/features/auth/authSlice";
 const BACKEND_ADMIN_API_URL: string =
   process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
 
+export type ArticleSite = {
+  id: number;
+  name: string;
+  url: string;
+};
+
 export type Article = {
   id: number;
   title: string;
   url: string;
   published_at: string;
   ogp_image_url: string;
+  site: ArticleSite;
 };
 
 export type Feed = {
