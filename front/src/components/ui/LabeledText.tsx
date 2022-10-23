@@ -10,7 +10,13 @@ const LabeledText: React.FC<LabeledTextProps> = ({ label, value }) => {
   return (
     <Stack>
       <span>{label}</span>
-      <TextField value={value} aria-readonly={true} />
+      <TextField
+        value={value}
+        aria-readonly={true}
+        sx={{
+          backgroundColor: "#ddf1f6",
+        }}
+      />
     </Stack>
   );
 };

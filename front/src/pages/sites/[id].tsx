@@ -75,26 +75,48 @@ const Site: NextPageWithLayout = () => {
             </a>
           </div>
           <div>feed_url: {site.feed_url}</div>
-          <div>active: {site.active}</div>
-          <div>cannot_crawl: {site.cannot_crawl}</div>
+          <div>active: {site.active ? "ture" : "false"}</div>
+          <div>cannot_crawl: {site.cannot_crawl ? "ture" : "false"}</div>
         </div>
       )}
       <h2>Site Crawl Rule</h2>
       {site && site.site_crawl_rule ? (
-        <Stack direction="row" gap={2}>
-          <LabeledText
-            label="article_selector"
-            value={site.site_crawl_rule.article_selector}
-          />
-          <LabeledText
-            label="title_selector"
-            value={site.site_crawl_rule.title_selector}
-          />
-          <LabeledText
-            label="link_selector"
-            value={site.site_crawl_rule.link_selector}
-          />
-        </Stack>
+        <div>
+          <Stack direction="row" gap={2}>
+            <LabeledText
+              label="article_selector"
+              value={site.site_crawl_rule.article_selector}
+            />
+            <LabeledText
+              label="title_selector"
+              value={site.site_crawl_rule.title_selector}
+            />
+            <LabeledText
+              label="link_selector"
+              value={site.site_crawl_rule.link_selector}
+            />
+          </Stack>
+          <div>
+            has_date_to_list:{" "}
+            {site.site_crawl_rule.has_data_to_list ? "ture" : "false"}
+          </div>
+          <div>
+            is_time_humanize:{" "}
+            {site.site_crawl_rule.is_time_humanize ? "ture" : "false"}
+          </div>
+          <Stack direction="row" gap={2}>
+            <LabeledText
+              label="date_selector"
+              value={site.site_crawl_rule.date_selector}
+            />
+            <LabeledText
+              label="date_layout"
+              value={site.site_crawl_rule.date_layout}
+            />
+          </Stack>
+
+          <div>is_spa: {site.site_crawl_rule.is_spa ? "ture" : "false"}</div>
+        </div>
       ) : (
         <div>none</div>
       )}
