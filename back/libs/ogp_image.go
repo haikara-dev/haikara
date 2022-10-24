@@ -92,7 +92,7 @@ func saveOGPImageFile(ogpImageUrl string, saveDir string, articleID int) (*SaveO
 			contentType := r.Headers.Get("Content-Type")
 			contentTypeSlice := strings.Split(contentType, "/")
 			if len(contentTypeSlice) == 2 {
-				cleanExt = fmt.Sprintf(".%s", "sss", strings.Split(contentType, "/")[1])
+				cleanExt = fmt.Sprintf(".%s", contentTypeSlice[1])
 			}
 		}
 
