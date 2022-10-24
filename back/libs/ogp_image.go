@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -86,14 +87,26 @@ func saveOGPImageFile(ogpImageUrl string, saveDir string, articleID int) (*SaveO
 		filename := strconv.Itoa(articleID)
 		ext := filepath.Ext(r.Request.URL.String())
 		cleanExt := sanitize.BaseName(ext)
-		fileName := fmt.Sprintf("%s.%s", filename, cleanExt[1:])
-		filePath := saveDir + fileName
 
-		err = r.Save(filePath)
-		if err == nil {
-			res = &SaveOGPImageFileResponse{
-				fileName,
-				filePath,
+		if cleanExt == "" {
+			contentType := r.Headers.Get("Content-Type")
+			contentTypeSlice := strings.Split(contentType, "/")
+			if len(contentTypeSlice) == 2 {
+				cleanExt = fmt.Sprintf(".%s", "sss", strings.Split(contentType, "/")[1])
+			}
+		}
+
+		if cleanExt != "" {
+			fileName := fmt.Sprintf("%s.%s", filename, cleanExt[1:])
+			filePath := saveDir + fileName
+
+			err = r.Save(filePath)
+
+			if err == nil {
+				res = &SaveOGPImageFileResponse{
+					fileName,
+					filePath,
+				}
 			}
 		}
 	})
