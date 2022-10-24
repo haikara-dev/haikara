@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"net/url"
 	"regexp"
 	"strings"
 )
@@ -78,4 +80,13 @@ func AddSchemeIfNotExists(url string) string {
 	}
 
 	return "https://" + url
+}
+
+func IsUrlPDF(rowUrl string) bool {
+	parsedUrl, err := url.Parse(rowUrl)
+	if err != nil {
+		return false
+	}
+	fmt.Printf(parsedUrl.Path)
+	return strings.HasSuffix(parsedUrl.Path, ".pdf")
 }

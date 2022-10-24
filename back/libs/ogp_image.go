@@ -130,9 +130,11 @@ func SaveOGPImage(targetArticle *ent.Article, client *ent.Client) (*ent.OGPImage
 	var fileName = ""
 	var filePath = ""
 
-	ogpImageURL, err = getOGPImageUrl(targetArticle.URL)
-	if err != nil {
-		// 何もしない
+	if !utils.IsUrlPDF(targetArticle.URL) {
+		ogpImageURL, err = getOGPImageUrl(targetArticle.URL)
+		if err != nil {
+			// 何もしない
+		}
 	}
 
 	if ogpImageURL != "" {

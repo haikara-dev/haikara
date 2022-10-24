@@ -77,3 +77,36 @@ func TestAddSchemeIfNotExists(t *testing.T) {
 		t.Errorf("want %v, got %v", want, got)
 	}
 }
+
+func TestIsUrlPDF(t *testing.T) {
+	var want bool
+	var got bool
+
+	url := "https://example.com"
+	want = false
+	got = IsUrlPDF(url)
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+
+	url = "https://example.com/test.pdf"
+	want = true
+	got = IsUrlPDF(url)
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+
+	url = "https://example.com/test.pdf?test=1"
+	want = true
+	got = IsUrlPDF(url)
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+
+	url = "https://example.com/test.pdf?test=1&test2=2"
+	want = true
+	got = IsUrlPDF(url)
+	if want != got {
+		t.Errorf("want %v, got %v", want, got)
+	}
+}
