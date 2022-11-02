@@ -4,13 +4,14 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
+import { User as AuthUser } from "@firebase/auth";
 import {
   getAuth,
   signInWithEmailAndPassword,
   UserCredential,
 } from "firebase/auth";
 import { SubmitHandler, useForm } from "react-hook-form";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Link from "next/link";
@@ -23,7 +24,11 @@ import {
   selectAuthUser,
   setCurrentUser,
 } from "@/features/auth/authSlice";
-import { useLazyGetCurrentUserQuery, userApi } from "@/services/userApi";
+import {
+  useCreateUserMutation,
+  useLazyGetCurrentUserQuery,
+  userApi,
+} from "@/services/userApi";
 
 type FormInput = {
   email: string;
@@ -40,11 +45,13 @@ const schema = yup.object({
 
 const Login: NextPageWithLayout = () => {
   const auth = getAuth();
+  const authUser = useAppSelector(selectAuthUser);
   const router = useRouter();
   const dispatch = useAppDispatch();
 
   const [serverError, setServerError] = useState<string | null>(null);
   const [getCurrentUser] = useLazyGetCurrentUserQuery();
+  const [createUser] = useCreateUserMutation();
 
   const {
     register,
@@ -53,6 +60,7 @@ const Login: NextPageWithLayout = () => {
   } = useForm<FormInput>({
     resolver: yupResolver(schema),
   });
+
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
     setServerError(null);
     try {
@@ -63,13 +71,6 @@ const Login: NextPageWithLayout = () => {
       );
 
       dispatch(login(userCredential.user));
-
-      const currentUser = await getCurrentUser().unwrap();
-
-      if (currentUser) {
-        dispatch(setCurrentUser(currentUser));
-        await router.push("/dashboard");
-      }
     } catch (err) {
       if (err instanceof Error) {
         setServerError(err.message);
@@ -77,6 +78,29 @@ const Login: NextPageWithLayout = () => {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    const onLogin = async (authUser: AuthUser) => {
+      try {
+        await createUser(authUser).unwrap();
+
+        const currentUser = await getCurrentUser().unwrap();
+
+        if (currentUser) {
+          dispatch(setCurrentUser(currentUser));
+          await router.push("/dashboard");
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          setServerError(err.message);
+        }
+        console.log(err);
+      }
+    };
+    if (authUser) {
+      onLogin(authUser);
+    }
+  }, [authUser]);
 
   return (
     <div>
