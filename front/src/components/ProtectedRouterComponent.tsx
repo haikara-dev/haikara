@@ -23,6 +23,7 @@ const ProtectedRouterComponent: React.FC<ProtectedComponentProps> = ({
         "/sites/add",
         "/sites/[id]",
         "/sites/[id]/edit",
+        "/site-categories",
         "/feed",
         "/user",
         "/setting",

@@ -27,6 +27,10 @@ func StartWebserver() {
 		Client: database.Client,
 	}
 
+	apiSiteCategoryHandler := api.SiteCategoryHandler{
+		Client: database.Client,
+	}
+
 	apiFeedHandler := api.FeedHandler{
 		Client: database.Client,
 	}
@@ -84,6 +88,10 @@ func StartWebserver() {
 		admin.GET("/sites/dry-run-crawling/:id", apiSiteHandler.DryRunCrawling)
 		admin.GET("/sites/get-rss-url/:id", apiSiteHandler.GetRssUrlBySiteId)
 		admin.GET("/sites/get-rss-url-by-url", apiSiteHandler.GetRssUrlByUrl)
+
+		admin.GET("/site-categories", apiSiteCategoryHandler.GetSiteCategories)
+		admin.POST("/site-categories", apiSiteCategoryHandler.CreateSiteCategory)
+		admin.PUT("/site-categories/:id", apiSiteCategoryHandler.UpdateSiteCategory)
 
 		admin.GET("/sites/export", apiSiteHandler.ExportSites)
 		admin.POST("/sites/import", apiSiteHandler.ImportSites)

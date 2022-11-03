@@ -62,6 +62,28 @@ export type NestedSiteWithSiteCrawlRuleServerResponse = Site & {
   };
 };
 
+export type SiteCategory = {
+  id: number;
+  label: string;
+};
+
+export type GetSiteCategoriesArg = {
+  page?: number;
+};
+
+export type AddSiteCategoryArg = {
+  body: {
+    label: string;
+  };
+};
+
+export type UpdateSiteCategoryArg = {
+  id: number;
+  body: {
+    label: string;
+  };
+};
+
 export type DryRunResult = {
   count: number;
   contents: string;
@@ -200,6 +222,7 @@ export const adminApi = createApi({
   }),
   tagTypes: [
     "Sites",
+    "SiteCategories",
     "Feeds",
     "Articles",
     "Users",
@@ -442,6 +465,52 @@ export const adminApi = createApi({
       }),
     }),
     /*
+      Site Category
+    */
+    getSiteCategories: builder.query<
+      ListResponse<SiteCategory>,
+      GetSiteCategoriesArg
+    >({
+      query: (queryArg) => {
+        const page = queryArg.page ? queryArg.page : 1;
+        return {
+          url: `/site-categories`,
+          params: { ...queryArg, page },
+        };
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "SiteCategories" as const,
+                id,
+              })),
+              { type: "SiteCategories", id: "PARTIAL-LIST" },
+            ]
+          : [{ type: "SiteCategories", id: "PARTIAL-LIST" }],
+    }),
+    addSiteCategory: builder.mutation<SiteCategory, AddSiteCategoryArg>({
+      query: (queryArg) => ({
+        url: `/site-categories`,
+        method: "POST",
+        body: queryArg.body,
+      }),
+      invalidatesTags: (result, error, queryArg) => [
+        { type: "SiteCategories" },
+      ],
+    }),
+    updateSiteCategory: builder.mutation<SiteCategory, UpdateSiteCategoryArg>({
+      query: (queryArg) => ({
+        url: `/site-categories/${queryArg.id}`,
+        method: "PUT",
+        body: queryArg.body,
+      }),
+      invalidatesTags: (result, error, queryArg) => [
+        { type: "SiteCategories", id: queryArg.id },
+        { type: "SiteCategories", id: "PARTIAL-LIST" },
+      ],
+    }),
+    /*
        AdminDashboard
      */
     getAdminDashboard: builder.query<AdminDashboard, void>({
@@ -541,6 +610,12 @@ export const {
   useGetSiteRssUrlByUrlMutation,
   useExportSiteMutation,
   useImportSiteMutation,
+} = adminApi;
+
+export const {
+  useGetSiteCategoriesQuery,
+  useAddSiteCategoryMutation,
+  useUpdateSiteCategoryMutation,
 } = adminApi;
 
 export const { useGetAdminDashboardQuery } = adminApi;
