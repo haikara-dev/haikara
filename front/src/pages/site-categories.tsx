@@ -11,11 +11,17 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
 import Button from "@mui/material/Button";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Pagination from "@mui/material/Pagination";
 import { useRouter } from "next/router";
-import { SiteCategory, useGetSiteCategoriesQuery } from "@/services/adminApi";
+import {
+  SiteCategory,
+  useDeleteSiteCategoryMutation,
+  useGetSiteCategoriesQuery,
+} from "@/services/adminApi";
 import AddSiteCategoryFormDialog from "@/components/site-category/AddSiteCategoryFormDialog";
 import EditSiteCategoryFormDialog from "@/components/site-category/EditSiteCategoryFormDialog";
+import IconButton from "@mui/material/IconButton";
 
 const SiteCategories: NextPageWithLayout = () => {
   const router = useRouter();
@@ -32,6 +38,8 @@ const SiteCategories: NextPageWithLayout = () => {
     },
     isLoading,
   } = useGetSiteCategoriesQuery({ page });
+
+  const [deleteSiteCategory] = useDeleteSiteCategoryMutation();
 
   const [addOpen, setAddOpen] = useState(false);
 
@@ -69,6 +77,14 @@ const SiteCategories: NextPageWithLayout = () => {
     handleEditOpen(siteCategory);
   };
 
+  const onClickDeleteHandler = async (
+    id: number,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    await deleteSiteCategory(id);
+  };
+
   const handleChangePagination = (
     e: React.ChangeEvent<unknown>,
     page: number
@@ -103,6 +119,7 @@ const SiteCategories: NextPageWithLayout = () => {
                   <TableCell>ID</TableCell>
                   <TableCell>Label</TableCell>
                   <TableCell></TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -120,6 +137,17 @@ const SiteCategories: NextPageWithLayout = () => {
                         >
                           Edit
                         </Button>
+                      </TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={onClickDeleteHandler.bind(
+                            this,
+                            siteCategory.id
+                          )}
+                          aria-label="remove"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   );

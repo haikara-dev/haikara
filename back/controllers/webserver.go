@@ -92,6 +92,7 @@ func StartWebserver() {
 		admin.GET("/site-categories", apiSiteCategoryHandler.GetSiteCategories)
 		admin.POST("/site-categories", apiSiteCategoryHandler.CreateSiteCategory)
 		admin.PUT("/site-categories/:id", apiSiteCategoryHandler.UpdateSiteCategory)
+		admin.DELETE("/site-categories/:id", apiSiteCategoryHandler.DeleteSiteCategory)
 
 		admin.GET("/sites/export", apiSiteHandler.ExportSites)
 		admin.POST("/sites/import", apiSiteHandler.ImportSites)

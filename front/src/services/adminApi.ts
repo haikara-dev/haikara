@@ -510,6 +510,16 @@ export const adminApi = createApi({
         { type: "SiteCategories", id: "PARTIAL-LIST" },
       ],
     }),
+    deleteSiteCategory: builder.mutation<DeleteResponse, number>({
+      query: (id) => ({
+        url: `/site-categories/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "SiteCategories", id },
+        { type: "SiteCategories", id: "PARTIAL-LIST" },
+      ],
+    }),
     /*
        AdminDashboard
      */
@@ -616,6 +626,7 @@ export const {
   useGetSiteCategoriesQuery,
   useAddSiteCategoryMutation,
   useUpdateSiteCategoryMutation,
+  useDeleteSiteCategoryMutation,
 } = adminApi;
 
 export const { useGetAdminDashboardQuery } = adminApi;

@@ -149,3 +149,23 @@ func (h *SiteCategoryHandler) UpdateSiteCategory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &resCategory)
 }
+
+func (h *SiteCategoryHandler) DeleteSiteCategory(ctx *gin.Context) {
+	strId := ctx.Param("id")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	err = h.Client.SiteCategory.
+		DeleteOneID(id).
+		Exec(context.Background())
+
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "deleted"})
+}
