@@ -279,6 +279,10 @@ export const adminApi = createApi({
         url: `/articles/run-get-ogp-image/${id}`,
         method: "GET",
       }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Articles", id },
+        { type: "Articles", id: "PARTIAL-LIST" },
+      ],
     }),
     /*
         User
