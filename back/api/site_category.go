@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"entgo.io/ent/dialect/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/haikara-dev/haikara/config"
 	"github.com/haikara-dev/haikara/ent"
@@ -34,20 +35,35 @@ func (h *SiteCategoryHandler) GetSiteCategories(c *gin.Context) {
 		return
 	}
 
-	categories, err := h.Client.SiteCategory.
+	type ResponseSiteCategory struct {
+		ID         int    `json:"id"`
+		Label      string `json:"label"`
+		SitesCount int    `json:"sites_count"`
+	}
+
+	var resSiteCategories []*ResponseSiteCategory
+
+	err = h.Client.SiteCategory.
 		Query().
-		WithSites().
 		Order(ent.Desc(sitecategory.FieldUpdatedAt)).
 		Offset(offset).
 		Limit(pageSize).
-		All(context.Background())
+		GroupBy(sitecategory.FieldID, sitecategory.FieldLabel).
+		Aggregate(func(s *sql.Selector) string {
+			t := sql.Table(sitecategory.SitesTable)
+			s.LeftJoin(t).On(s.C(sitecategory.FieldID), t.C(sitecategory.SitesPrimaryKey[0]))
+			return sql.As(sql.Count(t.C(sitecategory.SitesPrimaryKey[0])), "sites_count")
+		}).
+		Scan(context.Background(), &resSiteCategories)
 
-	if err != nil && !ent.IsNotFound(err) {
+	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	if categories == nil {
-		c.AbortWithError(http.StatusNotFound, err)
+
+	if len(resSiteCategories) == 0 {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
 	}
 
 	totalCount, err := h.Client.SiteCategory.Query().Count(context.Background())
@@ -57,27 +73,11 @@ func (h *SiteCategoryHandler) GetSiteCategories(c *gin.Context) {
 		return
 	}
 
-	type ResponseSiteCategory struct {
-		ID         int    `json:"id"`
-		Label      string `json:"label"`
-		SitesCount int    `json:"sites_count"`
-	}
-
 	type ResponseJson struct {
 		TotalCount int                     `json:"totalCount"`
 		TotalPage  int                     `json:"totalPage"`
 		PageSize   int                     `json:"pageSize"`
 		Data       []*ResponseSiteCategory `json:"data"`
-	}
-
-	resSiteCategories := make([]*ResponseSiteCategory, 0)
-
-	for _, category := range categories {
-		resSiteCategories = append(resSiteCategories, &ResponseSiteCategory{
-			ID:         category.ID,
-			Label:      category.Label,
-			SitesCount: len(category.Edges.Sites), // TODO: ここでクエリを発行しているので、N+1問題が発生している
-		})
 	}
 
 	c.JSON(http.StatusOK, ResponseJson{

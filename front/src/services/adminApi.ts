@@ -394,7 +394,10 @@ export const adminApi = createApi({
         body: queryArg.body,
       }),
       transformResponse: (response: Site) => addCanCrawlFieldToSite(response),
-      invalidatesTags: (result, error, queryArg) => [{ type: "Sites" }],
+      invalidatesTags: (result, error, queryArg) => [
+        { type: "Sites" },
+        { type: "SiteCategories", id: "PARTIAL-LIST" },
+      ],
     }),
     updateSite: builder.mutation<Site, UpdateSiteArg>({
       query: (queryArg) => ({
@@ -407,6 +410,7 @@ export const adminApi = createApi({
         { type: "Sites", id: queryArg.id },
         { type: "Sites", id: "PARTIAL-LIST" },
         { type: "SiteWithCrawlRuleAndCategory", id: queryArg.id },
+        { type: "SiteCategories", id: "PARTIAL-LIST" },
       ],
     }),
     deleteSite: builder.mutation<DeleteResponse, number>({
@@ -418,6 +422,7 @@ export const adminApi = createApi({
         { type: "Sites", id },
         { type: "Sites", id: "PARTIAL-LIST" },
         { type: "SiteWithCrawlRuleAndCategory", id },
+        { type: "SiteCategories", id: "PARTIAL-LIST" },
       ],
     }),
     activeSite: builder.mutation<Site, ActiveSiteArg>({
