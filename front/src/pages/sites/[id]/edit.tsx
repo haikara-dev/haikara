@@ -4,16 +4,16 @@ import { NextPageWithLayout } from "@/pages/_app";
 import Typography from "@mui/material/Typography";
 import EditSiteForm from "@/components/site/EditSiteForm";
 import { useRouter } from "next/router";
-import { useLazyGetSiteWithSiteCrawlRuleQuery } from "@/services/adminApi";
+import { useLazyGetSiteWithCrawlRuleAndCategoryQuery } from "@/services/adminApi";
 
 const SiteEdit: NextPageWithLayout = () => {
   const router = useRouter();
   const { id } = router.query;
-  const [getSiteWithSiteCrawlRule, { data: site }] =
-    useLazyGetSiteWithSiteCrawlRuleQuery();
+  const [getSiteWithCrawlRuleAndCategory, { data: site }] =
+    useLazyGetSiteWithCrawlRuleAndCategoryQuery();
   useEffect(() => {
     if (id) {
-      getSiteWithSiteCrawlRule(Number(id));
+      getSiteWithCrawlRuleAndCategory(Number(id));
     }
   }, [id]);
   return (

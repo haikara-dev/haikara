@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import {
   useRunGetOGPImageOfArticleMutation,
   useLazyGetArticlesQuery,
-  useLazyGetSiteWithSiteCrawlRuleQuery,
+  useLazyGetSiteWithCrawlRuleAndCategoryQuery,
   useDeleteArticleMutation,
 } from "@/services/adminApi";
 import Stack from "@mui/material/Stack";
@@ -28,8 +28,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 const Site: NextPageWithLayout = () => {
   const router = useRouter();
   const { id } = router.query;
-  const [getSiteWithSiteCrawlRule, { data: site }] =
-    useLazyGetSiteWithSiteCrawlRuleQuery();
+  const [getSiteWithCrawlRuleAndCategory, { data: site }] =
+    useLazyGetSiteWithCrawlRuleAndCategoryQuery();
 
   const [getArticles, { data: articles }] = useLazyGetArticlesQuery();
 
@@ -39,7 +39,7 @@ const Site: NextPageWithLayout = () => {
 
   useEffect(() => {
     if (id) {
-      getSiteWithSiteCrawlRule(Number(id));
+      getSiteWithCrawlRuleAndCategory(Number(id));
       getArticles({ site_id: Number(id) });
     }
   }, [id]);
@@ -79,7 +79,23 @@ const Site: NextPageWithLayout = () => {
           <div>cannot_crawl: {site.cannot_crawl ? "ture" : "false"}</div>
         </div>
       )}
+
+      <h2>Site Category</h2>
+
+      {site &&
+        site.site_categories &&
+        (site.site_categories.length > 0 ? (
+          <ul>
+            {site.site_categories.map((site_category) => (
+              <li key={site_category.id}>{site_category.label}</li>
+            ))}
+          </ul>
+        ) : (
+          <div>no category</div>
+        ))}
+
       <h2>Site Crawl Rule</h2>
+
       {site && site.site_crawl_rule ? (
         <div>
           <Stack direction="row" gap={2}>

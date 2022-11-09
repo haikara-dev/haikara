@@ -88,6 +88,7 @@ const Sites: NextPageWithLayout = () => {
                   <TableCell>Crawl</TableCell>
                   <TableCell>Dry</TableCell>
                   <TableCell>Site Name</TableCell>
+                  <TableCell>Categories</TableCell>
                   <TableCell>Type</TableCell>
                   <TableCell></TableCell>
                   <TableCell></TableCell>

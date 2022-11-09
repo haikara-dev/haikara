@@ -46,6 +46,7 @@ func (h *SiteHandler) GetAllSites(c *gin.Context) {
 
 	sites, err := h.Client.Site.
 		Query().
+		WithSiteCategories().
 		Order(ent.Desc(site.FieldUpdatedAt)).
 		Offset(offset).
 		Limit(pageSize).
@@ -65,15 +66,21 @@ func (h *SiteHandler) GetAllSites(c *gin.Context) {
 		return
 	}
 
+	type ResponseSiteCategory struct {
+		ID    int    `json:"id"`
+		Label string `json:"label"`
+	}
+
 	type ResponseSite struct {
-		ID            int        `json:"id"`
-		CreatedAt     time.Time  `json:"created_at"`
-		UpdatedAt     time.Time  `json:"updated_at"`
-		Name          string     `json:"name"`
-		URL           string     `json:"url"`
-		FeedURL       string     `json:"feed_url"`
-		Active        bool       `json:"active"`
-		CannotCrawlAt *time.Time `json:"cannot_crawl_at"`
+		ID             int                     `json:"id"`
+		CreatedAt      time.Time               `json:"created_at"`
+		UpdatedAt      time.Time               `json:"updated_at"`
+		Name           string                  `json:"name"`
+		URL            string                  `json:"url"`
+		FeedURL        string                  `json:"feed_url"`
+		Active         bool                    `json:"active"`
+		CannotCrawlAt  *time.Time              `json:"cannot_crawl_at"`
+		SiteCategories []*ResponseSiteCategory `json:"site_categories"`
 	}
 
 	type ResponseJson struct {
@@ -85,16 +92,29 @@ func (h *SiteHandler) GetAllSites(c *gin.Context) {
 
 	var resSite = make([]ResponseSite, 0)
 
+	createResponseSiteCategories := func(siteCategories []*ent.SiteCategory) []*ResponseSiteCategory {
+		var resSiteCategories = make([]*ResponseSiteCategory, 0)
+
+		for _, siteCategory := range siteCategories {
+			resSiteCategories = append(resSiteCategories, &ResponseSiteCategory{
+				ID:    siteCategory.ID,
+				Label: siteCategory.Label,
+			})
+		}
+		return resSiteCategories
+	}
+
 	for _, site := range sites {
 		resSite = append(resSite, ResponseSite{
-			ID:            site.ID,
-			CreatedAt:     site.CreatedAt,
-			UpdatedAt:     site.UpdatedAt,
-			Name:          site.Name,
-			URL:           site.URL,
-			FeedURL:       site.FeedURL,
-			Active:        site.Active,
-			CannotCrawlAt: site.CannotCrawlAt,
+			ID:             site.ID,
+			CreatedAt:      site.CreatedAt,
+			UpdatedAt:      site.UpdatedAt,
+			Name:           site.Name,
+			URL:            site.URL,
+			FeedURL:        site.FeedURL,
+			Active:         site.Active,
+			CannotCrawlAt:  site.CannotCrawlAt,
+			SiteCategories: createResponseSiteCategories(site.Edges.SiteCategories),
 		})
 	}
 

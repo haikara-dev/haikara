@@ -12,6 +12,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import {
   DryRunResult,
   Site,
+  SiteWithCategory,
   useActiveSiteMutation,
   useDeActiveSiteMutation,
   useDeleteSiteMutation,
@@ -23,7 +24,7 @@ import { useRouter } from "next/router";
 import StyledSiteName from "@/components/site/StyledSiteName";
 
 export type SiteRowProps = {
-  site: Site;
+  site: SiteWithCategory;
   openDryDialog: (result: DryRunResult) => void;
 };
 
@@ -121,6 +122,20 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
             </Typography>
           )}
         </Box>
+      </TableCell>
+      <TableCell>
+        {site.site_categories.map((category) => (
+          <Typography
+            key={category.id}
+            variant="body1"
+            sx={{
+              marginRight: 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {category.label}
+          </Typography>
+        ))}
       </TableCell>
       <TableCell>{site.feed_url ? "RSS" : "-"}</TableCell>
       <TableCell>

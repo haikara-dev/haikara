@@ -39,6 +39,9 @@ export type Site = {
   cannot_crawl_at: string;
   cannot_crawl: boolean;
 };
+export type SiteWithCategory = Site & {
+  site_categories: SiteCategory[];
+};
 
 export type SiteCrawlRule = {
   article_selector: string;
@@ -173,6 +176,7 @@ export type SiteImportExport = {
   active: boolean;
   cannot_crawl_at: string;
 };
+
 type SiteCrawlRuleImportExport = {
   article_selector: string;
   title_selector: string;
@@ -234,7 +238,7 @@ export const adminApi = createApi({
     "Feeds",
     "Articles",
     "Users",
-    "SiteWithSiteCrawlRules",
+    "SiteWithCrawlRuleAndCategory",
     "AdminDashboard",
   ],
   endpoints: (builder) => ({
@@ -347,12 +351,12 @@ export const adminApi = createApi({
     /*
        Site
     */
-    getSites: builder.query<ListResponse<Site>, number | void>({
+    getSites: builder.query<ListResponse<SiteWithCategory>, number | void>({
       // TODO: site.cannot_crawl = site.cannot_crawl_at ? true : false;
       query: (page = 1) => ({
         url: `/sites?page=${page}`,
       }),
-      transformResponse: (response: ListResponse<Site>) =>
+      transformResponse: (response: ListResponse<SiteWithCategory>) =>
         addCanCrawlFieldToSiteListResponse(response),
       providesTags: (result) =>
         result
@@ -362,7 +366,7 @@ export const adminApi = createApi({
             ]
           : [{ type: "Sites", id: "PARTIAL-LIST" }],
     }),
-    getSiteWithSiteCrawlRule: builder.query<
+    getSiteWithCrawlRuleAndCategory: builder.query<
       SiteWithCrawlRuleAndCategory,
       number
     >({
@@ -378,7 +382,7 @@ export const adminApi = createApi({
         ) as SiteWithCrawlRuleAndCategory;
       },
       providesTags: (result, error, id) => [
-        { type: "SiteWithSiteCrawlRules", id },
+        { type: "SiteWithCrawlRuleAndCategory", id },
       ],
     }),
     addSite: builder.mutation<Site, AddSiteArg>({
@@ -400,7 +404,7 @@ export const adminApi = createApi({
       invalidatesTags: (result, error, queryArg) => [
         { type: "Sites", id: queryArg.id },
         { type: "Sites", id: "PARTIAL-LIST" },
-        { type: "SiteWithSiteCrawlRules", id: queryArg.id },
+        { type: "SiteWithCrawlRuleAndCategory", id: queryArg.id },
       ],
     }),
     deleteSite: builder.mutation<DeleteResponse, number>({
@@ -411,7 +415,7 @@ export const adminApi = createApi({
       invalidatesTags: (result, error, id) => [
         { type: "Sites", id },
         { type: "Sites", id: "PARTIAL-LIST" },
-        { type: "SiteWithSiteCrawlRules", id },
+        { type: "SiteWithCrawlRuleAndCategory", id },
       ],
     }),
     activeSite: builder.mutation<Site, ActiveSiteArg>({
@@ -424,7 +428,7 @@ export const adminApi = createApi({
       invalidatesTags: (result, error, arg) => [
         { type: "Sites", id: arg.id },
         { type: "Sites", id: "PARTIAL-LIST" },
-        { type: "SiteWithSiteCrawlRules", id: arg.id },
+        { type: "SiteWithCrawlRuleAndCategory", id: arg.id },
       ],
     }),
     deActiveSite: builder.mutation<Site, DeActiveSiteArg>({
@@ -437,7 +441,7 @@ export const adminApi = createApi({
       invalidatesTags: (result, error, arg) => [
         { type: "Sites", id: arg.id },
         { type: "Sites", id: "PARTIAL-LIST" },
-        { type: "SiteWithSiteCrawlRules", id: arg.id },
+        { type: "SiteWithCrawlRuleAndCategory", id: arg.id },
       ],
     }),
     runSiteCrawling: builder.mutation<RunSiteCrawlingResponse, number>({
@@ -555,7 +559,9 @@ export const adminApi = createApi({
  * Add can_crawl field to SiteListResponse
  * @param response
  */
-const addCanCrawlFieldToSiteListResponse = (response: ListResponse<Site>) => {
+const addCanCrawlFieldToSiteListResponse = (
+  response: ListResponse<SiteWithCategory>
+) => {
   response.data.forEach((site) => {
     site.cannot_crawl = site.cannot_crawl_at ? true : false;
   });
@@ -572,7 +578,7 @@ const addCanCrawlFieldToSite = (site: Site) => {
 };
 
 /**
- * UnNest NestedSiteWithSiteCrawlRuleServerResponse
+ * UnNest NestedSiteWithCrawlRuleAndCategoryServerResponse
  *  {edges.site_crawl_rule} -> {site_crawl_rule}
  * @param response
  */
@@ -630,8 +636,8 @@ export const {
 
 export const {
   useGetSitesQuery,
-  useGetSiteWithSiteCrawlRuleQuery,
-  useLazyGetSiteWithSiteCrawlRuleQuery,
+  useGetSiteWithCrawlRuleAndCategoryQuery,
+  useLazyGetSiteWithCrawlRuleAndCategoryQuery,
   useAddSiteMutation,
   useUpdateSiteMutation,
   useDeleteSiteMutation,
