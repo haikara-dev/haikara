@@ -724,19 +724,25 @@ type SiteCrawlRuleImportExport struct {
 	IsSpa               bool   `json:"is_spa"`
 }
 
+type SiteCategoryImportExport struct {
+	Label string `json:"label"`
+}
+
 type SiteImportExport struct {
-	Name          string                     `json:"name"`
-	URL           string                     `json:"url"`
-	FeedURL       string                     `json:"feed_url"`
-	Active        bool                       `json:"active"`
-	CannotCrawlAt *time.Time                 `json:"cannot_crawl_at"`
-	SiteCrawlRule *SiteCrawlRuleImportExport `json:"site_crawl_rule"`
+	Name          string                      `json:"name"`
+	URL           string                      `json:"url"`
+	FeedURL       string                      `json:"feed_url"`
+	Active        bool                        `json:"active"`
+	CannotCrawlAt *time.Time                  `json:"cannot_crawl_at"`
+	SiteCrawlRule *SiteCrawlRuleImportExport  `json:"site_crawl_rule"`
+	SiteCategory  []*SiteCategoryImportExport `json:"site_category"`
 }
 
 func (h *SiteHandler) ExportSites(c *gin.Context) {
 	loadSites, err := h.Client.Site.
 		Query().
 		WithSiteCrawlRule().
+		WithSiteCategories().
 		All(context.Background())
 
 	if err != nil {
@@ -770,13 +776,24 @@ func (h *SiteHandler) ExportSites(c *gin.Context) {
 			site.SiteCrawlRule = nil
 		}
 
+		var sitesCategories = make([]*SiteCategoryImportExport, 0)
+		if loadSite.Edges.SiteCategories != nil {
+			for _, siteCategory := range loadSite.Edges.SiteCategories {
+				sitesCategories = append(sitesCategories, &SiteCategoryImportExport{
+					Label: siteCategory.Label,
+				})
+			}
+		}
+
+		site.SiteCategory = sitesCategories
+
 		sites = append(sites, site)
 	}
 
 	c.JSON(http.StatusOK, sites)
 }
 
-func insertOrUpdateSite(siteImportExport *SiteImportExport, client *ent.Client) (*ent.Site, error) {
+func insertOrUpdateSite(siteImportExport *SiteImportExport, siteCategoryMap *map[string]int, client *ent.Client) (*ent.Site, error) {
 	existSite, err := client.Site.
 		Query().
 		Where(site.URL(siteImportExport.URL)).
@@ -866,6 +883,22 @@ func insertOrUpdateSite(siteImportExport *SiteImportExport, client *ent.Client) 
 		}
 	}
 
+	if siteImportExport.SiteCategory != nil && len(siteImportExport.SiteCategory) > 0 {
+		var siteCategoryIDs = make([]int, 0)
+		for _, siteCategory := range siteImportExport.SiteCategory {
+			siteCategoryID, ok := (*siteCategoryMap)[siteCategory.Label]
+			if ok {
+				siteCategoryIDs = append(siteCategoryIDs, siteCategoryID)
+			}
+		}
+
+		existSite.Update().
+			ClearSiteCategories().
+			AddSiteCategoryIDs(siteCategoryIDs...).
+			Save(context.Background())
+
+	}
+
 	resSite, err := client.Site.
 		Query().
 		Where(site.ID(existSite.ID)).
@@ -905,9 +938,44 @@ func (h *SiteHandler) ImportSites(c *gin.Context) {
 		return
 	}
 
+	// Site Category
+	_, err = h.Client.SiteCategory.
+		Delete().
+		Exec(context.Background())
+
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	siteCategoryMap := make(map[string]int)
+	for _, reqSite := range reqSites {
+		if reqSite.SiteCategory != nil && len(reqSite.SiteCategory) > 0 {
+			for _, siteCategory := range reqSite.SiteCategory {
+				_, ok := siteCategoryMap[siteCategory.Label]
+				if !ok {
+					newSiteCategory, err := h.Client.SiteCategory.
+						Create().
+						SetLabel(siteCategory.Label).
+						Save(context.Background())
+
+					if err != nil {
+						c.AbortWithError(http.StatusBadRequest, err)
+						return
+					}
+
+					siteCategoryMap[siteCategory.Label] = newSiteCategory.ID
+				}
+			}
+		}
+	}
+
+	fmt.Println(siteCategoryMap)
+	// Site
+
 	var resSites []*ent.Site
 	for _, reqSite := range reqSites {
-		site, err := insertOrUpdateSite(reqSite, h.Client)
+		site, err := insertOrUpdateSite(reqSite, &siteCategoryMap, h.Client)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
