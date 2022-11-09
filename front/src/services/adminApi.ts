@@ -39,6 +39,7 @@ export type Site = {
   cannot_crawl_at: string;
   cannot_crawl: boolean;
 };
+
 export type SiteWithCategory = Site & {
   site_categories: SiteCategory[];
 };
@@ -70,6 +71,7 @@ export type NestedSiteWithCrawlRuleAndCategoryServerResponse = Site & {
 export type SiteCategory = {
   id: number;
   label: string;
+  sites_count?: number;
 };
 
 export type GetSiteCategoriesArg = {

@@ -36,38 +36,55 @@ func (h *SiteCategoryHandler) GetSiteCategories(c *gin.Context) {
 
 	categories, err := h.Client.SiteCategory.
 		Query().
+		WithSites().
 		Order(ent.Desc(sitecategory.FieldUpdatedAt)).
 		Offset(offset).
 		Limit(pageSize).
 		All(context.Background())
 
 	if err != nil && !ent.IsNotFound(err) {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	if categories == nil {
-		c.AbortWithStatus(http.StatusNotFound)
+		c.AbortWithError(http.StatusNotFound, err)
 	}
 
 	totalCount, err := h.Client.SiteCategory.Query().Count(context.Background())
 
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
+	type ResponseSiteCategory struct {
+		ID         int    `json:"id"`
+		Label      string `json:"label"`
+		SitesCount int    `json:"sites_count"`
+	}
+
 	type ResponseJson struct {
-		TotalCount int                 `json:"totalCount"`
-		TotalPage  int                 `json:"totalPage"`
-		PageSize   int                 `json:"pageSize"`
-		Data       []*ent.SiteCategory `json:"data"`
+		TotalCount int                     `json:"totalCount"`
+		TotalPage  int                     `json:"totalPage"`
+		PageSize   int                     `json:"pageSize"`
+		Data       []*ResponseSiteCategory `json:"data"`
+	}
+
+	resSiteCategories := make([]*ResponseSiteCategory, 0)
+
+	for _, category := range categories {
+		resSiteCategories = append(resSiteCategories, &ResponseSiteCategory{
+			ID:         category.ID,
+			Label:      category.Label,
+			SitesCount: len(category.Edges.Sites), // TODO: ここでクエリを発行しているので、N+1問題が発生している
+		})
 	}
 
 	c.JSON(http.StatusOK, ResponseJson{
 		TotalCount: totalCount,
 		TotalPage:  int(math.Ceil(float64(totalCount) / float64(pageSize))),
 		PageSize:   pageSize,
-		Data:       categories,
+		Data:       resSiteCategories,
 	})
 }
 

@@ -118,6 +118,7 @@ const SiteCategories: NextPageWithLayout = () => {
                 <TableRow>
                   <TableCell>ID</TableCell>
                   <TableCell>Label</TableCell>
+                  <TableCell>Site Count</TableCell>
                   <TableCell></TableCell>
                   <TableCell></TableCell>
                 </TableRow>
@@ -128,6 +129,7 @@ const SiteCategories: NextPageWithLayout = () => {
                     <TableRow key={siteCategory.id}>
                       <TableCell>{siteCategory.id}</TableCell>
                       <TableCell>{siteCategory.label}</TableCell>
+                      <TableCell>{siteCategory.sites_count}</TableCell>
                       <TableCell>
                         <Button
                           onClick={onClickEditButtonHandler.bind(
