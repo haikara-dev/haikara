@@ -24,7 +24,7 @@ type FormInput = {
   name: string;
   url: string;
   feed_url: string;
-  site_category_ids: number[];
+  site_category_ids: number[] | boolean;
   article_selector: string;
   title_selector: string;
   link_selector: string;
@@ -95,6 +95,22 @@ const AddSiteForm = () => {
 
       const trimmedFeedUrl = data.feed_url.trim();
 
+      const formatSiteCategoryIds = () => {
+        if (data.site_category_ids === false) {
+          return [];
+        }
+
+        if (Array.isArray(data.site_category_ids)) {
+          return data.site_category_ids.map((val) => {
+            return Number(val);
+          });
+        } else {
+          return [Number(data.site_category_ids)];
+        }
+      };
+
+      const siteCategoryIds = formatSiteCategoryIds();
+
       await addSite({
         body: {
           // TODO: ここでidを生成しているが、使わない
@@ -116,11 +132,7 @@ const AddSiteForm = () => {
             is_time_humanize: data.is_time_humanize,
             is_spa: data.is_spa,
           },
-          site_category_ids: data.site_category_ids
-            ? data.site_category_ids.map((val) => {
-                return Number(val);
-              })
-            : [],
+          site_category_ids: siteCategoryIds,
         },
       });
 

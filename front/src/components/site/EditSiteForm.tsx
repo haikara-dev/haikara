@@ -25,7 +25,7 @@ type FormInput = {
   name: string;
   url: string;
   feed_url: string;
-  site_category_ids: number[];
+  site_category_ids: number[] | boolean;
   cannot_crawl: boolean;
   article_selector: string;
   title_selector: string;
@@ -85,6 +85,21 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
 
       const trimmedfeed_url = data.feed_url.trim();
 
+      const formatSiteCategoryIds = () => {
+        if (data.site_category_ids === false) {
+          return [];
+        }
+
+        if (Array.isArray(data.site_category_ids)) {
+          return data.site_category_ids.map((val) => {
+            return Number(val);
+          });
+        } else {
+          return [Number(data.site_category_ids)];
+        }
+      };
+
+      const siteCategoryIds = formatSiteCategoryIds();
       await updateSite({
         id: site.id,
         body: {
@@ -106,11 +121,7 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
             is_time_humanize: data.is_time_humanize,
             is_spa: data.is_spa,
           },
-          site_category_ids: data.site_category_ids
-            ? data.site_category_ids.map((val) => {
-                return Number(val);
-              })
-            : [],
+          site_category_ids: siteCategoryIds,
         },
       }).unwrap();
       goBackPage();
