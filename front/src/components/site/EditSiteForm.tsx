@@ -12,17 +12,20 @@ import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
 
 import {
-  SiteWithSiteCrawlRule,
+  SiteWithCrawlRuleAndCategory,
+  useGetSiteCategoriesQuery,
   useGetSiteRssUrlMutation,
   useUpdateSiteMutation,
 } from "@/services/adminApi";
 import Stack from "@mui/material/Stack";
 import { useRouter } from "next/router";
+import { FormGroup } from "@mui/material";
 
 type FormInput = {
   name: string;
   url: string;
   feed_url: string;
+  site_category_ids: number[];
   cannot_crawl: boolean;
   article_selector: string;
   title_selector: string;
@@ -53,7 +56,7 @@ const schema = yup.object({
 });
 
 export type AddSiteFormProps = {
-  site: SiteWithSiteCrawlRule;
+  site: SiteWithCrawlRuleAndCategory;
 };
 
 const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
@@ -70,6 +73,7 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
 
   const [updateSite] = useUpdateSiteMutation();
   const [getSiteRssUrl] = useGetSiteRssUrlMutation();
+  const { data: siteCategories } = useGetSiteCategoriesQuery({ page: 1 });
 
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
     try {
@@ -102,6 +106,11 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
             is_time_humanize: data.is_time_humanize,
             is_spa: data.is_spa,
           },
+          site_category_ids: data.site_category_ids
+            ? data.site_category_ids.map((val) => {
+                return Number(val);
+              })
+            : [],
         },
       }).unwrap();
       goBackPage();
@@ -169,6 +178,27 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
             sx={{ flexGrow: 1 }}
             InputLabelProps={{ shrink: true }}
           />
+
+          <div>Site Category</div>
+          {siteCategories && (
+            <FormGroup>
+              {siteCategories.data.map((siteCategory) => (
+                <FormControlLabel
+                  key={siteCategory.id}
+                  control={
+                    <Checkbox
+                      defaultChecked={site.site_categories.some(
+                        (cat) => cat.id === siteCategory.id
+                      )}
+                      value={siteCategory.id}
+                      {...register("site_category_ids")}
+                    />
+                  }
+                  label={siteCategory.label}
+                />
+              ))}
+            </FormGroup>
+          )}
 
           <div>Site Crawl Rule</div>
 

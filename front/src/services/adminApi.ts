@@ -52,13 +52,15 @@ export type SiteCrawlRule = {
   is_spa: boolean;
 };
 
-export type SiteWithSiteCrawlRule = Site & {
+export type SiteWithCrawlRuleAndCategory = Site & {
   site_crawl_rule: SiteCrawlRule;
+  site_categories: SiteCategory[];
 };
 
-export type NestedSiteWithSiteCrawlRuleServerResponse = Site & {
+export type NestedSiteWithCrawlRuleAndCategoryServerResponse = Site & {
   edges?: {
     site_crawl_rule: SiteCrawlRule;
+    site_categories: SiteCategory[];
   };
 };
 
@@ -117,12 +119,18 @@ export type UpdateUserRoleArg = {
 };
 
 export type AddSiteArg = {
-  body: SiteWithSiteCrawlRule;
+  body: Site & {
+    site_crawl_rule: SiteCrawlRule;
+    site_category_ids: number[];
+  };
 };
 
 export type UpdateSiteArg = {
   id: number;
-  body: SiteWithSiteCrawlRule;
+  body: Site & {
+    site_crawl_rule: SiteCrawlRule;
+    site_category_ids: number[];
+  };
 };
 
 export type ActiveSiteArg = {
@@ -187,7 +195,7 @@ export type ImportSiteArg = {
 
 export type ImportSiteResponse = {
   count: string;
-  reqSites: SiteWithSiteCrawlRule[];
+  reqSites: SiteWithCrawlRuleAndCategory[];
 };
 
 export type AdminDashboard = {
@@ -350,17 +358,20 @@ export const adminApi = createApi({
             ]
           : [{ type: "Sites", id: "PARTIAL-LIST" }],
     }),
-    getSiteWithSiteCrawlRule: builder.query<SiteWithSiteCrawlRule, number>({
+    getSiteWithSiteCrawlRule: builder.query<
+      SiteWithCrawlRuleAndCategory,
+      number
+    >({
       // TODO: site.cannot_crawl = site.cannot_crawl_at ? true : false;
       query: (id) => ({
         url: `/sites/${id}`,
       }),
       transformResponse: (
-        response: NestedSiteWithSiteCrawlRuleServerResponse
+        response: NestedSiteWithCrawlRuleAndCategoryServerResponse
       ) => {
         return addCanCrawlFieldToSite(
-          unNestNestedSiteWithSiteCrawlRuleServerResponse(response)
-        ) as SiteWithSiteCrawlRule;
+          unNestNestedSiteWithCrawlRuleAndCategoryServerResponse(response)
+        ) as SiteWithCrawlRuleAndCategory;
       },
       providesTags: (result, error, id) => [
         { type: "SiteWithSiteCrawlRules", id },
@@ -561,14 +572,15 @@ const addCanCrawlFieldToSite = (site: Site) => {
  *  {edges.site_crawl_rule} -> {site_crawl_rule}
  * @param response
  */
-const unNestNestedSiteWithSiteCrawlRuleServerResponse = (
-  response: NestedSiteWithSiteCrawlRuleServerResponse
+const unNestNestedSiteWithCrawlRuleAndCategoryServerResponse = (
+  response: NestedSiteWithCrawlRuleAndCategoryServerResponse
 ) => {
   const site_crawl_rule = response.edges?.site_crawl_rule;
+  const site_categories = response.edges?.site_categories;
   delete response.edges;
   const parsedResponse = {
     ...response,
-  } as SiteWithSiteCrawlRule;
+  } as SiteWithCrawlRuleAndCategory;
   if (site_crawl_rule) {
     parsedResponse.site_crawl_rule = site_crawl_rule;
   } else {
@@ -584,6 +596,13 @@ const unNestNestedSiteWithSiteCrawlRuleServerResponse = (
       is_spa: false,
     };
   }
+
+  if (site_categories) {
+    parsedResponse.site_categories = site_categories;
+  } else {
+    parsedResponse.site_categories = [];
+  }
+
   return parsedResponse;
 };
 

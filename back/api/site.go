@@ -119,6 +119,7 @@ func (h *SiteHandler) GetSite(c *gin.Context) {
 		Query().
 		Where(site.ID(id)).
 		WithSiteCrawlRule().
+		WithSiteCategories().
 		Only(context.Background())
 
 	if err != nil {
@@ -136,11 +137,12 @@ func (h *SiteHandler) GetSite(c *gin.Context) {
 func (h *SiteHandler) CreateSite(c *gin.Context) {
 
 	type RequestSite struct {
-		Name          string            `json:"name"`
-		URL           string            `json:"url"`
-		FeedURL       string            `json:"feed_url"`
-		Active        bool              `json:"active"`
-		SiteCrawlRule ent.SiteCrawlRule `json:"site_crawl_rule"`
+		Name            string            `json:"name"`
+		URL             string            `json:"url"`
+		FeedURL         string            `json:"feed_url"`
+		Active          bool              `json:"active"`
+		SiteCrawlRule   ent.SiteCrawlRule `json:"site_crawl_rule"`
+		SiteCategoryIds []int             `json:"site_category_ids"`
 	}
 
 	var reqSite RequestSite
@@ -184,19 +186,30 @@ func (h *SiteHandler) CreateSite(c *gin.Context) {
 		return
 	}
 
+	if len(reqSite.SiteCategoryIds) > 0 {
+		_, err = resSite.Update().
+			AddSiteCategoryIDs(reqSite.SiteCategoryIds...).
+			Save(context.Background())
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+	}
+
 	c.JSON(http.StatusOK, &resSite)
 }
 
 func (h *SiteHandler) UpdateSite(c *gin.Context) {
 
 	type RequestSite struct {
-		ID            int               `json:"id"`
-		Name          string            `json:"name"`
-		URL           string            `json:"url"`
-		FeedURL       string            `json:"feed_url"`
-		Active        bool              `json:"active"`
-		CannotCrawl   bool              `json:"cannot_crawl"`
-		SiteCrawlRule ent.SiteCrawlRule `json:"site_crawl_rule"`
+		ID              int               `json:"id"`
+		Name            string            `json:"name"`
+		URL             string            `json:"url"`
+		FeedURL         string            `json:"feed_url"`
+		Active          bool              `json:"active"`
+		CannotCrawl     bool              `json:"cannot_crawl"`
+		SiteCrawlRule   ent.SiteCrawlRule `json:"site_crawl_rule"`
+		SiteCategoryIds []int             `json:"site_category_ids"`
 	}
 
 	strId := c.Param("id")
@@ -304,6 +317,25 @@ func (h *SiteHandler) UpdateSite(c *gin.Context) {
 			SetIsSpa(reqSite.SiteCrawlRule.IsSpa).
 			Save(context.Background())
 
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+	}
+
+	if len(reqSite.SiteCategoryIds) > 0 {
+		_, err = resSite.Update().
+			ClearSiteCategories().
+			AddSiteCategoryIDs(reqSite.SiteCategoryIds...).
+			Save(context.Background())
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+	} else {
+		_, err = resSite.Update().
+			ClearSiteCategories().
+			Save(context.Background())
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return

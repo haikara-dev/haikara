@@ -15,14 +15,16 @@ import Stack from "@mui/material/Stack";
 import { useRouter } from "next/router";
 import {
   useAddSiteMutation,
+  useGetSiteCategoriesQuery,
   useGetSiteRssUrlByUrlMutation,
 } from "@/services/adminApi";
+import { FormGroup } from "@mui/material";
 
 type FormInput = {
   name: string;
   url: string;
   feed_url: string;
-
+  site_category_ids: number[];
   article_selector: string;
   title_selector: string;
   link_selector: string;
@@ -81,6 +83,7 @@ const AddSiteForm = () => {
 
   const [addSite] = useAddSiteMutation();
   const [getSiteRssUrlByUrl] = useGetSiteRssUrlByUrlMutation();
+  const { data: siteCategories } = useGetSiteCategoriesQuery({ page: 1 });
 
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
     try {
@@ -113,6 +116,11 @@ const AddSiteForm = () => {
             is_time_humanize: data.is_time_humanize,
             is_spa: data.is_spa,
           },
+          site_category_ids: data.site_category_ids
+            ? data.site_category_ids.map((val) => {
+                return Number(val);
+              })
+            : [],
         },
       });
 
@@ -187,6 +195,24 @@ const AddSiteForm = () => {
           sx={{ flexGrow: 1 }}
           InputLabelProps={{ shrink: true }}
         />
+
+        <div>Site Category</div>
+        {siteCategories && (
+          <FormGroup>
+            {siteCategories.data.map((siteCategory) => (
+              <FormControlLabel
+                key={siteCategory.id}
+                control={
+                  <Checkbox
+                    value={siteCategory.id}
+                    {...register("site_category_ids")}
+                  />
+                }
+                label={siteCategory.label}
+              />
+            ))}
+          </FormGroup>
+        )}
 
         <div>Site Crawl Rule</div>
 
