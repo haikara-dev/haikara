@@ -37,7 +37,9 @@
     "eslint-config-next": "12.2.5",
     "jest": "^28.1.3",
     "jest-environment-jsdom": "^28.1.3",
+    "msw": "^0.48.1",
     "prettier": "2.7.1",
-    "typescript": "4.8.2"
+    "typescript": "4.8.2",
+    "whatwg-fetch": "^3.6.2"
   }
 }
