@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
 import { Auth, getAuth } from "firebase/auth";
 import { login, logout, setCurrentUser } from "@/features/auth/authSlice";
-import { useLazyGetCurrentUserQuery, userApi } from "@/services/userApi";
+import { useLazyGetCurrentUserQuery } from "@/services/userApi";
 
 export const useAuth = () => {
   const auth: Auth = getAuth();
