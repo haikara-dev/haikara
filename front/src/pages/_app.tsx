@@ -1,6 +1,6 @@
 import type { AppProps } from "next/app";
 import { CssBaseline } from "@mui/material";
-import { store } from "@/app/store";
+import { setupStore } from "@/app/store";
 import { Provider } from "react-redux";
 import "../firebaseConfig";
 import { ReactElement, ReactNode } from "react";
@@ -15,6 +15,8 @@ export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
+
+const store = setupStore();
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
