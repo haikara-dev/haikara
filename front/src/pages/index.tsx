@@ -41,6 +41,7 @@ const Home: NextPageWithLayout = () => {
         pageSize: 10,
         data: [],
       },
+      isLoading,
     },
   ] = useLazyGetArticlesQuery();
 
@@ -66,7 +67,10 @@ const Home: NextPageWithLayout = () => {
       <Typography variant="h3" component="h1">
         haikara
       </Typography>
-      {authUser && (
+
+      {authUser && isLoading ? (
+        <div>loading...</div>
+      ) : (
         <Stack gap={3} alignItems="center">
           <PaginationHeader
             totalCount={articles.totalCount}

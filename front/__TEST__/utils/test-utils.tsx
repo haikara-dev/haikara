@@ -63,3 +63,37 @@ const mockRouter: NextRouter = {
   isFallback: false,
   isPreview: false,
 };
+
+export function mockAuthorizedAuth(role: "user" | "admin" = "user") {
+  return {
+    auth: {
+      currentUser: {
+        id: 1,
+        email: "a@b",
+        role: role,
+      },
+      authUser: {
+        displayName: "a",
+        email: "a@b",
+        phoneNumber: null,
+        photoURL: null,
+        providerId: "",
+        uid: "1",
+
+        emailVerified: false,
+        isAnonymous: false,
+        metadata: {},
+        providerData: [],
+        refreshToken: "",
+        tenantId: null,
+
+        delete: jest.fn(),
+        getIdToken: jest.fn(),
+        getIdTokenResult: jest.fn(),
+        reload: jest.fn(),
+        toJSON: jest.fn(),
+      },
+      isAdmin: false,
+    },
+  };
+}

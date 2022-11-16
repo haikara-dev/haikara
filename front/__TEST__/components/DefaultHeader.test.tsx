@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import DefaultHeader from "@/components/DefaultHeader";
 import "@testing-library/jest-dom";
-import { renderWithProviders } from "../utils/test-utils";
+import { mockAuthorizedAuth, renderWithProviders } from "../utils/test-utils";
 
 jest.mock("firebase/auth", () => {
   return {
@@ -39,37 +39,7 @@ describe("DefaultHeader", () => {
 
   it("render heading with Login", () => {
     renderWithProviders(<DefaultHeader />, {
-      preloadedState: {
-        auth: {
-          currentUser: {
-            id: 1,
-            email: "a@b",
-            role: "user",
-          },
-          authUser: {
-            displayName: "a",
-            email: "a@b",
-            phoneNumber: null,
-            photoURL: null,
-            providerId: "",
-            uid: "1",
-
-            emailVerified: false,
-            isAnonymous: false,
-            metadata: {},
-            providerData: [],
-            refreshToken: "",
-            tenantId: null,
-
-            delete: jest.fn(),
-            getIdToken: jest.fn(),
-            getIdTokenResult: jest.fn(),
-            reload: jest.fn(),
-            toJSON: jest.fn(),
-          },
-          isAdmin: false,
-        },
-      },
+      preloadedState: { ...mockAuthorizedAuth("user") },
     });
 
     const link = screen.getByText(/コンソール/i);
