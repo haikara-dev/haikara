@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import DashBord from "@/components/dashboard/DashBord";
 import "@testing-library/jest-dom";
 import { renderWithProviders } from "../../utils/test-utils";
-import { server } from "../../../src/mocks/server";
+import { server } from "../../mocks/server";
 import { rest } from "msw";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
