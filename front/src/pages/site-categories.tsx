@@ -1,6 +1,6 @@
 import { NextPageWithLayout } from "@/pages/_app";
 import Typography from "@mui/material/Typography";
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import Stack from "@mui/material/Stack";
 import PaginationHeader from "@/components/ui/PaginationHeader";
@@ -42,7 +42,6 @@ const SiteCategories: NextPageWithLayout = () => {
   const [deleteSiteCategory] = useDeleteSiteCategoryMutation();
 
   const [addOpen, setAddOpen] = useState(false);
-
   const [editOpen, setEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<SiteCategory | null>(null);
 
@@ -64,33 +63,36 @@ const SiteCategories: NextPageWithLayout = () => {
     setEditTarget(null);
   };
 
-  const onClickAddButtonHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    handleAddOpen();
-  };
+  const onClickAddButtonHandler = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      handleAddOpen();
+    },
+    []
+  );
 
-  const onClickEditButtonHandler = (
-    siteCategory: SiteCategory,
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    e.preventDefault();
-    handleEditOpen(siteCategory);
-  };
+  const onClickEditButtonHandler = useCallback(
+    (siteCategory: SiteCategory, e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      handleEditOpen(siteCategory);
+    },
+    []
+  );
 
-  const onClickDeleteHandler = async (
-    id: number,
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    e.preventDefault();
-    await deleteSiteCategory(id);
-  };
+  const onClickDeleteHandler = useCallback(
+    async (id: number, e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      await deleteSiteCategory(id);
+    },
+    []
+  );
 
-  const handleChangePagination = (
-    e: React.ChangeEvent<unknown>,
-    page: number
-  ) => {
-    router.push({ query: { page: page } });
-  };
+  const handleChangePagination = useCallback(
+    (e: React.ChangeEvent<unknown>, page: number) => {
+      router.push({ query: { page: page } });
+    },
+    [page]
+  );
 
   useEffect(() => {
     setPage(router.query.page ? parseInt(router.query.page.toString()) : 1);
