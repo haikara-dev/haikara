@@ -67,4 +67,15 @@ export const handlers = [
       })
     );
   }),
+  rest.get(BACKEND_ADMIN_API_URL + "/site-categories", (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        totalCount: 1,
+        totalPage: 1,
+        pageSize: 100,
+        data: [{ id: 17, label: "メディア", sites_count: 3 }],
+      })
+    );
+  }),
 ];
