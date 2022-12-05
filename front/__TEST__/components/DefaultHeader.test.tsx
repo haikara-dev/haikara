@@ -1,11 +1,15 @@
-import { screen } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import DefaultHeader from "@/components/DefaultHeader";
 import "@testing-library/jest-dom";
 import { mockAuthorizedAuth, renderWithProviders } from "../utils/test-utils";
-
+const mockSignOut = jest.fn(() => Promise.resolve(true));
 jest.mock("firebase/auth", () => {
   return {
-    getAuth: jest.fn(),
+    getAuth: jest.fn().mockImplementation(() => {
+      return {
+        signOut: mockSignOut,
+      };
+    }),
   };
 });
 
@@ -15,7 +19,7 @@ jest.mock("firebase/auth", () => {
 //     useAppSelector: jest.fn().mockImplementation((selecter) => selecter()),
 //   };
 // });
-//
+
 // jest.mock("@/features/auth/authSlice", () => {
 //   return {
 //     logout: jest.fn(),
@@ -44,8 +48,34 @@ describe("DefaultHeader", () => {
 
     const link = screen.getByText(/コンソール/i);
     expect(link).toBeInTheDocument();
+  });
+
+  it("render heading with Logout", () => {
+    renderWithProviders(<DefaultHeader />, {
+      preloadedState: { ...mockAuthorizedAuth("user") },
+    });
 
     const logout = screen.getByText(/ログアウト/i);
     expect(logout).toBeInTheDocument();
+  });
+
+  it("handleOnClickLogout", async () => {
+    renderWithProviders(<DefaultHeader />, {
+      preloadedState: { ...mockAuthorizedAuth("user") },
+      router: {
+        push: jest.fn(),
+      },
+    });
+
+    const button = screen.getByRole("button", { name: /ログアウト/i });
+    expect(button).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(button);
+    });
+
+    await waitFor(() => {
+      expect(mockSignOut).toHaveBeenCalled();
+    });
   });
 });
