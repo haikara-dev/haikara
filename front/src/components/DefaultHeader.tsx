@@ -24,7 +24,7 @@ const DefaultHeader: FC<DefaultHeaderProps> = () => {
       dispatch(logout());
       router.push("/");
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     }
   };
 
