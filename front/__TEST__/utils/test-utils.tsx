@@ -93,7 +93,7 @@ export function mockAuthorizedAuth(role: "user" | "admin" = "user") {
         reload: jest.fn(),
         toJSON: jest.fn(),
       },
-      isAdmin: false,
+      isAdmin: role === "admin",
     },
   };
 }
