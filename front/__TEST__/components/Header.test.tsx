@@ -1,5 +1,5 @@
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
-import DefaultHeader from "@/components/DefaultHeader";
+import Header from "@/components/Header";
 import "@testing-library/jest-dom";
 import { mockAuthorizedAuth, renderWithProviders } from "../utils/test-utils";
 const mockSignOut = jest.fn(() => Promise.resolve(true));
@@ -27,9 +27,9 @@ jest.mock("firebase/auth", () => {
 //   };
 // });
 
-describe("DefaultHeader", () => {
+describe("Header", () => {
   it("render heading", () => {
-    renderWithProviders(<DefaultHeader />);
+    renderWithProviders(<Header />);
 
     const heading = screen.getByRole("link", {
       name: /haikara/i,
@@ -42,7 +42,7 @@ describe("DefaultHeader", () => {
   });
 
   it("render heading with Login", () => {
-    renderWithProviders(<DefaultHeader />, {
+    renderWithProviders(<Header />, {
       preloadedState: { ...mockAuthorizedAuth("user") },
     });
 
@@ -51,7 +51,7 @@ describe("DefaultHeader", () => {
   });
 
   it("render heading with Logout", () => {
-    renderWithProviders(<DefaultHeader />, {
+    renderWithProviders(<Header />, {
       preloadedState: { ...mockAuthorizedAuth("user") },
     });
 
@@ -60,7 +60,7 @@ describe("DefaultHeader", () => {
   });
 
   it("handleOnClickLogout", async () => {
-    renderWithProviders(<DefaultHeader />, {
+    renderWithProviders(<Header />, {
       preloadedState: { ...mockAuthorizedAuth("user") },
       router: {
         push: jest.fn(),

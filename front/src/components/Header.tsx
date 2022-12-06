@@ -7,7 +7,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
 
-import { FC } from "react";
+import { FC, MouseEvent } from "react";
 import { logout, selectAuthUser } from "@/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { useRouter } from "next/router";
@@ -23,6 +23,16 @@ const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+
+  const handleOnClickLogout = async (e: MouseEvent<HTMLButtonElement>) => {
+    try {
+      await auth.signOut();
+      dispatch(logout());
+      router.push("/");
+    } catch (error) {
+      // console.error(error);
+    }
+  };
 
   return (
     <AppBar
@@ -61,18 +71,7 @@ const Header: FC<HeaderProps> = ({ handleToggleDrawer }) => {
               <Button color="inherit">コンソール</Button>
             </Link>
 
-            <Button
-              color="inherit"
-              onClick={async () => {
-                try {
-                  await auth.signOut();
-                  dispatch(logout());
-                  router.push("/");
-                } catch (error) {
-                  console.error(error);
-                }
-              }}
-            >
+            <Button color="inherit" onClick={handleOnClickLogout}>
               ログアウト
             </Button>
           </>

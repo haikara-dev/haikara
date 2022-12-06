@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
 
-import { FC } from "react";
+import { FC, MouseEvent } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { logout, selectAuthUser } from "@/features/auth/authSlice";
 import { useRouter } from "next/router";
@@ -17,6 +17,17 @@ const DefaultHeader: FC<DefaultHeaderProps> = () => {
   const authUser = useAppSelector(selectAuthUser);
   const dispatch = useAppDispatch();
   const router = useRouter();
+
+  const handleOnClickLogout = async (e: MouseEvent<HTMLButtonElement>) => {
+    try {
+      await auth.signOut();
+      dispatch(logout());
+      router.push("/");
+    } catch (error) {
+      // console.error(error);
+    }
+  };
+
   return (
     <AppBar position="fixed">
       <Toolbar>
@@ -40,18 +51,7 @@ const DefaultHeader: FC<DefaultHeaderProps> = () => {
               <Button color="inherit">コンソール</Button>
             </Link>
 
-            <Button
-              color="inherit"
-              onClick={async () => {
-                try {
-                  await auth.signOut();
-                  dispatch(logout());
-                  router.push("/");
-                } catch (error) {
-                  console.error(error);
-                }
-              }}
-            >
+            <Button color="inherit" onClick={handleOnClickLogout}>
               ログアウト
             </Button>
           </>
