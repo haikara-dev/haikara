@@ -61,7 +61,7 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
 
       <Header handleToggleDrawer={handleToggleDrawer} />
       <DrawerMenu open={open} />
-      <Main open={open} as="main">
+      <Main open={open} as="main" data-testid="AdminLayout-Main">
         <DrawerHeader />
         <Container
           sx={{
