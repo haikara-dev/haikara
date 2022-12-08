@@ -9,7 +9,7 @@ export type LabeledTextProps = {
 const LabeledText: React.FC<LabeledTextProps> = ({ label, value }) => {
   return (
     <Stack>
-      <span>{label}</span>
+      <span role={"label"}>{label}</span>
       <TextField
         value={value}
         aria-readonly={true}

@@ -14,12 +14,11 @@ const PaginationHeader: React.FC<PaginationHeaderProps> = ({
   pageSize,
   dataSize,
 }) => {
-  return (
-    <Stack>
-      {totalCount}件中　{(page - 1) * pageSize + 1} -{" "}
-      {(page - 1) * pageSize + dataSize}件
-    </Stack>
-  );
+  const text = `${totalCount}件中 ${(page - 1) * pageSize + 1} - ${
+    (page - 1) * pageSize + dataSize
+  }件`;
+
+  return <Stack>{text}</Stack>;
 };
 
 export default PaginationHeader;
