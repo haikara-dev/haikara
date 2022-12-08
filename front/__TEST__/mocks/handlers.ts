@@ -78,4 +78,21 @@ export const handlers = [
       })
     );
   }),
+  rest.put(
+    BACKEND_ADMIN_API_URL + "/site-categories/:id",
+    async (req, res, ctx) => {
+      const { id } = req.params;
+      const { label } = await req.json();
+      return res(
+        ctx.status(200),
+        ctx.json({
+          id: id,
+          created_at: "2022-11-18T13:25:23+09:00",
+          updated_at: "2022-12-08T12:41:12+09:00",
+          label: label,
+          edges: {},
+        })
+      );
+    }
+  ),
 ];
