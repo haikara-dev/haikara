@@ -19,6 +19,7 @@ export const handlers = [
       })
     );
   }),
+
   rest.get(BACKEND_API_URL + "/dashboard", (req, res, ctx) => {
     // If authenticated, return a mocked user details
     return res(
@@ -29,6 +30,7 @@ export const handlers = [
       })
     );
   }),
+
   rest.get(BACKEND_ADMIN_API_URL + "/articles", (req, res, ctx) => {
     return res(
       ctx.status(200),
@@ -67,6 +69,7 @@ export const handlers = [
       })
     );
   }),
+
   rest.get(BACKEND_ADMIN_API_URL + "/site-categories", (req, res, ctx) => {
     return res(
       ctx.status(200),
@@ -78,6 +81,7 @@ export const handlers = [
       })
     );
   }),
+
   rest.put(
     BACKEND_ADMIN_API_URL + "/site-categories/:id",
     async (req, res, ctx) => {
@@ -87,6 +91,22 @@ export const handlers = [
         ctx.status(200),
         ctx.json({
           id: id,
+          created_at: "2022-11-18T13:25:23+09:00",
+          updated_at: "2022-12-08T12:41:12+09:00",
+          label: label,
+          edges: {},
+        })
+      );
+    }
+  ),
+  rest.post(
+    BACKEND_ADMIN_API_URL + "/site-categories",
+    async (req, res, ctx) => {
+      const { label } = await req.json();
+      return res(
+        ctx.status(200),
+        ctx.json({
+          id: 2,
           created_at: "2022-11-18T13:25:23+09:00",
           updated_at: "2022-12-08T12:41:12+09:00",
           label: label,

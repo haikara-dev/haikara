@@ -49,7 +49,7 @@ describe("EditSiteCategoryFormDialog", () => {
     expect(input.value).toEqual("変更後のラベル");
   });
 
-  it("labelを変更してsumimtすると正しくapiが呼ばれること", async () => {
+  it("labelを変更してsubmitすると正しくapiが呼ばれること", async () => {
     const mockFn = jest.fn();
     const BACKEND_ADMIN_API_URL: string =
       process.env.NEXT_PUBLIC_BACKEND_ADMIN_API_URL!;
