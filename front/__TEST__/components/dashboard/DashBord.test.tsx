@@ -24,13 +24,9 @@ describe("DashBord", () => {
 
     renderWithProviders(<DashBord />);
 
-    const loading = screen.getByText(/Loading/i);
-    expect(loading).toBeInTheDocument();
+    expect(screen.getByText(/Loading/i)).toBeInTheDocument();
 
-    const site = await screen.findByText(/Site: 57/i);
-    expect(site).toBeInTheDocument();
-
-    const article = await screen.findByText(/Article: 6810/i);
-    expect(article).toBeInTheDocument();
+    expect(await screen.findByText(/Site: 57/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Article: 6810/i)).toBeInTheDocument();
   });
 });
