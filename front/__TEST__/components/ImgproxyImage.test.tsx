@@ -1,5 +1,7 @@
 import ImgproxyImage from "@/components/ImgproxyImage";
 
 describe("ImgproxyImage", () => {
-  it.todo("renders");
+  it("renders", () => {
+    expect(ImgproxyImage).toBeTruthy();
+  });
 });

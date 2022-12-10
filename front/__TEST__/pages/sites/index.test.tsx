@@ -1,5 +1,11 @@
 import Sites from "@/pages/sites";
-
+jest.mock("firebase/auth", () => {
+  return {
+    getAuth: jest.fn(),
+  };
+});
 describe("Sites", () => {
-  it.todo("should render");
+  it("should render", () => {
+    expect(Sites).toBeTruthy();
+  });
 });

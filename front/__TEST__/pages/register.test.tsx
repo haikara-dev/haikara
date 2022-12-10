@@ -1,5 +1,11 @@
 import Register from "@/pages/register";
-
+jest.mock("firebase/auth", () => {
+  return {
+    getAuth: jest.fn(),
+  };
+});
 describe("Register", () => {
-  it.todo("should render correctly");
+  it("should render correctly", () => {
+    expect(Register).toBeTruthy();
+  });
 });

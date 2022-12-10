@@ -1,5 +1,11 @@
 import SiteEdit from "@/pages/sites/[id]/edit";
-
+jest.mock("firebase/auth", () => {
+  return {
+    getAuth: jest.fn(),
+  };
+});
 describe("SiteEdit", () => {
-  it.todo("should render");
+  it("should render", () => {
+    expect(SiteEdit).toBeTruthy();
+  });
 });

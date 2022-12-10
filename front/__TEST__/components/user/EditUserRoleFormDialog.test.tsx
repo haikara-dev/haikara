@@ -1,5 +1,7 @@
 import EditUserRoleFormDialog from "@/components/user/EditUserRoleFormDialog";
 
 describe("EditUserRoleFormDialog", () => {
-  it.todo("renders");
+  it("renders", () => {
+    expect(EditUserRoleFormDialog).toBeTruthy();
+  });
 });

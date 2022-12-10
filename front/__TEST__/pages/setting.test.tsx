@@ -1,5 +1,11 @@
 import Setting from "@/pages/setting";
-
+jest.mock("firebase/auth", () => {
+  return {
+    getAuth: jest.fn(),
+  };
+});
 describe("Setting", () => {
-  it.todo("should render correctly");
+  it("should render correctly", () => {
+    expect(Setting).toBeTruthy();
+  });
 });

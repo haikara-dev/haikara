@@ -1,5 +1,11 @@
 import Articles from "@/pages/article";
-
+jest.mock("firebase/auth", () => {
+  return {
+    getAuth: jest.fn(),
+  };
+});
 describe("Article", () => {
-  it.todo("should render correctly");
+  it("should", () => {
+    expect(Articles).toBeTruthy();
+  });
 });

@@ -1,5 +1,11 @@
 import SiteAdd from "@/pages/sites/add";
-
+jest.mock("firebase/auth", () => {
+  return {
+    getAuth: jest.fn(),
+  };
+});
 describe("SiteAdd", () => {
-  it.todo("should render");
+  it("should render", () => {
+    expect(SiteAdd).toBeTruthy();
+  });
 });
