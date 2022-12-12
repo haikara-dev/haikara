@@ -70,6 +70,37 @@ export const handlers = [
     );
   }),
 
+  rest.put(BACKEND_ADMIN_API_URL + "/sites/:id", async (req, res, ctx) => {
+    const { id } = req.params;
+    return res(
+      ctx.status(200),
+      ctx.json({
+        id,
+        name: "non-no/fashion",
+        url: "https://nonno.hpplus.jp/fashion",
+        active: true,
+        created_at: "2022-10-23T16:29:46+09:00",
+        updated_at: "2022-12-12T10:54:32+09:00",
+        edges: {
+          site_crawl_rule: {
+            id: 1,
+            article_selector: "article",
+            title_selector: "h1",
+            link_selector: "a",
+            has_data_to_list: true,
+            date_selector: "time",
+            date_layout: "YYYY-MM-DD",
+            is_time_humanize: false,
+            is_spa: false,
+            created_at: "2022-10-23T16:29:46+09:00",
+            updated_at: "2022-12-12T10:54:32+09:00",
+            edges: {},
+          },
+        },
+      })
+    );
+  }),
+
   rest.get(BACKEND_ADMIN_API_URL + "/site-categories", (req, res, ctx) => {
     return res(
       ctx.status(200),
