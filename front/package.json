@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest --watch --verbose",
+    "test": "DEBUG_PRINT_LIMIT=30000 jest --watch --verbose",
     "test:coverage": "jest --coverage"
   },
   "dependencies": {

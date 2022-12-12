@@ -39,9 +39,12 @@ type FormInput = {
 };
 
 const schema = yup.object({
-  name: yup.string().required("必須です"),
-  url: yup.string().required("必須です").url("正しいURLを入力してください"),
-  feed_url: yup.string().url("正しいURLを入力してください"),
+  name: yup.string().required("サイト名は必須です"),
+  url: yup
+    .string()
+    .required("サイトURLは必須です")
+    .url("正しいサイトURLを入力してください"),
+  feed_url: yup.string().url("正しいFeed URLを入力してください"),
   cannot_crawl: yup.boolean(),
 
   article_selector: yup.string(),
@@ -57,6 +60,22 @@ const schema = yup.object({
 
 export type AddSiteFormProps = {
   site: SiteWithCrawlRuleAndCategory;
+};
+
+export const formatSiteCategoryIds = (
+  site_category_ids: number[] | boolean | number
+) => {
+  if (site_category_ids === false) {
+    return [];
+  }
+
+  if (Array.isArray(site_category_ids)) {
+    return site_category_ids.map((val) => {
+      return Number(val);
+    });
+  } else {
+    return [Number(site_category_ids)];
+  }
 };
 
 const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
@@ -85,21 +104,8 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
 
       const trimmedfeed_url = data.feed_url.trim();
 
-      const formatSiteCategoryIds = () => {
-        if (data.site_category_ids === false) {
-          return [];
-        }
+      const siteCategoryIds = formatSiteCategoryIds(data.site_category_ids);
 
-        if (Array.isArray(data.site_category_ids)) {
-          return data.site_category_ids.map((val) => {
-            return Number(val);
-          });
-        } else {
-          return [Number(data.site_category_ids)];
-        }
-      };
-
-      const siteCategoryIds = formatSiteCategoryIds();
       await updateSite({
         id: site.id,
         body: {

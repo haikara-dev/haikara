@@ -11,7 +11,6 @@ import TableCell from "@mui/material/TableCell";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   DryRunResult,
-  Site,
   SiteWithCategory,
   useActiveSiteMutation,
   useDeActiveSiteMutation,
@@ -137,7 +136,9 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
           </Typography>
         ))}
       </TableCell>
-      <TableCell>{site.feed_url ? "RSS" : "-"}</TableCell>
+      <TableCell data-testid="have-feed-url">
+        {site.feed_url ? "RSS" : "-"}
+      </TableCell>
       <TableCell>
         <Button onClick={onClickEditHandler}>Edit</Button>
       </TableCell>

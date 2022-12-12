@@ -34,7 +34,6 @@ export const authSlice = createSlice({
     },
     setAdmin: (state, action: PayloadAction<boolean>) => {
       state.isAdmin = action.payload;
-      console.log("setAdmin", state.isAdmin);
     },
   },
 });
