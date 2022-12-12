@@ -39,9 +39,12 @@ type FormInput = {
 };
 
 const schema = yup.object({
-  name: yup.string().required("必須です"),
-  url: yup.string().required("必須です").url("正しいURLを入力してください"),
-  feed_url: yup.string().url("正しいURLを入力してください"),
+  name: yup.string().required("サイト名は必須です"),
+  url: yup
+    .string()
+    .required("サイトURLは必須です")
+    .url("正しいサイトURLを入力してください"),
+  feed_url: yup.string().url("正しいFeed URLを入力してください"),
   cannot_crawl: yup.boolean(),
 
   article_selector: yup.string(),
@@ -100,6 +103,7 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
       };
 
       const siteCategoryIds = formatSiteCategoryIds();
+
       await updateSite({
         id: site.id,
         body: {

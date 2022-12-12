@@ -103,7 +103,6 @@ describe("EditSiteForm", () => {
       expect(goBackPageFn).toHaveBeenCalledTimes(1);
     });
   });
-  it.todo("バリデーションのテスト");
 });
 
 describe("title_selector", () => {
@@ -114,9 +113,26 @@ describe("title_selector", () => {
       "サイト"
     );
   });
+
+  it("空の場合エラーになる", async () => {
+    const site = createSite();
+    renderWithProviders(<EditSiteForm site={site} />);
+
+    const input = screen.getByRole("textbox", { name: "Site Name" });
+    fireEvent.change(input, { target: { value: "" } });
+
+    const submitButton = screen.getByRole("button", { name: /更新/i });
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("サイト名は必須です")).toBeInTheDocument();
+    });
+  });
 });
 
-describe("title_selector", () => {
+describe("Site URL", () => {
   it("site propsからの初期値が反映する", () => {
     const site = createSite();
     renderWithProviders(<EditSiteForm site={site} />);
@@ -124,9 +140,45 @@ describe("title_selector", () => {
       "https://a.b"
     );
   });
+
+  it("空の場合はエラーになる", async () => {
+    const site = createSite();
+    renderWithProviders(<EditSiteForm site={site} />);
+
+    const input = screen.getByRole("textbox", { name: "Site URL" });
+    fireEvent.change(input, { target: { value: "" } });
+
+    const submitButton = screen.getByRole("button", { name: /更新/i });
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("サイトURLは必須です")).toBeInTheDocument();
+    });
+  });
+
+  it("正しいURLでない場合はエラーになる", async () => {
+    const site = createSite();
+    renderWithProviders(<EditSiteForm site={site} />);
+
+    const input = screen.getByRole("textbox", { name: "Site URL" });
+    fireEvent.change(input, { target: { value: "htt://sss.bbb" } });
+
+    const submitButton = screen.getByRole("button", { name: /更新/i });
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("正しいサイトURLを入力してください")
+      ).toBeInTheDocument();
+    });
+  });
 });
 
-describe("title_selector", () => {
+describe("Feed URL", () => {
   it("site propsからの初期値が反映する", () => {
     const site = createSite();
     renderWithProviders(<EditSiteForm site={site} />);
@@ -136,7 +188,7 @@ describe("title_selector", () => {
   });
 });
 
-describe("article_selector", () => {
+describe("カテゴリ", () => {
   it("site propsからの初期値が反映する", async () => {
     const site = createSite();
     renderWithProviders(<EditSiteForm site={site} />);
