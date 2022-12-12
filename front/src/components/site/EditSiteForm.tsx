@@ -62,6 +62,22 @@ export type AddSiteFormProps = {
   site: SiteWithCrawlRuleAndCategory;
 };
 
+export const formatSiteCategoryIds = (
+  site_category_ids: number[] | boolean | number
+) => {
+  if (site_category_ids === false) {
+    return [];
+  }
+
+  if (Array.isArray(site_category_ids)) {
+    return site_category_ids.map((val) => {
+      return Number(val);
+    });
+  } else {
+    return [Number(site_category_ids)];
+  }
+};
+
 const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
   const {
     register,
@@ -88,21 +104,7 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
 
       const trimmedfeed_url = data.feed_url.trim();
 
-      const formatSiteCategoryIds = () => {
-        if (data.site_category_ids === false) {
-          return [];
-        }
-
-        if (Array.isArray(data.site_category_ids)) {
-          return data.site_category_ids.map((val) => {
-            return Number(val);
-          });
-        } else {
-          return [Number(data.site_category_ids)];
-        }
-      };
-
-      const siteCategoryIds = formatSiteCategoryIds();
+      const siteCategoryIds = formatSiteCategoryIds(data.site_category_ids);
 
       await updateSite({
         id: site.id,

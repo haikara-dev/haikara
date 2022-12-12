@@ -1,5 +1,7 @@
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
-import EditSiteForm from "@/components/site/EditSiteForm";
+import EditSiteForm, {
+  formatSiteCategoryIds,
+} from "@/components/site/EditSiteForm";
 import { renderWithProviders } from "../../utils/test-utils";
 import { server } from "../../mocks/server";
 import { rest } from "msw";
@@ -332,5 +334,17 @@ describe("cannot_crawl", () => {
     expect(
       screen.getByRole("checkbox", { name: /cannot_crawl/ })
     ).not.toBeChecked();
+  });
+});
+
+describe("formatSiteCategoryIds", () => {
+  it("falseたったら空を返す", () => {
+    expect(formatSiteCategoryIds(false)).toEqual([]);
+  });
+  it("配列だったら配列を返す", () => {
+    expect(formatSiteCategoryIds([1, 2])).toEqual([1, 2]);
+  });
+  it("数値たったら１つの数値が入った配列を返す", () => {
+    expect(formatSiteCategoryIds(1)).toEqual([1]);
   });
 });
