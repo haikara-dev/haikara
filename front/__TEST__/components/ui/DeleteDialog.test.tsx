@@ -67,5 +67,31 @@ describe("DeleteDialog", () => {
     expect(getNodeText(agreeButton)).toBe("削除");
   });
 
-  it.todo("open, close");
+  it("open, close", () => {
+    const { rerender } = render(
+      <DeleteDialog
+        open={true}
+        title="記事の削除"
+        cancelHandler={jest.fn()}
+        agreeHandler={jest.fn()}
+      >
+        削除しますか？
+      </DeleteDialog>
+    );
+
+    expect(screen.getByRole("dialog")).toBeVisible();
+
+    rerender(
+      <DeleteDialog
+        open={false}
+        title="記事の削除"
+        cancelHandler={jest.fn()}
+        agreeHandler={jest.fn()}
+      >
+        削除しますか？
+      </DeleteDialog>
+    );
+
+    expect(screen.getByRole("dialog")).not.toBeVisible();
+  });
 });
