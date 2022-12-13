@@ -186,12 +186,12 @@ describe("SiteRow", () => {
       ],
     };
 
-    const openDryDialog = jest.fn();
+    const openDryDialogFn = jest.fn();
 
     renderWithProviders(
       <Table>
         <TableBody>
-          <SiteRow site={site} openDryDialog={openDryDialog} />
+          <SiteRow site={site} openDryDialog={openDryDialogFn} />
         </TableBody>
       </Table>
     );
@@ -200,7 +200,49 @@ describe("SiteRow", () => {
       fireEvent.click(screen.getByRole("button", { name: /dry/i }));
     });
     await waitFor(() => {
-      expect(openDryDialog).toHaveBeenCalledTimes(1);
+      expect(openDryDialogFn).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("右矢印ボランクリックで詳細ページへ遷移する", async () => {
+    const site = {
+      id: 1,
+      name: "サイト",
+      url: "https://a.b",
+      feed_url: "",
+      active: true,
+      cannot_crawl_at: "",
+      cannot_crawl: false,
+      site_categories: [
+        {
+          id: 1,
+          label: "カテゴリA",
+        },
+      ],
+    };
+
+    const openDryDialog = jest.fn();
+
+    const nextFn = jest.fn();
+
+    renderWithProviders(
+      <Table>
+        <TableBody>
+          <SiteRow site={site} openDryDialog={openDryDialog} />
+        </TableBody>
+      </Table>,
+      {
+        router: {
+          push: nextFn,
+        },
+      }
+    );
+
+    await act(() => {
+      fireEvent.click(screen.getByRole("button", { name: /detail/i }));
+    });
+    await waitFor(() => {
+      expect(nextFn).toHaveBeenCalledTimes(1);
     });
   });
 });

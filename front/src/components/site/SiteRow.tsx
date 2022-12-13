@@ -9,6 +9,8 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 
 import DeleteIcon from "@mui/icons-material/Delete";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+
 import {
   DryRunResult,
   SiteWithCategory,
@@ -85,6 +87,11 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
     router.push(`/sites/${site.id}`);
   };
 
+  const onClickNextHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    router.push(`/sites/${site.id}`);
+  };
+
   const onClickEditHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     router.push(`/sites/${site.id}/edit`);
@@ -148,6 +155,11 @@ const SiteRow: React.FC<SiteRowProps> = ({ site, openDryDialog }) => {
       <TableCell>
         <IconButton onClick={onClickRemoveHandler} aria-label="remove">
           <DeleteIcon />
+        </IconButton>
+      </TableCell>
+      <TableCell>
+        <IconButton onClick={onClickNextHandler} aria-label="detail">
+          <ArrowForwardIosIcon />
         </IconButton>
       </TableCell>
     </TableRow>
