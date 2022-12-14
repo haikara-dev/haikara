@@ -4,7 +4,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import DialogContent from "@mui/material/DialogContent";
-import { FC, ReactNode } from "react";
+import React, { FC, ReactNode } from "react";
 
 export type DeleteDialogProps = {
   open: boolean;
@@ -14,16 +14,16 @@ export type DeleteDialogProps = {
   cancelButtonLabel?: string;
   agreeButtonLabel?: string;
 
-  cancelHandler: () => void;
-  agreeHandler: () => void;
+  cancelHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  agreeHandler: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 const DeleteDialog: FC<DeleteDialogProps> = ({
   open,
   title,
   children,
-  cancelButtonLabel = "Chancel",
-  agreeButtonLabel = "Agree",
+  cancelButtonLabel = "キャンセル",
+  agreeButtonLabel = "削除",
   cancelHandler,
   agreeHandler,
 }) => {

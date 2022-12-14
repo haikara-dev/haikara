@@ -22,6 +22,7 @@ import {
 import AddSiteCategoryFormDialog from "@/components/site-category/AddSiteCategoryFormDialog";
 import EditSiteCategoryFormDialog from "@/components/site-category/EditSiteCategoryFormDialog";
 import IconButton from "@mui/material/IconButton";
+import DeleteDialog from "@/components/ui/DeleteDialog";
 
 const SiteCategories: NextPageWithLayout = () => {
   const router = useRouter();
@@ -44,6 +45,8 @@ const SiteCategories: NextPageWithLayout = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<SiteCategory | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
 
   const handleAddOpen = () => {
     setAddOpen(true);
@@ -82,7 +85,8 @@ const SiteCategories: NextPageWithLayout = () => {
   const onClickDeleteHandler = useCallback(
     async (id: number, e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
-      await deleteSiteCategory(id);
+      setDeleteOpen(true);
+      setDeleteTarget(id);
     },
     []
   );
@@ -92,6 +96,22 @@ const SiteCategories: NextPageWithLayout = () => {
       router.push({ query: { page: page } });
     },
     [page]
+  );
+
+  const handleCloseDeleteDialog = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      setDeleteOpen(false);
+    },
+    [deleteOpen]
+  );
+  const handleAgreeDeleteDialog = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      await deleteSiteCategory(deleteTarget!);
+      setDeleteOpen(false);
+    },
+    [deleteOpen]
   );
 
   useEffect(() => {
@@ -181,6 +201,17 @@ const SiteCategories: NextPageWithLayout = () => {
           siteCategory={editTarget}
         />
       )}
+
+      {
+        <DeleteDialog
+          open={deleteOpen}
+          title="カテゴリの削除"
+          agreeHandler={handleAgreeDeleteDialog}
+          cancelHandler={handleCloseDeleteDialog}
+        >
+          削除します。
+        </DeleteDialog>
+      }
     </div>
   );
 };

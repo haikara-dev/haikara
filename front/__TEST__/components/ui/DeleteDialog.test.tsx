@@ -29,8 +29,8 @@ describe("DeleteDialog", () => {
     expect(cancelButton).toBeInTheDocument();
     expect(agreeButton).toBeInTheDocument();
 
-    expect(getNodeText(cancelButton)).toBe("Chancel");
-    expect(getNodeText(agreeButton)).toBe("Agree");
+    expect(getNodeText(cancelButton)).toBe("キャンセル");
+    expect(getNodeText(agreeButton)).toBe("削除");
   });
 
   it("should render label Chancel button", () => {
@@ -93,5 +93,43 @@ describe("DeleteDialog", () => {
     );
 
     expect(screen.getByRole("dialog")).not.toBeVisible();
+  });
+
+  it("should call cancelHandler", () => {
+    const cancelHandler = jest.fn();
+    render(
+      <DeleteDialog
+        open={true}
+        title="記事の削除"
+        cancelHandler={cancelHandler}
+        agreeHandler={jest.fn()}
+      >
+        削除しますか？
+      </DeleteDialog>
+    );
+
+    const cancelButton = screen.getByTestId("cancel-button");
+    cancelButton.click();
+
+    expect(cancelHandler).toHaveBeenCalled();
+  });
+
+  it("should call agreeHandler", () => {
+    const agreeHandler = jest.fn();
+    render(
+      <DeleteDialog
+        open={true}
+        title="記事の削除"
+        cancelHandler={jest.fn()}
+        agreeHandler={agreeHandler}
+      >
+        削除しますか？
+      </DeleteDialog>
+    );
+
+    const agreeButton = screen.getByTestId("agree-button");
+    agreeButton.click();
+
+    expect(agreeHandler).toHaveBeenCalled();
   });
 });
