@@ -1,4 +1,3 @@
-// src/mocks/handlers.js
 import { rest } from "msw";
 
 const BACKEND_API_URL: string = process.env.NEXT_PUBLIC_BACKEND_API_URL!;
@@ -130,6 +129,15 @@ export const handlers = [
       );
     }
   ),
+
+  rest.delete(
+    BACKEND_ADMIN_API_URL + "/site-categories/:id",
+    async (req, res, ctx) => {
+      const { id } = req.params;
+      return res(ctx.status(200), ctx.json({ message: "deleted" }));
+    }
+  ),
+
   rest.post(
     BACKEND_ADMIN_API_URL + "/site-categories",
     async (req, res, ctx) => {
