@@ -105,6 +105,24 @@ describe("EditSiteForm", () => {
       expect(goBackPageFn).toHaveBeenCalledTimes(1);
     });
   });
+
+  it("戻る", async () => {
+    const goBackPageFn = jest.fn();
+
+    const site = createSite();
+    renderWithProviders(<EditSiteForm site={site} />, {
+      router: {
+        back: goBackPageFn,
+      },
+    });
+    const backButton = screen.getByRole("button", { name: /戻る/i });
+    await act(async () => {
+      fireEvent.click(backButton);
+    });
+    await waitFor(() => {
+      expect(goBackPageFn).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 
 describe("title_selector", () => {
@@ -187,6 +205,35 @@ describe("Feed URL", () => {
     expect(screen.getByRole("textbox", { name: "Feed URL" })).toHaveValue(
       "https://a.b/feed"
     );
+  });
+
+  it("feed urlを取得する", async () => {
+    const mockFn = jest.fn();
+
+    server.use(
+      rest.get(
+        BACKEND_ADMIN_API_URL + "/sites/get-rss-url/:id",
+        (req, res, ctx) => {
+          mockFn();
+          return res(ctx.status(200), ctx.json({ url: "https://c/d/feed" }));
+        }
+      )
+    );
+
+    const site = createSite();
+    renderWithProviders(<EditSiteForm site={site} />);
+    const button = screen.getByRole("button", { name: "Get Feed URL" });
+    await act(() => {
+      fireEvent.click(button);
+    });
+    await waitFor(() => {
+      expect(mockFn).toBeCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("textbox", { name: "Feed URL" })).toHaveValue(
+        "https://c/d/feed"
+      );
+    });
   });
 });
 

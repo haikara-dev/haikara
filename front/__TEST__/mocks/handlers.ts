@@ -100,6 +100,13 @@ export const handlers = [
     );
   }),
 
+  rest.get(
+    BACKEND_ADMIN_API_URL + "/sites/get-rss-url/:id",
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json({ url: "https://c/d/feed" }));
+    }
+  ),
+
   rest.get(BACKEND_ADMIN_API_URL + "/site-categories", (req, res, ctx) => {
     return res(
       ctx.status(200),

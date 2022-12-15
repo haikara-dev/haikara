@@ -132,7 +132,7 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
       }).unwrap();
       goBackPage();
     } catch (err) {
-      console.log(err);
+      //
     }
   };
 
@@ -148,6 +148,7 @@ const EditSiteForm: React.FC<AddSiteFormProps> = ({ site }) => {
   const goBackPage = () => {
     router.back();
   };
+
   const onClickBackPageHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     goBackPage();
