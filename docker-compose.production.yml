@@ -21,6 +21,27 @@ services:
     networks:
       - front_bridge
 
+  node_admin:
+    build:
+      context: .
+      dockerfile: ./docker/node_admin/Dockerfile
+    #    restart: on-failure
+    container_name: node_admin_container
+    tty: true
+    environment:
+      - VIRTUAL_HOST=${ADMIN_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${ADMIN_LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - LETSENCRYPT_TEST=${LETSENCRYPT_TEST}
+    volumes:
+      - ./admin:/app/admin
+    # command: sh -c "cd /app/frontend && yarn install && yarn start"
+    ports:
+      - "3000:3000"
+    networks:
+      - front_bridge
+
+
   go:
     build:
       context: .
