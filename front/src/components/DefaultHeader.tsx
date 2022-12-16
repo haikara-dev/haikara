@@ -47,10 +47,6 @@ const DefaultHeader: FC<DefaultHeaderProps> = () => {
 
         {authUser ? (
           <>
-            <Link href="/dashboard" passHref>
-              <Button color="inherit">コンソール</Button>
-            </Link>
-
             <Button color="inherit" onClick={handleOnClickLogout}>
               ログアウト
             </Button>

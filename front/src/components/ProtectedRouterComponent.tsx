@@ -40,7 +40,7 @@ const ProtectedRouterComponent: React.FC<ProtectedComponentProps> = ({
 
       if (adminRoutes.includes(router.pathname)) {
         if (!isAdmin) {
-          router.push("/dashboard");
+          router.push("/");
         }
       }
 
