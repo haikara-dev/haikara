@@ -37,7 +37,7 @@ services:
       - ./admin:/app/admin
     # command: sh -c "cd /app/frontend && yarn install && yarn start"
     ports:
-      - "3000:3000"
+      - "3001:3001"
     networks:
       - front_bridge
 
