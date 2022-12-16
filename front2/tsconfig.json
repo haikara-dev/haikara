@@ -1,0 +1,18 @@
+{
+  "extends": "./next.tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths" : {
+      "@/components/*": ["src/components/*"],
+      "@/services/*": ["src/services/*"],
+      "@/features/*": ["src/features/*"],
+      "@/app/*": ["src/app/*"],
+      "@/fixtures/*": ["src/fixtures/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/pages/*": ["src/pages/*"],
+      "@/styles/*": ["src/styles/*"],
+      "@/types/*": ["src/types/*"],
+      "@/utils/*": ["src/utils/*"]
+    }
+  }
+}
