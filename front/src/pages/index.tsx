@@ -2,8 +2,6 @@ import React, { ReactElement, useEffect, useState } from "react";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { NextPageWithLayout } from "@/pages/_app";
 import Typography from "@mui/material/Typography";
-import { useAppSelector } from "@/app/hooks";
-import { selectAuthUser } from "@/features/auth/authSlice";
 import Stack from "@mui/material/Stack";
 import PaginationHeader from "@/components/ui/PaginationHeader";
 import Card from "@mui/material/Card";
@@ -14,12 +12,11 @@ import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
 import ImgproxyImage from "@/components/ImgproxyImage";
 import Pagination from "@mui/material/Pagination";
-import { GetArticlesArg, useLazyGetArticlesQuery } from "@/services/adminApi";
+import { GetArticlesArg, useLazyGetArticlesQuery } from "@/services/userApi";
 import { useRouter } from "next/router";
 import StyledSiteName from "@/components/site/StyledSiteName";
 
 const Home: NextPageWithLayout = () => {
-  const authUser = useAppSelector(selectAuthUser);
   const buildQuery = (): GetArticlesArg => {
     const state: GetArticlesArg = {
       page: router.query.page ? parseInt(router.query.page.toString()) : 1,
@@ -57,9 +54,7 @@ const Home: NextPageWithLayout = () => {
   }, [router]);
 
   useEffect(() => {
-    if (authUser) {
-      getArticles(query);
-    }
+    getArticles(query);
   }, [query]);
 
   return (
@@ -68,7 +63,7 @@ const Home: NextPageWithLayout = () => {
         haikara
       </Typography>
 
-      {authUser && isLoading ? (
+      {isLoading ? (
         <div>loading...</div>
       ) : (
         <Stack gap={3} alignItems="center">

@@ -55,13 +55,18 @@ func StartWebserver() {
 
 	r.GET("/health-check", healthCheck)
 
+	noneAuthorized := r.Group("/api")
+	noneAuthorized.Use(cors.New(config))
+	{
+		noneAuthorized.GET("/articles", apiArticleHandler.GetAllArticles)
+	}
+
 	authorized := r.Group("/api")
 	authorized.Use(cors.New(config))
 	authorized.Use(middleware.AuthMiddleware())
 	{
 		authorized.POST("/users/create", apiUserHandler.CreateUserByUUIDAndEmail)
 		authorized.GET("/users/current", apiUserHandler.GetCurrentUser)
-
 		authorized.GET("/dashboard", apiDashboardHandler.GetDashboard)
 	}
 

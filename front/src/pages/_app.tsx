@@ -2,10 +2,8 @@ import type { AppProps } from "next/app";
 import { CssBaseline } from "@mui/material";
 import { setupStore } from "@/app/store";
 import { Provider } from "react-redux";
-import "../firebaseConfig";
 import { ReactElement, ReactNode } from "react";
 import { NextPage } from "next";
-import ProtectedRouterComponent from "@/components/ProtectedRouterComponent";
 import Head from "next/head";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
@@ -28,9 +26,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
       <CssBaseline />
       <Provider store={store}>
-        <ProtectedRouterComponent>
-          {getLayout(<Component {...pageProps} />)}
-        </ProtectedRouterComponent>
+        {getLayout(<Component {...pageProps} />)}
       </Provider>
     </>
   );

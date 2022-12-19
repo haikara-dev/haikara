@@ -4,7 +4,7 @@ import Container from "@mui/material/Container";
 import Footer from "@/components/Footer";
 import React, { FC, ReactNode } from "react";
 import styled from "@mui/material/styles/styled";
-import DefaultHeader from "@/components/DefaultHeader";
+import Header from "@/components/Header";
 
 type DefaultLayoutProps = {
   children: ReactNode;
@@ -32,7 +32,7 @@ const DefaultLayout: FC<DefaultLayoutProps> = ({ children }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <DefaultHeader />
+      <Header />
 
       <Box
         component="main"
