@@ -1,19 +1,12 @@
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-
 const Footer = () => {
   return (
-    <Box component="footer" pt={20}>
-      <Container
-        sx={{
-          textAlign: "center",
-        }}
-      >
+    <footer className="pt-10">
+      <div className="text-center">
         <a href="https://haikara.dev" target="_blank" rel="noopener noreferrer">
           ©︎haikara
         </a>
-      </Container>
-    </Box>
+      </div>
+    </footer>
   );
 };
 

@@ -1,20 +1,14 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { NextPageWithLayout } from "@/pages/_app";
-import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
+
 import PaginationHeader from "@/components/ui/PaginationHeader";
-import Card from "@mui/material/Card";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import CardMedia from "@mui/material/CardMedia";
-import CardContent from "@mui/material/CardContent";
-import CardActions from "@mui/material/CardActions";
-import ImgproxyImage from "@/components/ImgproxyImage";
-import Pagination from "@mui/material/Pagination";
+
 import { GetArticlesArg, useLazyGetArticlesQuery } from "@/services/userApi";
 import { useRouter } from "next/router";
 import StyledSiteName from "@/components/site/StyledSiteName";
+import ImgproxyImage from "@/components/ImgproxyImage";
+import PaginationNav from "@/components/ui/PaginationNav";
 
 const Home: NextPageWithLayout = () => {
   const buildQuery = (): GetArticlesArg => {
@@ -59,87 +53,73 @@ const Home: NextPageWithLayout = () => {
 
   return (
     <div>
-      <Typography variant="h3" component="h1">
-        haikara
-      </Typography>
+      <h1>haikara</h1>
 
       {isLoading ? (
         <div>loading...</div>
       ) : (
-        <Stack gap={3} alignItems="center">
+        <div className={"gap-3 flex flex-col items-center"}>
           <PaginationHeader
             totalCount={articles.totalCount}
             page={query.page!}
             pageSize={articles.pageSize}
             dataSize={articles.data.length}
           />
-
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 3,
-            }}
-          >
+          <PaginationNav
+            page={query.page!}
+            count={articles.totalPage}
+            onChange={handleChangePagination}
+          />
+          <div className="flex flex-wrap gap-3">
             {articles.data.map((article) => {
               return (
-                <Card key={article.id} sx={{ maxWidth: 345 }}>
+                <div key={article.id} className="max-w-sm">
                   {article.ogp_image_url && (
-                    <CardMedia
-                      style={{
-                        width: "1OO%",
-                        height: "auto",
-                        position: "relative",
-                      }}
-                    >
+                    <div className="w-full h-auto relative">
                       <ImgproxyImage
                         src={article.ogp_image_url}
                         width={360 * 2}
                         height={189 * 2}
                         objectFit="contain"
                       />
-                    </CardMedia>
+                    </div>
                   )}
 
-                  <CardContent>
-                    <Typography variant="h6" component="h2">
-                      {article.title}
-                    </Typography>
+                  <div>
+                    <h2>{article.title}</h2>
                     <div>
                       {new Date(article.published_at).toLocaleDateString()}
                     </div>
                     <div>
-                      <Button
-                        component="a"
+                      <a
                         href={article.site.url}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         @ <StyledSiteName>{article.site.name}</StyledSiteName>
-                      </Button>
+                      </a>
                     </div>
-                  </CardContent>
+                  </div>
 
-                  <CardActions>
-                    <Button
-                      component="a"
+                  <div>
+                    <a
                       href={article.url}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       Read
-                    </Button>
-                  </CardActions>
-                </Card>
+                    </a>
+                  </div>
+                </div>
               );
             })}
-          </Box>
-          <Pagination
-            page={query.page}
-            count={articles.totalPage}
-            onChange={handleChangePagination}
+          </div>
+          <div
+          // page={query.page}
+          // count={articles.totalPage}
+          // onChange={handleChangePagination}
           />
-        </Stack>
+        </div>
       )}
     </div>
   );

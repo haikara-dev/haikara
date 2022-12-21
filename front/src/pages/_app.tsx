@@ -1,11 +1,10 @@
 import type { AppProps } from "next/app";
-import { CssBaseline } from "@mui/material";
 import { setupStore } from "@/app/store";
 import { Provider } from "react-redux";
 import { ReactElement, ReactNode } from "react";
 import { NextPage } from "next";
 import Head from "next/head";
-
+import "@/styles/globals.css";
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
 };
@@ -24,7 +23,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       <Head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
-      <CssBaseline />
       <Provider store={store}>
         {getLayout(<Component {...pageProps} />)}
       </Provider>

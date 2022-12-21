@@ -1,4 +1,3 @@
-import Stack from "@mui/material/Stack";
 import React from "react";
 
 export type PaginationHeaderProps = {
@@ -18,7 +17,7 @@ const PaginationHeader: React.FC<PaginationHeaderProps> = ({
     (page - 1) * pageSize + dataSize
   }件`;
 
-  return <Stack>{text}</Stack>;
+  return <div>{text}</div>;
 };
 
 export default PaginationHeader;

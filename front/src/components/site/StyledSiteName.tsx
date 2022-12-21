@@ -1,5 +1,3 @@
-import Box from "@mui/material/Box";
-
 export type StyledSiteNameProps = {
   children: React.ReactNode;
 };
@@ -12,29 +10,15 @@ const StyledSiteName: React.FC<StyledSiteNameProps> = ({ children }) => {
       {siteNameArray.map((name, index) => {
         if (index === 0) {
           return (
-            <Box
-              component="span"
-              key={index}
-              sx={{
-                display: "inline-block",
-                paddingRight: 1,
-                fontWeight: "bold",
-              }}
-            >
+            <span key={index} className="inline-block pr-1 font-bold">
               {name}
-            </Box>
+            </span>
           );
         }
         return (
-          <Box
-            component="span"
-            key={index}
-            sx={{
-              color: "#999999",
-            }}
-          >
+          <span key={index} className="text-gray-300">
             /{name}
-          </Box>
+          </span>
         );
       })}
     </>
