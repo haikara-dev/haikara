@@ -4,7 +4,7 @@ import { NextPageWithLayout } from "@/pages/_app";
 
 import PaginationHeader from "@/components/ui/PaginationHeader";
 
-import { GetArticlesArg, useLazyGetArticlesQuery } from "@/services/userApi";
+import { GetArticlesArg, useGetArticlesQuery } from "@/services/userApi";
 import { useRouter } from "next/router";
 import StyledSiteName from "@/components/site/StyledSiteName";
 import ImgproxyImage from "@/components/ImgproxyImage";
@@ -23,18 +23,15 @@ const Home: NextPageWithLayout = () => {
   const router = useRouter();
   const [query, setQuery] = useState<GetArticlesArg>(buildQuery());
 
-  const [
-    getArticles,
-    {
-      data: articles = {
-        totalCount: 0,
-        totalPage: 1,
-        pageSize: 10,
-        data: [],
-      },
-      isLoading,
+  const {
+    isLoading,
+    data: articles = {
+      totalCount: 0,
+      totalPage: 1,
+      pageSize: 10,
+      data: [],
     },
-  ] = useLazyGetArticlesQuery();
+  } = useGetArticlesQuery(query);
 
   const handleChangePagination = (
     e: React.ChangeEvent<unknown>,
@@ -46,11 +43,6 @@ const Home: NextPageWithLayout = () => {
   useEffect(() => {
     setQuery(buildQuery());
   }, [router]);
-
-  useEffect(() => {
-    getArticles(query);
-  }, [query]);
-
   return (
     <div>
       <h1>haikara</h1>
@@ -114,11 +106,6 @@ const Home: NextPageWithLayout = () => {
               );
             })}
           </div>
-          <div
-          // page={query.page}
-          // count={articles.totalPage}
-          // onChange={handleChangePagination}
-          />
         </div>
       )}
     </div>

@@ -21,7 +21,6 @@ const PaginationNav: FC<PaginationNavProps> = ({ page, count, onChange }) => {
   const [pages, setPages] = useState<Page[]>([]);
 
   const onClickHandler = (e: React.ChangeEvent<unknown>, page: number) => {
-    console.log("page", page);
     onChange(e, page);
   };
 
