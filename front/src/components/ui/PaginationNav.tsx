@@ -2,7 +2,6 @@ import ChevronLeftIcon from "@heroicons/react/20/solid/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/20/solid/ChevronRightIcon";
 import React, { FC, useEffect, useState } from "react";
 import PaginationNavButton from "@/components/ui/PaginationNavButton";
-import { c, w } from "msw/lib/SetupApi-75fbec12";
 
 type PaginationNavProps = {
   page: number;
