@@ -57,11 +57,7 @@ const Home: NextPageWithLayout = () => {
             pageSize={articles.pageSize}
             dataSize={articles.data.length}
           />
-          <PaginationNav
-            page={query.page!}
-            count={articles.totalPage}
-            onChange={handleChangePagination}
-          />
+
           <div className="flex flex-wrap gap-3">
             {articles.data.map((article) => {
               return (
@@ -106,6 +102,11 @@ const Home: NextPageWithLayout = () => {
               );
             })}
           </div>
+          <PaginationNav
+            page={query.page!}
+            count={articles.totalPage}
+            onChange={handleChangePagination}
+          />
         </div>
       )}
     </div>
