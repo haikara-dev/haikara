@@ -1,7 +1,7 @@
-import { userApi } from "@/services/userApi";
+import { useGetArticlesQuery } from "@/services/userApi";
 
 describe("userApi", () => {
   it("renders", () => {
-    expect(userApi).toBeTruthy();
+    expect(useGetArticlesQuery).toBeTruthy();
   });
 });

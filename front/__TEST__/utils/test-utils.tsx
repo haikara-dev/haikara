@@ -1,11 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import { render } from "@testing-library/react";
 import type { RenderOptions } from "@testing-library/react";
-import type { PreloadedState } from "@reduxjs/toolkit";
-import { Provider } from "react-redux";
 
-import type { AppStore, RootState } from "@/app/store";
-import { setupStore } from "@/app/store";
 import { NextRouter } from "next/router";
 import { RouterContext } from "next/dist/shared/lib/router-context";
 
@@ -13,32 +9,24 @@ import { RouterContext } from "next/dist/shared/lib/router-context";
 // as allows the user to specify other things such as initialState, store.
 interface ExtendedRenderOptions extends Omit<RenderOptions, "queries"> {
   router?: Partial<NextRouter>;
-  preloadedState?: PreloadedState<RootState>;
-  store?: AppStore;
 }
 
 export function renderWithProviders(
   ui: React.ReactElement,
-  {
-    router,
-    preloadedState = {},
-    // Automatically create a store instance if no store was passed in
-    store = setupStore(preloadedState),
-    ...renderOptions
-  }: ExtendedRenderOptions = {}
+  { router, ...renderOptions }: ExtendedRenderOptions = {}
 ) {
   function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
     if (router) {
       return (
         <RouterContext.Provider value={{ ...mockRouter, ...router }}>
-          <Provider store={store}>{children}</Provider>{" "}
+          {children}
         </RouterContext.Provider>
       );
     }
-    return <Provider store={store}>{children}</Provider>;
+    return <>{children}</>;
   }
 
-  return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) };
+  return { ...render(ui, { wrapper: Wrapper, ...renderOptions }) };
 }
 
 const mockRouter: NextRouter = {
