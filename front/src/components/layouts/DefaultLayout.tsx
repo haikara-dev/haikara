@@ -8,14 +8,14 @@ type DefaultLayoutProps = {
 
 const DefaultLayout: FC<DefaultLayoutProps> = ({ children }) => {
   return (
-    <div>
+    <div className="bg-gray-900 text-white">
       <Head>
         <title>haikara</title>
         <meta name="description" content="haikara" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="bg-blue-100">
+      <main>
         <div className="">{children}</div>
         <Footer />
       </main>
