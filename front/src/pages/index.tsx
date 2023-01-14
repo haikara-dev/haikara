@@ -77,7 +77,7 @@ const Home: NextPageWithLayout = () => {
                         />
                       </div>
                     )}
-                    <div className="p-4">
+                    <div className="p-4 grow">
                       <div>
                         <h2>{article.title}</h2>
                         <div>
