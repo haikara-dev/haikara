@@ -65,35 +65,37 @@ const Home: NextPageWithLayout = () => {
                   key={article.id}
                   className="max-w-sm bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-lg"
                 >
-                  {article.ogp_image_url && (
-                    <div className="w-full h-auto relative">
-                      <ImgproxyImage
-                        src={article.ogp_image_url}
-                        width={360 * 2}
-                        height={189 * 2}
-                        objectFit="contain"
-                        className="bg-white"
-                      />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <div>
-                      <h2>{article.title}</h2>
-                      <div>
-                        {new Date(article.published_at).toLocaleDateString()}
+                  <div className="flex flex-col justify-between h-full pb-2">
+                    {article.ogp_image_url && (
+                      <div className="w-full h-auto relative">
+                        <ImgproxyImage
+                          src={article.ogp_image_url}
+                          width={360 * 2}
+                          height={189 * 2}
+                          objectFit="contain"
+                          className="bg-white"
+                        />
                       </div>
+                    )}
+                    <div className="p-4">
                       <div>
-                        <a
-                          href={article.site.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <StyledSiteName>{article.site.name}</StyledSiteName>
-                        </a>
+                        <h2>{article.title}</h2>
+                        <div>
+                          {new Date(article.published_at).toLocaleDateString()}
+                        </div>
+                        <div>
+                          <a
+                            href={article.site.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <StyledSiteName>{article.site.name}</StyledSiteName>
+                          </a>
+                        </div>
                       </div>
                     </div>
 
-                    <div>
+                    <div className="text-center">
                       <a
                         href={article.url}
                         target="_blank"
